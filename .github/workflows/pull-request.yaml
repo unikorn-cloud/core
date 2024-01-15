@@ -22,10 +22,6 @@ jobs:
       run: make touch
     - name: License Checker
       run: make license
-    - name: Validate OpenAPI Schema
-      run: make validate
-    - name: Validate documentation
-      run: sudo apt -y install wbritish && make validate-docs
   Runtime:
     runs-on: ubuntu-latest
     steps:
@@ -44,8 +40,8 @@ jobs:
       run: make touch
     - name: Golang CI/Helm Lint
       run: make lint
-    - name: Build Images
-      run: make charts/unikorn/crds images
+    - name: Build CRDs
+      run: make charts/unikorn-core/crds
     - name: Build Generated Code
       run: make generate
     - name: Generated Code Checked In
