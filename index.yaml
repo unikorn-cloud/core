@@ -1,0 +1,15 @@
+apiVersion: v1
+entries:
+  unikorn-core:
+  - apiVersion: v2
+    appVersion: v0.1.1
+    created: "2024-01-17T09:17:24.775422789Z"
+    description: A Helm chart for deploying Unikorn Core
+    digest: 4fb56b1139994b8b9836320f1a0f0b5107aca5e7acf995bb7da848108e4af68e
+    icon: https://raw.githubusercontent.com/eschercloudai/unikorn/main/icons/default.png
+    name: unikorn-core
+    type: application
+    urls:
+    - https://github.com/eschercloudai/unikorn-core/releases/download/v0.1.1/unikorn-core-v0.1.1.tgz
+    version: v0.1.1
+generated: "2024-01-17T09:17:24.775476449Z"
