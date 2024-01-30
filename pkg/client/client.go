@@ -1,5 +1,6 @@
 /*
 Copyright 2022-2024 EscherCloud.
+Copyright 2024 the Unikorn Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,7 +20,9 @@ package client
 import (
 	"context"
 
-	unikorncorescheme "github.com/unikorn-cloudai/core/generated/clientset/unikorncore/scheme"
+	argoprojv1 "github.com/unikorn-cloud/core/pkg/apis/argoproj/v1alpha1"
+	unikornv1 "github.com/unikorn-cloud/core/pkg/apis/unikorn/v1alpha1"
+	unikornv1fake "github.com/unikorn-cloud/core/pkg/apis/unikorn/v1alpha1/fake"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	kubernetesscheme "k8s.io/client-go/kubernetes/scheme"
@@ -45,7 +48,15 @@ func NewScheme(schemes ...SchemeAdder) (*runtime.Scheme, error) {
 		return nil, err
 	}
 
-	if err := unikorncorescheme.AddToScheme(scheme); err != nil {
+	if err := unikornv1.AddToScheme(scheme); err != nil {
+		return nil, err
+	}
+
+	if err := unikornv1fake.AddToScheme(scheme); err != nil {
+		return nil, err
+	}
+
+	if err := argoprojv1.AddToScheme(scheme); err != nil {
 		return nil, err
 	}
 

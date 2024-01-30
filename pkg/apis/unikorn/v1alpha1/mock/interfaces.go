@@ -11,7 +11,7 @@ package mock
 import (
 	reflect "reflect"
 
-	v1alpha1 "github.com/unikorn-cloudai/core/pkg/apis/unikorn/v1alpha1"
+	v1alpha1 "github.com/unikorn-cloud/core/pkg/apis/unikorn/v1alpha1"
 	gomock "go.uber.org/mock/gomock"
 	v1 "k8s.io/api/core/v1"
 	v10 "k8s.io/apimachinery/pkg/apis/meta/v1"

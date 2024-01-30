@@ -12,9 +12,9 @@ import (
 	context "context"
 	reflect "reflect"
 
-	v1alpha1 "github.com/unikorn-cloudai/core/pkg/apis/unikorn/v1alpha1"
-	cd "github.com/unikorn-cloudai/core/pkg/cd"
-	provisioners "github.com/unikorn-cloudai/core/pkg/provisioners"
+	v1alpha1 "github.com/unikorn-cloud/core/pkg/apis/unikorn/v1alpha1"
+	cd "github.com/unikorn-cloud/core/pkg/cd"
+	provisioners "github.com/unikorn-cloud/core/pkg/provisioners"
 	gomock "go.uber.org/mock/gomock"
 	api "k8s.io/client-go/tools/clientcmd/api"
 )

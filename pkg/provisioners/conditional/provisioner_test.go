@@ -1,5 +1,6 @@
 /*
 Copyright 2022-2024 EscherCloud.
+Copyright 2024 the Unikorn Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,9 +26,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 
-	"github.com/unikorn-cloudai/core/pkg/provisioners"
-	"github.com/unikorn-cloudai/core/pkg/provisioners/conditional"
-	"github.com/unikorn-cloudai/core/pkg/provisioners/mock"
+	"github.com/unikorn-cloud/core/pkg/provisioners"
+	"github.com/unikorn-cloud/core/pkg/provisioners/conditional"
+	"github.com/unikorn-cloud/core/pkg/provisioners/mock"
 
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"

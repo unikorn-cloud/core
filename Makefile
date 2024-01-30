@@ -76,9 +76,7 @@ $(CRDDIR): $(APISRC)
 # Generate a clientset to interact with our custom resources.
 $(GENDIR): $(APISRC)
 	@go install k8s.io/code-generator/cmd/deepcopy-gen@$(CODEGEN_VERSION)
-	@go install k8s.io/code-generator/cmd/client-gen@$(CODEGEN_VERSION)
 	$(GOBIN)/deepcopy-gen --input-dirs $(GENAPIS) -O zz_generated.deepcopy --bounding-dirs $(GENAPIBASE) $(GENARGS)
-	$(GOBIN)/client-gen --clientset-name $(GENCLIENTNAME) --input-base "" --input $(GENAPIS) --output-package $(GENCLIENTS) $(GENARGS)
 	@touch $@
 
 # When checking out, the files timestamps are pretty much random, and make cause

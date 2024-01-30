@@ -1,5 +1,6 @@
 /*
 Copyright 2022-2024 EscherCloud.
+Copyright 2024 the Unikorn Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,15 +24,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 
-	unikornv1 "github.com/unikorn-cloudai/core/pkg/apis/unikorn/v1alpha1"
-	unikornv1fake "github.com/unikorn-cloudai/core/pkg/apis/unikorn/v1alpha1/fake"
-	"github.com/unikorn-cloudai/core/pkg/cd"
-	"github.com/unikorn-cloudai/core/pkg/cd/mock"
-	coreclient "github.com/unikorn-cloudai/core/pkg/client"
-	"github.com/unikorn-cloudai/core/pkg/provisioners"
-	"github.com/unikorn-cloudai/core/pkg/provisioners/application"
-	mockprovisioners "github.com/unikorn-cloudai/core/pkg/provisioners/mock"
-	"github.com/unikorn-cloudai/core/pkg/util"
+	unikornv1 "github.com/unikorn-cloud/core/pkg/apis/unikorn/v1alpha1"
+	unikornv1fake "github.com/unikorn-cloud/core/pkg/apis/unikorn/v1alpha1/fake"
+	"github.com/unikorn-cloud/core/pkg/cd"
+	"github.com/unikorn-cloud/core/pkg/cd/mock"
+	coreclient "github.com/unikorn-cloud/core/pkg/client"
+	"github.com/unikorn-cloud/core/pkg/provisioners"
+	"github.com/unikorn-cloud/core/pkg/provisioners/application"
+	mockprovisioners "github.com/unikorn-cloud/core/pkg/provisioners/mock"
+	"github.com/unikorn-cloud/core/pkg/util"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 

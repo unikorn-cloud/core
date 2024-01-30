@@ -1,5 +1,6 @@
 /*
 Copyright 2022-2024 EscherCloud.
+Copyright 2024 the Unikorn Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,9 +24,9 @@ import (
 
 	"github.com/spf13/pflag"
 
-	coreclient "github.com/unikorn-cloudai/core/pkg/client"
-	"github.com/unikorn-cloudai/core/pkg/constants"
-	"github.com/unikorn-cloudai/core/pkg/manager/options"
+	coreclient "github.com/unikorn-cloud/core/pkg/client"
+	"github.com/unikorn-cloud/core/pkg/constants"
+	"github.com/unikorn-cloud/core/pkg/manager/options"
 
 	klog "k8s.io/klog/v2"
 

@@ -1,5 +1,6 @@
 /*
 Copyright 2022-2024 EscherCloud.
+Copyright 2024 the Unikorn Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -34,10 +35,10 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/spf13/pflag"
 
-	"github.com/unikorn-cloudai/core/pkg/docs/document"
-	"github.com/unikorn-cloudai/core/pkg/docs/formatter"
-	"github.com/unikorn-cloudai/core/pkg/util"
-	"github.com/unikorn-cloudai/core/pkg/util/trie"
+	"github.com/unikorn-cloud/core/pkg/docs/document"
+	"github.com/unikorn-cloud/core/pkg/docs/formatter"
+	"github.com/unikorn-cloud/core/pkg/util"
+	"github.com/unikorn-cloud/core/pkg/util/trie"
 )
 
 var (
