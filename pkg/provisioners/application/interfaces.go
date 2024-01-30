@@ -19,8 +19,8 @@ package application
 import (
 	"context"
 
-	unikornv1 "github.com/eschercloudai/unikorn-core/pkg/apis/unikorn/v1alpha1"
-	"github.com/eschercloudai/unikorn-core/pkg/cd"
+	unikornv1 "github.com/unikorn-cloudai/core/pkg/apis/unikorn/v1alpha1"
+	"github.com/unikorn-cloudai/core/pkg/cd"
 )
 
 // ApplicationGetter abstracts away how an application is looked up for a

@@ -34,10 +34,10 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/spf13/pflag"
 
-	"github.com/eschercloudai/unikorn-core/pkg/docs/document"
-	"github.com/eschercloudai/unikorn-core/pkg/docs/formatter"
-	"github.com/eschercloudai/unikorn-core/pkg/util"
-	"github.com/eschercloudai/unikorn-core/pkg/util/trie"
+	"github.com/unikorn-cloudai/core/pkg/docs/document"
+	"github.com/unikorn-cloudai/core/pkg/docs/formatter"
+	"github.com/unikorn-cloudai/core/pkg/util"
+	"github.com/unikorn-cloudai/core/pkg/util/trie"
 )
 
 var (

@@ -23,7 +23,7 @@ import (
 	"errors"
 	"fmt"
 
-	clientlib "github.com/eschercloudai/unikorn-core/pkg/client"
+	clientlib "github.com/unikorn-cloudai/core/pkg/client"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"

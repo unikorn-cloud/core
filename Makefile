@@ -34,7 +34,7 @@ MOCKGEN_VERSION=v0.3.0
 
 # This is the base directory to generate kubernetes API primitives from e.g.
 # clients and CRDs.
-GENAPIBASE = github.com/eschercloudai/unikorn-core/pkg/apis
+GENAPIBASE = github.com/unikorn-cloud/core/pkg/apis
 
 # This is the list of APIs to generate clients for.
 GENAPIS = $(GENAPIBASE)/unikorn/v1alpha1,$(GENAPIBASE)/unikorn/v1alpha1/fake,$(GENAPIBASE)/argoproj/v1alpha1

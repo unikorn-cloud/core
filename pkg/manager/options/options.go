@@ -19,7 +19,7 @@ package options
 import (
 	"github.com/spf13/pflag"
 
-	"github.com/eschercloudai/unikorn-core/pkg/cd"
+	"github.com/unikorn-cloudai/core/pkg/cd"
 )
 
 // Options defines common controller options.

@@ -21,8 +21,8 @@ package provisioners
 import (
 	"context"
 
-	unikornv1 "github.com/eschercloudai/unikorn-core/pkg/apis/unikorn/v1alpha1"
-	"github.com/eschercloudai/unikorn-core/pkg/cd"
+	unikornv1 "github.com/unikorn-cloudai/core/pkg/apis/unikorn/v1alpha1"
+	"github.com/unikorn-cloudai/core/pkg/cd"
 
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )

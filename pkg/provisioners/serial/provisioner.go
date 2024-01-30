@@ -19,7 +19,7 @@ package serial
 import (
 	"context"
 
-	"github.com/eschercloudai/unikorn-core/pkg/provisioners"
+	"github.com/unikorn-cloudai/core/pkg/provisioners"
 
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )

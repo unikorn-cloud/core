@@ -20,11 +20,11 @@ import (
 	"context"
 	"slices"
 
-	unikornv1 "github.com/eschercloudai/unikorn-core/pkg/apis/unikorn/v1alpha1"
-	"github.com/eschercloudai/unikorn-core/pkg/cd"
-	clientlib "github.com/eschercloudai/unikorn-core/pkg/client"
-	"github.com/eschercloudai/unikorn-core/pkg/provisioners"
-	"github.com/eschercloudai/unikorn-core/pkg/util"
+	unikornv1 "github.com/unikorn-cloudai/core/pkg/apis/unikorn/v1alpha1"
+	"github.com/unikorn-cloudai/core/pkg/cd"
+	clientlib "github.com/unikorn-cloudai/core/pkg/client"
+	"github.com/unikorn-cloudai/core/pkg/provisioners"
+	"github.com/unikorn-cloudai/core/pkg/util"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"

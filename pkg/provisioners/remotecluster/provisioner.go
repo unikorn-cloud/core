@@ -21,9 +21,9 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/eschercloudai/unikorn-core/pkg/cd"
-	clientlib "github.com/eschercloudai/unikorn-core/pkg/client"
-	"github.com/eschercloudai/unikorn-core/pkg/provisioners"
+	"github.com/unikorn-cloudai/core/pkg/cd"
+	clientlib "github.com/unikorn-cloudai/core/pkg/client"
+	"github.com/unikorn-cloudai/core/pkg/provisioners"
 
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"

@@ -27,11 +27,11 @@ import (
 	"reflect"
 	"strings"
 
-	argoprojv1 "github.com/eschercloudai/unikorn-core/pkg/apis/argoproj/v1alpha1"
-	"github.com/eschercloudai/unikorn-core/pkg/cd"
-	"github.com/eschercloudai/unikorn-core/pkg/constants"
-	"github.com/eschercloudai/unikorn-core/pkg/provisioners"
-	"github.com/eschercloudai/unikorn-core/pkg/util"
+	argoprojv1 "github.com/unikorn-cloudai/core/pkg/apis/argoproj/v1alpha1"
+	"github.com/unikorn-cloudai/core/pkg/cd"
+	"github.com/unikorn-cloudai/core/pkg/constants"
+	"github.com/unikorn-cloudai/core/pkg/provisioners"
+	"github.com/unikorn-cloudai/core/pkg/util"
 
 	corev1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"

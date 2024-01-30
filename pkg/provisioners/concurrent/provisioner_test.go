@@ -25,9 +25,9 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 
-	"github.com/eschercloudai/unikorn-core/pkg/provisioners"
-	"github.com/eschercloudai/unikorn-core/pkg/provisioners/concurrent"
-	"github.com/eschercloudai/unikorn-core/pkg/provisioners/mock"
+	"github.com/unikorn-cloudai/core/pkg/provisioners"
+	"github.com/unikorn-cloudai/core/pkg/provisioners/concurrent"
+	"github.com/unikorn-cloudai/core/pkg/provisioners/mock"
 
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"

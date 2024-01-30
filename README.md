@@ -1,8 +1,7 @@
-# Unikorn
+# Unikorn Core
 
-A badass, opinionated, deployer of souls!
-
-![Unikorn](https://github.com/eschercloudai/unikorn/blob/6e51f1f10b69de0f069f3a858af432894de45723/docs/unikornapi.png)
+![Unikorn Logo](https://raw.githubusercontent.com/unikorn-cloud/assets/main/images/logos/light-on-dark/logo.svg#gh-dark-mode-only)
+![Unikorn Logo](https://raw.githubusercontent.com/unikorn-cloud/assets/main/images/logos/dark-on-light/logo.svg#gh-light-mode-only)
 
 ## Overview
 
@@ -10,6 +9,6 @@ This is the shared core of Unikorn, it contains:
 
 * generic custom resources
 * generic CD integration
-* generic provisiones
+* generic provisioners
 * generic manager frameworks
 * etc.

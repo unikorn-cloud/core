@@ -12,7 +12,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	cd "github.com/eschercloudai/unikorn-core/pkg/cd"
+	cd "github.com/unikorn-cloudai/core/pkg/cd"
 	gomock "go.uber.org/mock/gomock"
 )
 

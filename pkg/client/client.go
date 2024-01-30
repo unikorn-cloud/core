@@ -19,7 +19,7 @@ package client
 import (
 	"context"
 
-	unikorncorescheme "github.com/eschercloudai/unikorn-core/generated/clientset/unikorncore/scheme"
+	unikorncorescheme "github.com/unikorn-cloudai/core/generated/clientset/unikorncore/scheme"
 
 	"k8s.io/apimachinery/pkg/runtime"
 	kubernetesscheme "k8s.io/client-go/kubernetes/scheme"

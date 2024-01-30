@@ -21,7 +21,7 @@ import (
 
 	"github.com/spf13/pflag"
 
-	"github.com/eschercloudai/unikorn-core/pkg/errors"
+	"github.com/unikorn-cloudai/core/pkg/errors"
 )
 
 // DriverKindFlag wraps up the driver kind in a flag that can be used on the CLI.

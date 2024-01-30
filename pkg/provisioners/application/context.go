@@ -19,7 +19,7 @@ package application
 import (
 	"context"
 
-	unikornv1 "github.com/eschercloudai/unikorn-core/pkg/apis/unikorn/v1alpha1"
+	unikornv1 "github.com/unikorn-cloudai/core/pkg/apis/unikorn/v1alpha1"
 )
 
 type key int

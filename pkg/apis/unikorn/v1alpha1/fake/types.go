@@ -17,7 +17,7 @@ limitations under the License.
 package fake
 
 import (
-	unikornv1 "github.com/eschercloudai/unikorn-core/pkg/apis/unikorn/v1alpha1"
+	unikornv1 "github.com/unikorn-cloudai/core/pkg/apis/unikorn/v1alpha1"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )

@@ -20,8 +20,8 @@ import (
 	"context"
 	"fmt"
 
-	clientlib "github.com/eschercloudai/unikorn-core/pkg/client"
-	"github.com/eschercloudai/unikorn-core/pkg/provisioners"
+	clientlib "github.com/unikorn-cloudai/core/pkg/client"
+	"github.com/unikorn-cloudai/core/pkg/provisioners"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 

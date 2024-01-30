@@ -1,4 +1,4 @@
-module github.com/eschercloudai/unikorn-core
+module github.com/unikorn-cloud/core
 
 go 1.21.1
 

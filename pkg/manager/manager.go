@@ -23,9 +23,9 @@ import (
 
 	"github.com/spf13/pflag"
 
-	coreclient "github.com/eschercloudai/unikorn-core/pkg/client"
-	"github.com/eschercloudai/unikorn-core/pkg/constants"
-	"github.com/eschercloudai/unikorn-core/pkg/manager/options"
+	coreclient "github.com/unikorn-cloudai/core/pkg/client"
+	"github.com/unikorn-cloudai/core/pkg/constants"
+	"github.com/unikorn-cloudai/core/pkg/manager/options"
 
 	klog "k8s.io/klog/v2"
 
