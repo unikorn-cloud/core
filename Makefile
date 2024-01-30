@@ -10,7 +10,7 @@ REVISION := $(shell git rev-parse HEAD)
 # Some constants to describe the repository.
 SRCDIR = src
 GENDIR = generated
-CRDDIR = charts/unikorn-core/crds
+CRDDIR = charts/core/crds
 
 # Source files defining custom resource APIs
 APISRC = $(shell find pkg/apis -name *types.go -type f)
@@ -91,7 +91,7 @@ touch:
 lint: $(GENDIR)
 	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(LINT_VERSION)
 	$(GOBIN)/golangci-lint run ./...
-	helm lint --strict charts/unikorn-core
+	helm lint --strict charts/core
 
 # Perform license checking.
 # This must pass or you will be denied by CI.
