@@ -20,8 +20,8 @@ jobs:
         cache: true
     - name: Touch
       run: make touch
-    # - name: License Checker
-    #   run: make license
+    - name: License Checker
+      run: make license
   Runtime:
     runs-on: ubuntu-latest
     steps:
@@ -41,7 +41,7 @@ jobs:
     - name: Golang CI/Helm Lint
       run: make lint
     - name: Build CRDs
-      run: make charts/unikorn-core/crds
+      run: make charts/core/crds
     - name: Build Generated Code
       run: make generate
     - name: Generated Code Checked In
