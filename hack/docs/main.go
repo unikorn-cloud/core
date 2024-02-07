@@ -631,7 +631,7 @@ func (o *options) run() error {
 	// Load in the OpenAPI schema.
 	loader := openapi3.NewLoader()
 
-	doc, err := loader.LoadFromFile("pkg/server/openapi/server.spec.yaml")
+	doc, err := loader.LoadFromFile(o.openapiSchema)
 	if err != nil {
 		return err
 	}
