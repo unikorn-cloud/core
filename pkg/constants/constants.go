@@ -67,6 +67,9 @@ const (
 	// so this provides a concrete type associated with each resource.
 	KindLabel = "unikorn.unikorn-cloud.org/kind"
 
+	// KindLabelValueOrganization is used to denote a resource belongs to this type.
+	KindLabelValueOrganization = "organization"
+
 	// KindLabelValueProject is used to denote a resource belongs to this type.
 	KindLabelValueProject = "project"
 
@@ -75,6 +78,10 @@ const (
 
 	// KindLabelValueKubernetesCluster is used to denote a resource belongs to this type.
 	KindLabelValueKubernetesCluster = "kubernetescluster"
+
+	// OrganizationLabel is a label applied to namespaces to indicate it is under
+	// control of this tool.  Useful for label selection.
+	OrganizationLabel = "unikorn-cloud.org/organization"
 
 	// ProjectLabel is a label applied to namespaces to indicate it is under
 	// control of this tool.  Useful for label selection.
