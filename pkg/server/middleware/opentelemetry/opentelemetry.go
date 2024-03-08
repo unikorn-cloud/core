@@ -254,7 +254,7 @@ func httpStatusToOtelCode(status int) (codes.Code, string) {
 }
 
 // Middleware attaches logging context to the request.
-func Middleware(serviceName, version, application string) func(next http.Handler) http.Handler {
+func Middleware(serviceName, version string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Extract the tracing information from the HTTP headers.
