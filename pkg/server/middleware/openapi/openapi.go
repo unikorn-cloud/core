@@ -39,7 +39,7 @@ type Validator struct {
 	next http.Handler
 
 	// authorizer provides security policy enforcement.
-	authorizer *Authorizer
+	authorizer Authorizer
 
 	// openapi caches the Schema schema.
 	openapi *Schema
@@ -49,7 +49,7 @@ type Validator struct {
 var _ http.Handler = &Validator{}
 
 // NewValidator returns an initialized validator middleware.
-func NewValidator(authorizer *Authorizer, next http.Handler, openapi *Schema) *Validator {
+func NewValidator(authorizer Authorizer, next http.Handler, openapi *Schema) *Validator {
 	return &Validator{
 		authorizer: authorizer,
 		next:       next,
@@ -106,18 +106,16 @@ func (w *bufferingResponseWriter) StatusCode() int {
 	return w.code
 }
 
-func (v *Validator) validateRequest(r *http.Request, authContext *authorizationContext) (*openapi3filter.ResponseValidationInput, error) {
+func (v *Validator) validateRequest(r *http.Request, authContext *AuthorizationContext) (*openapi3filter.ResponseValidationInput, error) {
 	route, params, err := v.openapi.FindRoute(r)
 	if err != nil {
 		return nil, errors.OAuth2ServerError("route lookup failure").WithError(err)
 	}
 
 	authorizationFunc := func(ctx context.Context, input *openapi3filter.AuthenticationInput) error {
-		err := v.authorizer.authorizeScheme(authContext, input.RequestValidationInput.Request, input.SecurityScheme, input.Scopes)
+		authContext.Error = v.authorizer.Authorize(authContext, input)
 
-		authContext.err = err
-
-		return err
+		return authContext.Error
 	}
 
 	options := &openapi3filter.Options{
@@ -133,8 +131,8 @@ func (v *Validator) validateRequest(r *http.Request, authContext *authorizationC
 	}
 
 	if err := openapi3filter.ValidateRequest(r.Context(), requestValidationInput); err != nil {
-		if authContext.err != nil {
-			return nil, authContext.err
+		if authContext.Error != nil {
+			return nil, authContext.Error
 		}
 
 		return nil, errors.OAuth2InvalidRequest("request body invalid").WithError(err)
@@ -160,7 +158,7 @@ func (v *Validator) validateResponse(w *bufferingResponseWriter, r *http.Request
 
 // ServeHTTP implements the http.Handler interface.
 func (v *Validator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	authContext := &authorizationContext{}
+	authContext := &AuthorizationContext{}
 
 	responseValidationInput, err := v.validateRequest(r, authContext)
 	if err != nil {
@@ -170,7 +168,7 @@ func (v *Validator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Add any contextual information to bubble up to the handler.
-	r = r.WithContext(claims.NewContext(r.Context(), &authContext.claims))
+	r = r.WithContext(claims.NewContext(r.Context(), &authContext.Claims))
 
 	// Override the writer so we can inspect the contents and status.
 	writer := &bufferingResponseWriter{
@@ -184,7 +182,7 @@ func (v *Validator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Middleware returns a function that generates per-request
 // middleware functions.
-func Middleware(authorizer *Authorizer, openapi *Schema) func(http.Handler) http.Handler {
+func Middleware(authorizer Authorizer, openapi *Schema) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return NewValidator(authorizer, next, openapi)
 	}
