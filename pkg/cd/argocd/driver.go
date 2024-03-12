@@ -271,7 +271,7 @@ func (d *Driver) CreateOrUpdateHelmApplication(ctx context.Context, id *cd.Resou
 
 	// Bit of a hack, for clusters, we know they are working and gated on
 	// remote cluster creation, so can allow the rest to provision while it's
-	// still sorting its control plane out.
+	// still sorting its manager out.
 	if app.AllowDegraded && resource.Status.Health.Status == argoprojv1.Degraded {
 		return nil
 	}

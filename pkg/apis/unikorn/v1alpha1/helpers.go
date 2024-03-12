@@ -62,7 +62,7 @@ func GetCondition(conditions []Condition, t ConditionType) (*Condition, error) {
 	return nil, ErrStatusConditionLookup
 }
 
-// UpdateCondition either adds or updates a condition in the control plane
+// UpdateCondition either adds or updates a condition in the resource
 // status. If the condition, status and message match an existing condition
 // the update is ignored.
 func UpdateCondition(conditions *[]Condition, t ConditionType, status corev1.ConditionStatus, reason ConditionReason, message string) {
