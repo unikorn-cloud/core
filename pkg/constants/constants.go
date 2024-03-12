@@ -61,7 +61,7 @@ const (
 	VersionLabel = "unikorn.unikorn-cloud.org/version"
 
 	// KindLabel is used to match a resource that may be owned by a particular kind.
-	// For example, projects and control planes are modelled on namespaces.  For CPs
+	// For example, projects and cluster managers are modelled on namespaces.  For CPs
 	// you have to select based on project and CP name, because of name reuse, but
 	// this raises the problem that selecting a project's namespace will match multiple
 	// so this provides a concrete type associated with each resource.
@@ -73,8 +73,8 @@ const (
 	// KindLabelValueProject is used to denote a resource belongs to this type.
 	KindLabelValueProject = "project"
 
-	// KindLabelValueControlPlane is used to denote a resource belongs to this type.
-	KindLabelValueControlPlane = "controlplane"
+	// KindLabelValueClusterManager is used to denote a resource belongs to this type.
+	KindLabelValueClusterManager = "clustermanager"
 
 	// KindLabelValueKubernetesCluster is used to denote a resource belongs to this type.
 	KindLabelValueKubernetesCluster = "kubernetescluster"
@@ -87,9 +87,9 @@ const (
 	// control of this tool.  Useful for label selection.
 	ProjectLabel = "unikorn.unikorn-cloud.org/project"
 
-	// ControlPlaneLabel is a label applied to resources to indicate is belongs
-	// to a specific control plane.
-	ControlPlaneLabel = "unikorn.unikorn-cloud.org/controlplane"
+	// ClusterManagerLabel is a label applied to resources to indicate is belongs
+	// to a specific cluster manager.
+	ClusterManagerLabel = "unikorn.unikorn-cloud.org/clustermanager"
 
 	// KubernetesClusterLabel is applied to resources to indicate it belongs
 	// to a specific cluster.
@@ -122,15 +122,15 @@ const (
 
 // LabelPriorities assigns a priority to the labels for sorting.  Most things
 // use the labels to uniquely identify a resource.  For example, when we create
-// a remote cluster in ArgoCD we use a tuple of project, control plane and optionally
-// the cluster.  This gives a unique identifier given projects and control planes
+// a remote cluster in ArgoCD we use a tuple of project, cluster manager and optionally
+// the cluster.  This gives a unique identifier given projects and cluster managers
 // provide a namespace abstraction, and a deterministic one as the order is defined.
 // This function is required because labels are given as a map, and thus are
 // no-deterministically ordered when iterating in go.
 func LabelPriorities() []string {
 	return []string{
 		KubernetesClusterLabel,
-		ControlPlaneLabel,
+		ClusterManagerLabel,
 		ProjectLabel,
 		OrganizationLabel,
 	}

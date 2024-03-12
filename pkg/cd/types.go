@@ -106,7 +106,7 @@ type HelmApplication struct {
 
 	// Cluster identifies the cluster to install on to.
 	// By definition we require the CD provider to support multiple
-	// clusters to support control plane virtual clusters, and the
+	// clusters to support cluster manager lane virtual clusters, and the
 	// CAPI Kubernetes clusters we create.
 	Cluster *ResourceIdentifier
 

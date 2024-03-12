@@ -52,7 +52,7 @@ type StatusConditionReader interface {
 
 // StatusConditionWriter allows generic status conditions to be updated.
 type StatusConditionWriter interface {
-	// StatusConditionWrite either adds or updates a condition in the control plane
+	// StatusConditionWrite either adds or updates a condition in the resource
 	// status. If the condition, status and message match an existing condition
 	// the update is ignored.
 	StatusConditionWrite(t ConditionType, status corev1.ConditionStatus, reason ConditionReason, message string)
