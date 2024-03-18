@@ -18,8 +18,6 @@ package openapi
 
 import (
 	"github.com/getkin/kin-openapi/openapi3filter"
-
-	"github.com/unikorn-cloud/core/pkg/authorization/oauth2/claims"
 )
 
 // AuthorizationContext is passed through the middleware to propagate
@@ -28,13 +26,10 @@ type AuthorizationContext struct {
 	// Error allows us to return a verbose error, unwrapped by whatever
 	// the openapi validaiton is doing.
 	Error error
-
-	// Claims contains all claims defined in the token.
-	Claims claims.Claims
 }
 
 // Authorizer allows authorizers to be plugged in interchangeably.
 type Authorizer interface {
 	// Authorize checks the request against the OpenAPI security scheme.
-	Authorize(ctx *AuthorizationContext, authentication *openapi3filter.AuthenticationInput) error
+	Authorize(authentication *openapi3filter.AuthenticationInput) error
 }

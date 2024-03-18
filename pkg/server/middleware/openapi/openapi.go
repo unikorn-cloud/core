@@ -25,7 +25,6 @@ import (
 
 	"github.com/getkin/kin-openapi/openapi3filter"
 
-	"github.com/unikorn-cloud/core/pkg/authorization/oauth2/claims"
 	"github.com/unikorn-cloud/core/pkg/server/errors"
 
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -113,7 +112,7 @@ func (v *Validator) validateRequest(r *http.Request, authContext *AuthorizationC
 	}
 
 	authorizationFunc := func(ctx context.Context, input *openapi3filter.AuthenticationInput) error {
-		authContext.Error = v.authorizer.Authorize(authContext, input)
+		authContext.Error = v.authorizer.Authorize(input)
 
 		return authContext.Error
 	}
@@ -166,9 +165,6 @@ func (v *Validator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-
-	// Add any contextual information to bubble up to the handler.
-	r = r.WithContext(claims.NewContext(r.Context(), &authContext.Claims))
 
 	// Override the writer so we can inspect the contents and status.
 	writer := &bufferingResponseWriter{
