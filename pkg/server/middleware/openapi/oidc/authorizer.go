@@ -21,16 +21,13 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"net/http"
-	"slices"
 	"strings"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/spf13/pflag"
 
-	"github.com/unikorn-cloud/core/pkg/authorization/oauth2/claims"
 	"github.com/unikorn-cloud/core/pkg/server/errors"
-	"github.com/unikorn-cloud/core/pkg/server/middleware/openapi"
 )
 
 type Options struct {
@@ -76,7 +73,7 @@ func getHTTPAuthenticationScheme(r *http.Request) (string, string, error) {
 }
 
 // authorizeOAuth2 checks APIs that require and oauth2 bearer token.
-func (a *Authorizer) authorizeOAuth2(authContext *openapi.AuthorizationContext, r *http.Request, scopes []string) error {
+func (a *Authorizer) authorizeOAuth2(r *http.Request) error {
 	authorizationScheme, rawToken, err := getHTTPAuthenticationScheme(r)
 	if err != nil {
 		return err
@@ -124,34 +121,17 @@ func (a *Authorizer) authorizeOAuth2(authContext *openapi.AuthorizationContext, 
 
 	verifier := provider.Verifier(config)
 
-	token, err := verifier.Verify(ctx, rawToken)
-	if err != nil {
+	if _, err := verifier.Verify(ctx, rawToken); err != nil {
 		return errors.OAuth2AccessDenied("access token validation failed").WithError(err)
 	}
-
-	var claims claims.Claims
-
-	if err := token.Claims(&claims); err != nil {
-		return errors.OAuth2ServerError("access token claims extraction failed").WithError(err)
-	}
-
-	// Check the token is authorized to do what the schema says.
-	for _, scope := range scopes {
-		if !slices.Contains(claims.Scope, scope) {
-			return errors.OAuth2InvalidScope("token missing required scope").WithValues("scope", scope)
-		}
-	}
-
-	// Set the claims in the context for use by the handlers.
-	authContext.Claims = claims
 
 	return nil
 }
 
 // Authorize checks the request against the OpenAPI security scheme.
-func (a *Authorizer) Authorize(ctx *openapi.AuthorizationContext, authentication *openapi3filter.AuthenticationInput) error {
+func (a *Authorizer) Authorize(authentication *openapi3filter.AuthenticationInput) error {
 	if authentication.SecurityScheme.Type == "oauth2" {
-		return a.authorizeOAuth2(ctx, authentication.RequestValidationInput.Request, authentication.Scopes)
+		return a.authorizeOAuth2(authentication.RequestValidationInput.Request)
 	}
 
 	return errors.OAuth2InvalidRequest("authorization scheme unsupported").WithValues("scheme", authentication.SecurityScheme.Type)
