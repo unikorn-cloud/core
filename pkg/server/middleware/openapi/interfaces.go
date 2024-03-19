@@ -17,19 +17,13 @@ limitations under the License.
 package openapi
 
 import (
+	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/getkin/kin-openapi/openapi3filter"
 )
 
-// AuthorizationContext is passed through the middleware to propagate
-// information back to the top level handler.
-type AuthorizationContext struct {
-	// Error allows us to return a verbose error, unwrapped by whatever
-	// the openapi validaiton is doing.
-	Error error
-}
-
 // Authorizer allows authorizers to be plugged in interchangeably.
 type Authorizer interface {
-	// Authorize checks the request against the OpenAPI security scheme.
-	Authorize(authentication *openapi3filter.AuthenticationInput) error
+	// Authorize checks the request against the OpenAPI security scheme
+	// and returns the access token.
+	Authorize(authentication *openapi3filter.AuthenticationInput) (string, *oidc.UserInfo, error)
 }

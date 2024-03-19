@@ -14,20 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package roles
+package userinfo
 
-// Role defines the role a user has within the scope of a group.
-// +kubebuilder:validation:Enum=superAdmin;admin;user;reader
-type Role string
+import (
+	"context"
 
-const (
-	// SuperAdmin users can do anything, anywhere, and should be
-	// restricted to platform operators only.
-	SuperAdmin Role = "superAdmin"
-	// Admin users can do anything within an organization.
-	Admin Role = "admin"
-	// Users can do anything within allowed projects.
-	User Role = "user"
-	// Readers have read-only access within allowed projects.
-	Reader Role = "reader"
+	"github.com/coreos/go-oidc/v3/oidc"
 )
+
+type keyType int
+
+//nolint:gochecknoglobals
+var key keyType
+
+func NewContext(ctx context.Context, userinfo *oidc.UserInfo) context.Context {
+	return context.WithValue(ctx, key, userinfo)
+}
+
+func FromContext(ctx context.Context) *oidc.UserInfo {
+	//nolint:forcetypeassert
+	return ctx.Value(key).(*oidc.UserInfo)
+}

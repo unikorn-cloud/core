@@ -23,8 +23,11 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/getkin/kin-openapi/openapi3filter"
 
+	"github.com/unikorn-cloud/core/pkg/authorization/accesstoken"
+	"github.com/unikorn-cloud/core/pkg/authorization/userinfo"
 	"github.com/unikorn-cloud/core/pkg/server/errors"
 
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -42,6 +45,15 @@ type Validator struct {
 
 	// openapi caches the Schema schema.
 	openapi *Schema
+
+	// accessToken is used to propagate to descendant services.
+	accessToken string
+
+	// userinfo is used for identity and RBAC.
+	userinfo *oidc.UserInfo
+
+	// err is used to indicate the actual openapi error.
+	err error
 }
 
 // Ensure this implements the required interfaces.
@@ -105,16 +117,16 @@ func (w *bufferingResponseWriter) StatusCode() int {
 	return w.code
 }
 
-func (v *Validator) validateRequest(r *http.Request, authContext *AuthorizationContext) (*openapi3filter.ResponseValidationInput, error) {
+func (v *Validator) validateRequest(r *http.Request) (*openapi3filter.ResponseValidationInput, error) {
 	route, params, err := v.openapi.FindRoute(r)
 	if err != nil {
 		return nil, errors.OAuth2ServerError("route lookup failure").WithError(err)
 	}
 
 	authorizationFunc := func(ctx context.Context, input *openapi3filter.AuthenticationInput) error {
-		authContext.Error = v.authorizer.Authorize(input)
+		v.accessToken, v.userinfo, v.err = v.authorizer.Authorize(input)
 
-		return authContext.Error
+		return v.err
 	}
 
 	options := &openapi3filter.Options{
@@ -130,10 +142,6 @@ func (v *Validator) validateRequest(r *http.Request, authContext *AuthorizationC
 	}
 
 	if err := openapi3filter.ValidateRequest(r.Context(), requestValidationInput); err != nil {
-		if authContext.Error != nil {
-			return nil, authContext.Error
-		}
-
 		return nil, errors.OAuth2InvalidRequest("request body invalid").WithError(err)
 	}
 
@@ -157,23 +165,33 @@ func (v *Validator) validateResponse(w *bufferingResponseWriter, r *http.Request
 
 // ServeHTTP implements the http.Handler interface.
 func (v *Validator) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	authContext := &AuthorizationContext{}
-
-	responseValidationInput, err := v.validateRequest(r, authContext)
+	responseValidationInput, err := v.validateRequest(r)
 	if err != nil {
+		// If the authenticator errored, override whatever openapi spits out.
+		if v.err != nil {
+			err = v.err
+		}
+
 		errors.HandleError(w, r, err)
 
 		return
 	}
+
+	// Propagate authentication/authorization info to the handlers.
+	ctx := r.Context()
+	ctx = accesstoken.NewContext(ctx, v.accessToken)
+	ctx = userinfo.NewContext(ctx, v.userinfo)
+
+	req := r.WithContext(ctx)
 
 	// Override the writer so we can inspect the contents and status.
 	writer := &bufferingResponseWriter{
 		next: w,
 	}
 
-	v.next.ServeHTTP(writer, r)
+	v.next.ServeHTTP(writer, req)
 
-	v.validateResponse(writer, r, responseValidationInput)
+	v.validateResponse(writer, req, responseValidationInput)
 }
 
 // Middleware returns a function that generates per-request

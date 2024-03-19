@@ -26,6 +26,7 @@ import (
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/spf13/pflag"
+	"golang.org/x/oauth2"
 
 	"github.com/unikorn-cloud/core/pkg/server/errors"
 )
@@ -73,14 +74,14 @@ func getHTTPAuthenticationScheme(r *http.Request) (string, string, error) {
 }
 
 // authorizeOAuth2 checks APIs that require and oauth2 bearer token.
-func (a *Authorizer) authorizeOAuth2(r *http.Request) error {
+func (a *Authorizer) authorizeOAuth2(r *http.Request) (string, *oidc.UserInfo, error) {
 	authorizationScheme, rawToken, err := getHTTPAuthenticationScheme(r)
 	if err != nil {
-		return err
+		return "", nil, err
 	}
 
 	if !strings.EqualFold(authorizationScheme, "bearer") {
-		return errors.OAuth2InvalidRequest("authorization scheme not allowed").WithValues("scheme", authorizationScheme)
+		return "", nil, errors.OAuth2InvalidRequest("authorization scheme not allowed").WithValues("scheme", authorizationScheme)
 	}
 
 	// Handle non-public CA certiifcates used in development.
@@ -90,7 +91,7 @@ func (a *Authorizer) authorizeOAuth2(r *http.Request) error {
 		certPool := x509.NewCertPool()
 
 		if ok := certPool.AppendCertsFromPEM(a.options.issuerCA); !ok {
-			return errors.OAuth2InvalidRequest("failed to parse oidc issuer CA cert")
+			return "", nil, errors.OAuth2InvalidRequest("failed to parse oidc issuer CA cert")
 		}
 
 		client := &http.Client{
@@ -105,34 +106,31 @@ func (a *Authorizer) authorizeOAuth2(r *http.Request) error {
 		ctx = oidc.ClientContext(ctx, client)
 	}
 
-	// Note: although we are talking about ID tokens, the identity service uses
-	// the same data structures and algorithms for access tokens.  The raitonale here
-	// is to avoid sending sensitive information in the token, and avoid using JWE as
-	// we'd need to get access to the private key in order to decrypt it, which brings
-	// it's own challenges.
+	// Perform userinfo call against the identity service that will validate the token
+	// and also return some information about the user.
 	provider, err := oidc.NewProvider(ctx, a.options.issuer)
 	if err != nil {
-		return errors.OAuth2ServerError("oidc service discovery failed").WithError(err)
+		return "", nil, errors.OAuth2ServerError("oidc service discovery failed").WithError(err)
 	}
 
-	config := &oidc.Config{
-		SkipClientIDCheck: true,
+	token := &oauth2.Token{
+		AccessToken: rawToken,
+		TokenType:   authorizationScheme,
 	}
 
-	verifier := provider.Verifier(config)
-
-	if _, err := verifier.Verify(ctx, rawToken); err != nil {
-		return errors.OAuth2AccessDenied("access token validation failed").WithError(err)
+	userinfo, err := provider.UserInfo(ctx, oauth2.StaticTokenSource(token))
+	if err != nil {
+		return "", nil, err
 	}
 
-	return nil
+	return rawToken, userinfo, nil
 }
 
 // Authorize checks the request against the OpenAPI security scheme.
-func (a *Authorizer) Authorize(authentication *openapi3filter.AuthenticationInput) error {
+func (a *Authorizer) Authorize(authentication *openapi3filter.AuthenticationInput) (string, *oidc.UserInfo, error) {
 	if authentication.SecurityScheme.Type == "oauth2" {
 		return a.authorizeOAuth2(authentication.RequestValidationInput.Request)
 	}
 
-	return errors.OAuth2InvalidRequest("authorization scheme unsupported").WithValues("scheme", authentication.SecurityScheme.Type)
+	return "", nil, errors.OAuth2InvalidRequest("authorization scheme unsupported").WithValues("scheme", authentication.SecurityScheme.Type)
 }
