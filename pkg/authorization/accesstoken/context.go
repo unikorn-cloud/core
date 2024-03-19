@@ -14,20 +14,22 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package roles
+package accesstoken
 
-// Role defines the role a user has within the scope of a group.
-// +kubebuilder:validation:Enum=superAdmin;admin;user;reader
-type Role string
-
-const (
-	// SuperAdmin users can do anything, anywhere, and should be
-	// restricted to platform operators only.
-	SuperAdmin Role = "superAdmin"
-	// Admin users can do anything within an organization.
-	Admin Role = "admin"
-	// Users can do anything within allowed projects.
-	User Role = "user"
-	// Readers have read-only access within allowed projects.
-	Reader Role = "reader"
+import (
+	"context"
 )
+
+type keyType int
+
+//nolint:gochecknoglobals
+var key keyType
+
+func NewContext(ctx context.Context, accessToken string) context.Context {
+	return context.WithValue(ctx, key, accessToken)
+}
+
+func FromContext(ctx context.Context) string {
+	//nolint:forcetypeassert
+	return ctx.Value(key).(string)
+}
