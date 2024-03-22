@@ -14,15 +14,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package userinfo
+package rbac
 
-import (
-	"github.com/go-jose/go-jose/v3/jwt"
+func (p *Permissions) LookupOrganization(organization string) (*OrganizationPermissions, error) {
+	for i, o := range p.Organizations {
+		if o.Name == organization {
+			return &p.Organizations[i], nil
+		}
+	}
 
-	"github.com/unikorn-cloud/core/pkg/authorization/rbac"
-)
-
-type UserInfo struct {
-	jwt.Claims `json:",inline"`
-	RBAC       *rbac.Permissions `json:"rbac,omitempty"`
+	return nil, ErrPermissionDenied
 }
