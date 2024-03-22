@@ -126,7 +126,7 @@ func (a *Authorizer) authorizeOAuth2(r *http.Request) (string, *userinfo.UserInf
 
 	uiInternal := &userinfo.UserInfo{}
 
-	if err := ui.Claims(ui); err != nil {
+	if err := ui.Claims(uiInternal); err != nil {
 		return "", nil, errors.OAuth2ServerError("failed to extrac user information").WithError(err)
 	}
 
