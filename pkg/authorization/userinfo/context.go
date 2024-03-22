@@ -18,8 +18,6 @@ package userinfo
 
 import (
 	"context"
-
-	"github.com/coreos/go-oidc/v3/oidc"
 )
 
 type keyType int
@@ -27,11 +25,11 @@ type keyType int
 //nolint:gochecknoglobals
 var key keyType
 
-func NewContext(ctx context.Context, userinfo *oidc.UserInfo) context.Context {
+func NewContext(ctx context.Context, userinfo *UserInfo) context.Context {
 	return context.WithValue(ctx, key, userinfo)
 }
 
-func FromContext(ctx context.Context) *oidc.UserInfo {
+func FromContext(ctx context.Context) *UserInfo {
 	//nolint:forcetypeassert
-	return ctx.Value(key).(*oidc.UserInfo)
+	return ctx.Value(key).(*UserInfo)
 }

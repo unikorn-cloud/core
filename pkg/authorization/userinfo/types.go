@@ -14,17 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package openapi
+package userinfo
 
 import (
-	"github.com/getkin/kin-openapi/openapi3filter"
+	"github.com/go-jose/go-jose/v3/jwt"
 
-	"github.com/unikorn-cloud/core/pkg/authorization/userinfo"
+	"github.com/unikorn-cloud/core/pkg/authorization/rbac"
 )
 
-// Authorizer allows authorizers to be plugged in interchangeably.
-type Authorizer interface {
-	// Authorize checks the request against the OpenAPI security scheme
-	// and returns the access token.
-	Authorize(authentication *openapi3filter.AuthenticationInput) (string, *userinfo.UserInfo, error)
+type UserInfo struct {
+	jwt.Claims
+	RBAC *rbac.Permissions `json:"rbac,omitempty"`
 }
