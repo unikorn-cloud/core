@@ -23,7 +23,6 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/getkin/kin-openapi/openapi3filter"
 
 	"github.com/unikorn-cloud/core/pkg/authorization/accesstoken"
@@ -50,7 +49,7 @@ type Validator struct {
 	accessToken string
 
 	// userinfo is used for identity and RBAC.
-	userinfo *oidc.UserInfo
+	userinfo *userinfo.UserInfo
 
 	// err is used to indicate the actual openapi error.
 	err error

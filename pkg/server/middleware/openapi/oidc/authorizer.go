@@ -28,6 +28,7 @@ import (
 	"github.com/spf13/pflag"
 	"golang.org/x/oauth2"
 
+	"github.com/unikorn-cloud/core/pkg/authorization/userinfo"
 	"github.com/unikorn-cloud/core/pkg/server/errors"
 )
 
@@ -74,7 +75,7 @@ func getHTTPAuthenticationScheme(r *http.Request) (string, string, error) {
 }
 
 // authorizeOAuth2 checks APIs that require and oauth2 bearer token.
-func (a *Authorizer) authorizeOAuth2(r *http.Request) (string, *oidc.UserInfo, error) {
+func (a *Authorizer) authorizeOAuth2(r *http.Request) (string, *userinfo.UserInfo, error) {
 	authorizationScheme, rawToken, err := getHTTPAuthenticationScheme(r)
 	if err != nil {
 		return "", nil, err
@@ -118,16 +119,22 @@ func (a *Authorizer) authorizeOAuth2(r *http.Request) (string, *oidc.UserInfo, e
 		TokenType:   authorizationScheme,
 	}
 
-	userinfo, err := provider.UserInfo(ctx, oauth2.StaticTokenSource(token))
+	ui, err := provider.UserInfo(ctx, oauth2.StaticTokenSource(token))
 	if err != nil {
 		return "", nil, err
 	}
 
-	return rawToken, userinfo, nil
+	uiInternal := &userinfo.UserInfo{}
+
+	if err := ui.Claims(ui); err != nil {
+		return "", nil, errors.OAuth2ServerError("failed to extrac user information").WithError(err)
+	}
+
+	return rawToken, uiInternal, nil
 }
 
 // Authorize checks the request against the OpenAPI security scheme.
-func (a *Authorizer) Authorize(authentication *openapi3filter.AuthenticationInput) (string, *oidc.UserInfo, error) {
+func (a *Authorizer) Authorize(authentication *openapi3filter.AuthenticationInput) (string, *userinfo.UserInfo, error) {
 	if authentication.SecurityScheme.Type == "oauth2" {
 		return a.authorizeOAuth2(authentication.RequestValidationInput.Request)
 	}
