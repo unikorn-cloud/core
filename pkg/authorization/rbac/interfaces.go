@@ -14,15 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package userinfo
+package rbac
 
 import (
-	"github.com/go-jose/go-jose/v3/jwt"
-
-	"github.com/unikorn-cloud/core/pkg/authorization/rbac"
+	"github.com/unikorn-cloud/core/pkg/authorization/roles"
 )
 
-type UserInfo struct {
-	jwt.Claims `json:",inline"`
-	RBAC       *rbac.Permissions `json:"rbac,omitempty"`
+// Authorizer defines an interface for authorization.
+type Authorizer interface {
+	// AllowedByRole allows access based on role, typically used for admin only interfaces.
+	AllowedByRole(role roles.Role) error
+	// AllowedByGroup allows access based on groups assigned to a restricted resource.
+	AllowedByGroup(groupIDs []string) error
+	// AllowedByGroupRole allows access baseed on groups and the role, typically for write access.
+	AllowedByGroupRole(groupIDs []string, role roles.Role) error
 }

@@ -17,12 +17,13 @@ limitations under the License.
 package userinfo
 
 import (
-	"github.com/go-jose/go-jose/v3/jwt"
+	"context"
 
 	"github.com/unikorn-cloud/core/pkg/authorization/rbac"
 )
 
-type UserInfo struct {
-	jwt.Claims `json:",inline"`
-	RBAC       *rbac.Permissions `json:"rbac,omitempty"`
+func NewAuthorizer(ctx context.Context, organization string) (rbac.Authorizer, error) {
+	userinfo := FromContext(ctx)
+
+	return rbac.NewAuthorizer(userinfo.RBAC, organization)
 }
