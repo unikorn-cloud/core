@@ -19,7 +19,6 @@ package rbac
 import (
 	"errors"
 	"fmt"
-	"slices"
 
 	"github.com/unikorn-cloud/core/pkg/authorization/roles"
 )
@@ -28,55 +27,67 @@ var (
 	ErrPermissionDenied = errors.New("access denied")
 )
 
-type AdminAuthorizer struct{}
+// SuperAdminAuthorizer allows access to everything.
+type SuperAdminAuthorizer struct{}
 
-func (a *AdminAuthorizer) AllowedByRole(_ roles.Role) error {
+func (a *SuperAdminAuthorizer) Allow(_ string, _ roles.Permission) error {
 	return nil
 }
 
-func (a *AdminAuthorizer) AllowedByGroup(_ []string) error {
-	return nil
-}
-
-func (a *AdminAuthorizer) AllowedByGroupRole(_ []string, _ roles.Role) error {
-	return nil
-}
-
+// OrganizationAuthorizer is scoped to a specific organization.
 type OrganizationAuthorizer struct {
 	permissions *OrganizationPermissions
 }
 
-func (a *OrganizationAuthorizer) AllowedByRole(role roles.Role) error {
-	return ErrPermissionDenied
-}
+type PermissionMap map[roles.Permission]interface{}
 
-func (a *OrganizationAuthorizer) AllowedByGroup(groups []string) error {
+type ScopedPermissionMap map[string]PermissionMap
+
+func (a *OrganizationAuthorizer) Allow(scope string, permission roles.Permission) error {
+	roleManager := roles.New()
+
+	scopedPermissions := ScopedPermissionMap{}
+
+	// Build up a set of scopes and permissions based on group membership and the roles
+	// associated with that.
 	for _, group := range a.permissions.Groups {
-		if slices.Contains(groups, group.ID) {
-			return nil
+		for _, r := range group.Roles {
+			rolePermissions, err := roleManager.GetRole(r)
+			if err != nil {
+				return err
+			}
+
+			for roleScope, perms := range rolePermissions.Permissions {
+				if _, ok := scopedPermissions[roleScope]; !ok {
+					scopedPermissions[scope] = PermissionMap{}
+				}
+
+				for _, perm := range perms {
+					scopedPermissions[roleScope][perm] = nil
+				}
+			}
 		}
 	}
 
-	return ErrPermissionDenied
-}
-
-func (a *OrganizationAuthorizer) AllowedByGroupRole(groups []string, role roles.Role) error {
-	for _, group := range a.permissions.Groups {
-		if slices.Contains(groups, group.ID) && slices.Contains(group.Roles, role) {
-			return nil
-		}
+	s, ok := scopedPermissions[scope]
+	if !ok {
+		return fmt.Errorf("%w: not permitted to access the %v scope", ErrPermissionDenied, scope)
 	}
 
-	return ErrPermissionDenied
+	if _, ok := s[permission]; !ok {
+		return fmt.Errorf("%w: not permitted to %v within the %v scope", ErrPermissionDenied, permission, scope)
+	}
+
+	return nil
 }
 
-func NewAuthorizer(permissions *Permissions, organizationName string) (Authorizer, error) {
+func New(permissions *Permissions, organizationName string) (Authorizer, error) {
 	if permissions == nil {
 		return nil, fmt.Errorf("%w: user has no RBAC information", ErrPermissionDenied)
 	}
 
 	if permissions.IsSuperAdmin {
-		return &AdminAuthorizer{}, nil
+		return &SuperAdminAuthorizer{}, nil
 	}
 
 	organization, err := permissions.LookupOrganization(organizationName)
@@ -84,11 +95,9 @@ func NewAuthorizer(permissions *Permissions, organizationName string) (Authorize
 		return nil, err
 	}
 
-	if organization.IsAdmin {
-		return &AdminAuthorizer{}, nil
+	authorizer := &OrganizationAuthorizer{
+		permissions: organization,
 	}
 
-	return &OrganizationAuthorizer{
-		permissions: organization,
-	}, nil
+	return authorizer, nil
 }

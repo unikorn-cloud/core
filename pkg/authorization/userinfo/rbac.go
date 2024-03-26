@@ -25,5 +25,5 @@ import (
 func NewAuthorizer(ctx context.Context, organization string) (rbac.Authorizer, error) {
 	userinfo := FromContext(ctx)
 
-	return rbac.NewAuthorizer(userinfo.RBAC, organization)
+	return rbac.New(userinfo.RBAC, organization)
 }
