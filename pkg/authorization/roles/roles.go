@@ -105,6 +105,12 @@ func New() *RoleManager {
 				Read,
 				Update,
 			},
+			"groups": Permissions{
+				Create,
+				Read,
+				Update,
+				Delete,
+			},
 			"oauth2provider:public": Permissions{
 				Read,
 			},
