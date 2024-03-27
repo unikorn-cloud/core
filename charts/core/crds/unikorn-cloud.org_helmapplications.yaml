@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.12.1
+    controller-gen.kubebuilder.io/version: v0.14.0
   name: helmapplications.unikorn-cloud.org
 spec:
   group: unikorn-cloud.org
@@ -26,14 +26,19 @@ spec:
         description: HelmApplication defines a Helm application.
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
             type: string
           metadata:
             type: object
@@ -46,8 +51,9 @@ spec:
                 description: Documentation defines a URL to 3rd party documentation.
                 type: string
               exported:
-                description: Exported defines whether the application should be exported
-                  to the user visiable application manager.
+                description: |-
+                  Exported defines whether the application should be exported to
+                  the user visiable application manager.
                 type: boolean
               icon:
                 description: Icon is a base64 encoded icon for the application.
@@ -61,8 +67,9 @@ spec:
                 description: Name is the human readable application name.
                 type: string
               tags:
-                description: Tags allows an application to be given a free-form set
-                  of labels that can provide grouping, filtering or other contexts.  For
+                description: |-
+                  Tags allows an application to be given a free-form set of labels
+                  that can provide grouping, filtering or other contexts.  For
                   example "networking", "monitoring", "database" etc.
                 items:
                   type: string
@@ -72,17 +79,20 @@ spec:
                 items:
                   properties:
                     chart:
-                      description: Chart is the chart name in the repository. If not
-                        set, uses the application default.
+                      description: |-
+                        Chart is the chart name in the repository.
+                        If not set, uses the application default.
                       type: string
                     createNamespace:
-                      description: CreateNamespace indicates whether the chart requires
-                        a namespace to be created by the tooling, rather than the
-                        chart itself. If not set, uses the application default.
+                      description: |-
+                        CreateNamespace indicates whether the chart requires a namespace to be
+                        created by the tooling, rather than the chart itself.
+                        If not set, uses the application default.
                       type: boolean
                     dependencies:
-                      description: Dependencies capture hard dependencies on other
-                        applications that must be installed before this one.
+                      description: |-
+                        Dependencies capture hard dependencies on other applications that must
+                        be installed before this one.
                       items:
                         properties:
                           name:
@@ -94,20 +104,20 @@ spec:
                         type: object
                       type: array
                     interface:
-                      description: Interface is the name of a Unikorn function that
-                        configures the application. In particular it's used when reading
-                        values from a custom resource and mapping them to Helm values.  This
-                        allows us to version Helm interfaces in the context of "do
-                        we need to do something differently", without having to come
-                        up with a generalized solution that purely exists as Kubernetes
-                        resource specifications. For example, building a Openstack
-                        Cloud Provider configuration from a clouds.yaml is going to
-                        be bloody tricky without some proper code to handle it. If
-                        not set, uses the application default.
+                      description: |-
+                        Interface is the name of a Unikorn function that configures the application.
+                        In particular it's used when reading values from a custom resource and mapping
+                        them to Helm values.  This allows us to version Helm interfaces in the context
+                        of "do we need to do something differently", without having to come up with a
+                        generalized solution that purely exists as Kubernetes resource specifications.
+                        For example, building a Openstack Cloud Provider configuration from a clouds.yaml
+                        is going to be bloody tricky without some proper code to handle it.
+                        If not set, uses the application default.
                       type: string
                     parameters:
-                      description: Parameters is a set of static --set parameters
-                        to pass to the chart. If not set, uses the application default.
+                      description: |-
+                        Parameters is a set of static --set parameters to pass to the chart.
+                        If not set, uses the application default.
                       items:
                         properties:
                           name:
@@ -122,13 +132,15 @@ spec:
                         type: object
                       type: array
                     path:
-                      description: Path is the path if the repo is a git repo. If
-                        not set, uses the application default.
+                      description: |-
+                        Path is the path if the repo is a git repo.
+                        If not set, uses the application default.
                       type: string
                     recommends:
-                      description: Recommends capture soft dependencies on other applications
-                        that may be installed after this one. Typically ths could
-                        be storage classes for a storage provider etc.
+                      description: |-
+                        Recommends capture soft dependencies on other applications that may be
+                        installed after this one. Typically ths could be storage classes for a
+                        storage provider etc.
                       items:
                         properties:
                           name:
@@ -140,23 +152,24 @@ spec:
                         type: object
                       type: array
                     release:
-                      description: Release is the explicit release name for when chart
-                        resource names are dynamic. Typically we need predicatable
-                        names for things that are going to be remote clusters to derive
-                        endpoints or Kubernetes configurations. If not set, uses the
-                        application default.
+                      description: |-
+                        Release is the explicit release name for when chart resource names are dynamic.
+                        Typically we need predicatable names for things that are going to be remote
+                        clusters to derive endpoints or Kubernetes configurations.
+                        If not set, uses the application default.
                       type: string
                     repo:
-                      description: Repo is either a Helm chart repository, or git
-                        repository. If not set, uses the application default.
+                      description: |-
+                        Repo is either a Helm chart repository, or git repository.
+                        If not set, uses the application default.
                       type: string
                     serverSideApply:
-                      description: ServerSideApply allows you to bypass using kubectl
-                        apply.  This is useful in situations where CRDs are too big
-                        and blow the annotation size limit. We'd like to have this
-                        on by default, but mutating admission webhooks and controllers
-                        modifying the spec mess this up. If not set, uses the application
-                        default.
+                      description: |-
+                        ServerSideApply allows you to bypass using kubectl apply.  This is useful
+                        in situations where CRDs are too big and blow the annotation size limit.
+                        We'd like to have this on by default, but mutating admission webhooks and
+                        controllers modifying the spec mess this up.
+                        If not set, uses the application default.
                       type: boolean
                     version:
                       description: Version is the chart version, or a branch when
