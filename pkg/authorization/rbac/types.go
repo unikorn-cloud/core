@@ -30,8 +30,6 @@ type GroupPermissions struct {
 
 // OrganizationPermissions are privilege grants for an organization.
 type OrganizationPermissions struct {
-	// IsAdmin allows the user to play with all resources in an organization.
-	IsAdmin bool `json:"isAdmin,omitempty"`
 	// Name is the name of the organization.
 	Name string `json:"name"`
 	// Groups are any groups the user belongs to in an organization.

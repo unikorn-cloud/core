@@ -22,10 +22,6 @@ import (
 
 // Authorizer defines an interface for authorization.
 type Authorizer interface {
-	// AllowedByRole allows access based on role, typically used for admin only interfaces.
-	AllowedByRole(role roles.Role) error
-	// AllowedByGroup allows access based on groups assigned to a restricted resource.
-	AllowedByGroup(groupIDs []string) error
-	// AllowedByGroupRole allows access baseed on groups and the role, typically for write access.
-	AllowedByGroupRole(groupIDs []string, role roles.Role) error
+	// Allow allows access based on API scope and required permissions.
+	Allow(scope string, permission roles.Permission) error
 }
