@@ -59,7 +59,7 @@ func (a *OrganizationAuthorizer) Allow(scope string, permission roles.Permission
 
 			for roleScope, perms := range rolePermissions.Permissions {
 				if _, ok := scopedPermissions[roleScope]; !ok {
-					scopedPermissions[scope] = PermissionMap{}
+					scopedPermissions[roleScope] = PermissionMap{}
 				}
 
 				for _, perm := range perms {
