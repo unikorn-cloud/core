@@ -29,6 +29,8 @@ linters:
   - funlen
   - predeclared
   - depguard
+  - perfsprint
+  - testifylint
 linters-settings:
   gci:
     sections:

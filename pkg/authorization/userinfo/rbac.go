@@ -22,8 +22,14 @@ import (
 	"github.com/unikorn-cloud/core/pkg/authorization/rbac"
 )
 
-func NewAuthorizer(ctx context.Context, organization string) (rbac.Authorizer, error) {
+func NewScopedAuthorizer(ctx context.Context, organization string) (rbac.Authorizer, error) {
 	userinfo := FromContext(ctx)
 
-	return rbac.New(userinfo.RBAC, organization)
+	return rbac.NewScoped(userinfo.RBAC, organization)
+}
+
+func NewUnscopedAuthorizer(ctx context.Context) (rbac.Authorizer, error) {
+	userinfo := FromContext(ctx)
+
+	return rbac.NewUnscoped(userinfo.RBAC)
 }

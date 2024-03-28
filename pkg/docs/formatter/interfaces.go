@@ -20,21 +20,21 @@ package formatter
 //nolint:interfacebloat
 type Formatter interface {
 	// These are standard HTML types of markup.
-	H1(...any)
-	H2(...any)
-	H3(...any)
-	H4(...any)
-	H5(...any)
-	P(string)
-	Details(string, func())
-	Code(string, string, string)
+	H1(a ...any)
+	H2(a ...any)
+	H3(a ...any)
+	H4(a ...any)
+	H5(a ...any)
+	P(a string)
+	Details(summary string, callback func())
+	Code(lang string, title string, code string)
 	Table()
 	TableEnd()
-	TH(...string)
-	TD(...string)
+	TH(a ...string)
+	TD(a ...string)
 
 	// These are more specialised mark up types e.g.
 	// admonitions.
-	TableOfContentsLevel(int, int)
+	TableOfContentsLevel(min int, max int)
 	Warning(description string)
 }

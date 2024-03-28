@@ -26,5 +26,5 @@ import (
 )
 
 type K8SAPITester interface {
-	Connect(context.Context, *clientcmdapi.Config) error
+	Connect(ctx context.Context, config *clientcmdapi.Config) error
 }
