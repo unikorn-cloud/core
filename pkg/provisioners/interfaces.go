@@ -57,14 +57,14 @@ type Provisioner interface {
 
 	// Provision deploys the requested package.
 	// Implementations should ensure this receiver is idempotent.
-	Provision(context.Context) error
+	Provision(ctx context.Context) error
 
 	// Deprovision does any special handling of resource/component
 	// removal.  In the general case, you should rely on cascading
 	// deletion i.e. kill the namespace, use owner references.
 	// Deprovisioners should be gating, waiting for their resources
 	// to be removed before indicating success.
-	Deprovision(context.Context) error
+	Deprovision(ctx context.Context) error
 }
 
 // ManagerProvisioner top-level manager provisioners hook directly into

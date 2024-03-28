@@ -34,8 +34,8 @@ func (a *SuperAdminAuthorizer) Allow(_ string, _ roles.Permission) error {
 	return nil
 }
 
-// OrganizationAuthorizer is scoped to a specific organization.
-type OrganizationAuthorizer struct {
+// ScopedAuthorizer is scoped to a specific organization.
+type ScopedAuthorizer struct {
 	permissions *OrganizationPermissions
 }
 
@@ -43,7 +43,7 @@ type PermissionMap map[roles.Permission]interface{}
 
 type ScopedPermissionMap map[string]PermissionMap
 
-func (a *OrganizationAuthorizer) Allow(scope string, permission roles.Permission) error {
+func (a *ScopedAuthorizer) Allow(scope string, permission roles.Permission) error {
 	roleManager := roles.New()
 
 	scopedPermissions := ScopedPermissionMap{}
@@ -81,7 +81,7 @@ func (a *OrganizationAuthorizer) Allow(scope string, permission roles.Permission
 	return nil
 }
 
-func New(permissions *Permissions, organizationName string) (Authorizer, error) {
+func NewScoped(permissions *Permissions, organizationName string) (Authorizer, error) {
 	if permissions == nil {
 		return nil, fmt.Errorf("%w: user has no RBAC information", ErrPermissionDenied)
 	}
@@ -95,9 +95,33 @@ func New(permissions *Permissions, organizationName string) (Authorizer, error) 
 		return nil, err
 	}
 
-	authorizer := &OrganizationAuthorizer{
+	authorizer := &ScopedAuthorizer{
 		permissions: organization,
 	}
 
 	return authorizer, nil
+}
+
+// UncopedAuthorizer is not scoped to a specific organization.
+type UnscopedAuthorizer struct {
+}
+
+func (a *UnscopedAuthorizer) Allow(scope string, permission roles.Permission) error {
+	if scope == "organizations" && permission == roles.Read {
+		return nil
+	}
+
+	return fmt.Errorf("%w: not permitted to %v within the %v scope", ErrPermissionDenied, permission, scope)
+}
+
+func NewUnscoped(permissions *Permissions) (Authorizer, error) {
+	if permissions == nil {
+		return nil, fmt.Errorf("%w: user has no RBAC information", ErrPermissionDenied)
+	}
+
+	if permissions.IsSuperAdmin {
+		return &SuperAdminAuthorizer{}, nil
+	}
+
+	return &UnscopedAuthorizer{}, nil
 }

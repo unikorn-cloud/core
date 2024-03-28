@@ -47,15 +47,15 @@ type ControllerFactory interface {
 	Metadata() (string, string, string)
 
 	// Reconciler returns a new reconciler instance.
-	Reconciler(*options.Options, manager.Manager) reconcile.Reconciler
+	Reconciler(options *options.Options, manager manager.Manager) reconcile.Reconciler
 
 	// RegisterWatches adds any watches that would trigger a reconcile.
-	RegisterWatches(manager.Manager, controller.Controller) error
+	RegisterWatches(manager manager.Manager, controller controller.Controller) error
 
 	// Upgrade allows version based upgrades of managed resources.
 	// DO NOT MODIFY THE SPEC EVER.  Only things like metadata can
 	// be touched.
-	Upgrade(client.Client) error
+	Upgrade(client client.Client) error
 
 	// Schemes allows controllers to add types to the client beyond
 	// the defaults defined in this repository.

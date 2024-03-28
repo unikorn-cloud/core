@@ -107,17 +107,17 @@ func (mr *MockProvisionerMockRecorder) BackgroundDeletion() *gomock.Call {
 }
 
 // Deprovision mocks base method.
-func (m *MockProvisioner) Deprovision(arg0 context.Context) error {
+func (m *MockProvisioner) Deprovision(ctx context.Context) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Deprovision", arg0)
+	ret := m.ctrl.Call(m, "Deprovision", ctx)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Deprovision indicates an expected call of Deprovision.
-func (mr *MockProvisionerMockRecorder) Deprovision(arg0 any) *gomock.Call {
+func (mr *MockProvisionerMockRecorder) Deprovision(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Deprovision", reflect.TypeOf((*MockProvisioner)(nil).Deprovision), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Deprovision", reflect.TypeOf((*MockProvisioner)(nil).Deprovision), ctx)
 }
 
 // OnRemote mocks base method.
@@ -133,17 +133,17 @@ func (mr *MockProvisionerMockRecorder) OnRemote(remote any) *gomock.Call {
 }
 
 // Provision mocks base method.
-func (m *MockProvisioner) Provision(arg0 context.Context) error {
+func (m *MockProvisioner) Provision(ctx context.Context) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Provision", arg0)
+	ret := m.ctrl.Call(m, "Provision", ctx)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Provision indicates an expected call of Provision.
-func (mr *MockProvisionerMockRecorder) Provision(arg0 any) *gomock.Call {
+func (mr *MockProvisionerMockRecorder) Provision(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Provision", reflect.TypeOf((*MockProvisioner)(nil).Provision), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Provision", reflect.TypeOf((*MockProvisioner)(nil).Provision), ctx)
 }
 
 // ProvisionerName mocks base method.
@@ -196,17 +196,17 @@ func (mr *MockManagerProvisionerMockRecorder) BackgroundDeletion() *gomock.Call 
 }
 
 // Deprovision mocks base method.
-func (m *MockManagerProvisioner) Deprovision(arg0 context.Context) error {
+func (m *MockManagerProvisioner) Deprovision(ctx context.Context) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Deprovision", arg0)
+	ret := m.ctrl.Call(m, "Deprovision", ctx)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Deprovision indicates an expected call of Deprovision.
-func (mr *MockManagerProvisionerMockRecorder) Deprovision(arg0 any) *gomock.Call {
+func (mr *MockManagerProvisionerMockRecorder) Deprovision(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Deprovision", reflect.TypeOf((*MockManagerProvisioner)(nil).Deprovision), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Deprovision", reflect.TypeOf((*MockManagerProvisioner)(nil).Deprovision), ctx)
 }
 
 // Object mocks base method.
@@ -236,17 +236,17 @@ func (mr *MockManagerProvisionerMockRecorder) OnRemote(remote any) *gomock.Call 
 }
 
 // Provision mocks base method.
-func (m *MockManagerProvisioner) Provision(arg0 context.Context) error {
+func (m *MockManagerProvisioner) Provision(ctx context.Context) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Provision", arg0)
+	ret := m.ctrl.Call(m, "Provision", ctx)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Provision indicates an expected call of Provision.
-func (mr *MockManagerProvisionerMockRecorder) Provision(arg0 any) *gomock.Call {
+func (mr *MockManagerProvisionerMockRecorder) Provision(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Provision", reflect.TypeOf((*MockManagerProvisioner)(nil).Provision), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Provision", reflect.TypeOf((*MockManagerProvisioner)(nil).Provision), ctx)
 }
 
 // ProvisionerName mocks base method.

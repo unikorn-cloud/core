@@ -40,15 +40,15 @@ func (m *MockK8SAPITester) EXPECT() *MockK8SAPITesterMockRecorder {
 }
 
 // Connect mocks base method.
-func (m *MockK8SAPITester) Connect(arg0 context.Context, arg1 *api.Config) error {
+func (m *MockK8SAPITester) Connect(ctx context.Context, config *api.Config) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Connect", arg0, arg1)
+	ret := m.ctrl.Call(m, "Connect", ctx, config)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Connect indicates an expected call of Connect.
-func (mr *MockK8SAPITesterMockRecorder) Connect(arg0, arg1 any) *gomock.Call {
+func (mr *MockK8SAPITesterMockRecorder) Connect(ctx, config any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Connect", reflect.TypeOf((*MockK8SAPITester)(nil).Connect), arg0, arg1)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Connect", reflect.TypeOf((*MockK8SAPITester)(nil).Connect), ctx, config)
 }
