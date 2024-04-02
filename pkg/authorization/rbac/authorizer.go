@@ -17,111 +17,144 @@ limitations under the License.
 package rbac
 
 import (
+	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"slices"
 
-	"github.com/unikorn-cloud/core/pkg/authorization/roles"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
+
+	"github.com/unikorn-cloud/core/pkg/authorization/accesstoken"
+	"github.com/unikorn-cloud/core/pkg/authorization/constants"
 )
 
 var (
 	ErrPermissionDenied = errors.New("access denied")
+
+	ErrRequestError = errors.New("request error")
+
+	ErrCertError = errors.New("certificate error")
 )
 
-// SuperAdminAuthorizer allows access to everything.
-type SuperAdminAuthorizer struct{}
-
-func (a *SuperAdminAuthorizer) Allow(_ string, _ roles.Permission) error {
-	return nil
+// IdentityACLGetter grabs an ACL for the user from the identity API.
+// Used for any non-identity API.
+type IdentityACLGetter struct {
+	host         string
+	organization string
+	ca           []byte
 }
 
-// ScopedAuthorizer is scoped to a specific organization.
-type ScopedAuthorizer struct {
-	permissions *OrganizationPermissions
+func NewIdentityACLGetter(host, organization string) *IdentityACLGetter {
+	return &IdentityACLGetter{
+		host:         host,
+		organization: organization,
+	}
 }
 
-type PermissionMap map[roles.Permission]interface{}
+func (a *IdentityACLGetter) WithCA(ca []byte) *IdentityACLGetter {
+	a.ca = ca
 
-type ScopedPermissionMap map[string]PermissionMap
+	return a
+}
 
-func (a *ScopedAuthorizer) Allow(scope string, permission roles.Permission) error {
-	roleManager := roles.New()
+func (a *IdentityACLGetter) Get(ctx context.Context) (*ACL, error) {
+	client := &http.Client{}
 
-	scopedPermissions := ScopedPermissionMap{}
+	// Handle things like let's encrypt staging.
+	if a.ca != nil {
+		certPool := x509.NewCertPool()
 
-	// Build up a set of scopes and permissions based on group membership and the roles
-	// associated with that.
-	for _, group := range a.permissions.Groups {
-		for _, r := range group.Roles {
-			rolePermissions, err := roleManager.GetRole(r)
-			if err != nil {
-				return err
-			}
+		if ok := certPool.AppendCertsFromPEM(a.ca); !ok {
+			return nil, fmt.Errorf("%w: unable to add CA certificate", ErrCertError)
+		}
 
-			for roleScope, perms := range rolePermissions.Permissions {
-				if _, ok := scopedPermissions[roleScope]; !ok {
-					scopedPermissions[roleScope] = PermissionMap{}
-				}
-
-				for _, perm := range perms {
-					scopedPermissions[roleScope][perm] = nil
-				}
-			}
+		client = &http.Client{
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{
+					RootCAs:    certPool,
+					MinVersion: tls.VersionTLS13,
+				},
+			},
 		}
 	}
 
-	s, ok := scopedPermissions[scope]
-	if !ok {
-		return fmt.Errorf("%w: not permitted to access the %v scope", ErrPermissionDenied, scope)
-	}
-
-	if _, ok := s[permission]; !ok {
-		return fmt.Errorf("%w: not permitted to %v within the %v scope", ErrPermissionDenied, permission, scope)
-	}
-
-	return nil
-}
-
-func NewScoped(permissions *Permissions, organizationName string) (Authorizer, error) {
-	if permissions == nil {
-		return nil, fmt.Errorf("%w: user has no RBAC information", ErrPermissionDenied)
-	}
-
-	if permissions.IsSuperAdmin {
-		return &SuperAdminAuthorizer{}, nil
-	}
-
-	organization, err := permissions.LookupOrganization(organizationName)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, fmt.Sprintf("%s/api/v1/organizations/%s/acl", a.host, a.organization), nil)
 	if err != nil {
 		return nil, err
 	}
 
-	authorizer := &ScopedAuthorizer{
-		permissions: organization,
+	req.Header.Set("Authorization", "bearer "+accesstoken.FromContext(ctx))
+	otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
 	}
 
-	return authorizer, nil
-}
-
-// UncopedAuthorizer is not scoped to a specific organization.
-type UnscopedAuthorizer struct {
-}
-
-func (a *UnscopedAuthorizer) Allow(scope string, permission roles.Permission) error {
-	if scope == "organizations" && permission == roles.Read {
-		return nil
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("%w: status code not as expected", ErrRequestError)
 	}
 
-	return fmt.Errorf("%w: not permitted to %v within the %v scope", ErrPermissionDenied, permission, scope)
-}
+	defer resp.Body.Close()
 
-func NewUnscoped(permissions *Permissions) (Authorizer, error) {
-	if permissions == nil {
-		return nil, fmt.Errorf("%w: user has no RBAC information", ErrPermissionDenied)
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
 	}
 
-	if permissions.IsSuperAdmin {
+	acl := &ACL{}
+
+	if err := json.Unmarshal(body, &acl); err != nil {
+		return nil, err
+	}
+
+	return acl, nil
+}
+
+// SuperAdminAuthorizer allows access to everything.
+type SuperAdminAuthorizer struct{}
+
+func (a *SuperAdminAuthorizer) Allow(_ context.Context, _ string, _ constants.Permission) error {
+	return nil
+}
+
+// BaseAuthorizer is scoped to a specific organization.
+type BaseAuthorizer struct {
+	acl *ACL
+}
+
+func (a *BaseAuthorizer) Allow(ctx context.Context, scope string, permission constants.Permission) error {
+	aclScope := a.acl.GetScope(scope)
+	if aclScope == nil {
+		return fmt.Errorf("%w: not permitted access to the %v scope", ErrPermissionDenied, scope)
+	}
+
+	if !slices.Contains(aclScope.Permissions, permission) {
+		return fmt.Errorf("%w: not permitted %v access within the %v scope", ErrPermissionDenied, permission, scope)
+	}
+
+	return nil
+}
+
+func New(ctx context.Context, getter ACLGetter) (Authorizer, error) {
+	acl, err := getter.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if acl.IsSuperAdmin {
 		return &SuperAdminAuthorizer{}, nil
 	}
 
-	return &UnscopedAuthorizer{}, nil
+	authorizer := &BaseAuthorizer{
+		acl: acl,
+	}
+
+	return authorizer, nil
 }

@@ -33,17 +33,17 @@ import (
 )
 
 type Options struct {
-	// issuer is used to perform OIDC discovery and verify access tokens
+	// Issuer is used to perform OIDC discovery and verify access tokens
 	// using the JWKS endpoint.
-	issuer string
+	Issuer string
 
-	// issuerCA is the root CA of the identity endpoint.
-	issuerCA []byte
+	// IssuerCA is the root CA of the identity endpoint.
+	IssuerCA []byte
 }
 
 func (o *Options) AddFlags(f *pflag.FlagSet) {
-	f.StringVar(&o.issuer, "oidc-issuer", "", "OIDC issuer URL to use for token validation.")
-	f.BytesBase64Var(&o.issuerCA, "oidc-issuer-ca", nil, "base64 OIDC endpoint CA certificate.")
+	f.StringVar(&o.Issuer, "oidc-issuer", "", "OIDC issuer URL to use for token validation.")
+	f.BytesBase64Var(&o.IssuerCA, "oidc-issuer-ca", nil, "base64 OIDC endpoint CA certificate.")
 }
 
 // Authorizer provides OpenAPI based authorization middleware.
@@ -88,10 +88,10 @@ func (a *Authorizer) authorizeOAuth2(r *http.Request) (string, *userinfo.UserInf
 	// Handle non-public CA certiifcates used in development.
 	ctx := r.Context()
 
-	if a.options.issuerCA != nil {
+	if a.options.IssuerCA != nil {
 		certPool := x509.NewCertPool()
 
-		if ok := certPool.AppendCertsFromPEM(a.options.issuerCA); !ok {
+		if ok := certPool.AppendCertsFromPEM(a.options.IssuerCA); !ok {
 			return "", nil, errors.OAuth2InvalidRequest("failed to parse oidc issuer CA cert")
 		}
 
@@ -109,7 +109,7 @@ func (a *Authorizer) authorizeOAuth2(r *http.Request) (string, *userinfo.UserInf
 
 	// Perform userinfo call against the identity service that will validate the token
 	// and also return some information about the user.
-	provider, err := oidc.NewProvider(ctx, a.options.issuer)
+	provider, err := oidc.NewProvider(ctx, a.options.Issuer)
 	if err != nil {
 		return "", nil, errors.OAuth2ServerError("oidc service discovery failed").WithError(err)
 	}

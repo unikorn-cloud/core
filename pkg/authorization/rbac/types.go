@@ -17,7 +17,7 @@ limitations under the License.
 package rbac
 
 import (
-	"github.com/unikorn-cloud/core/pkg/authorization/roles"
+	"github.com/unikorn-cloud/core/pkg/authorization/constants"
 )
 
 // GroupPermissions are privilege grants for a project.
@@ -25,7 +25,7 @@ type GroupPermissions struct {
 	// ID is the unique, immutable project identifier.
 	ID string `json:"id"`
 	// Roles are the privileges a user has for the group.
-	Roles []roles.Role `json:"roles"`
+	Roles []string `json:"roles"`
 }
 
 // OrganizationPermissions are privilege grants for an organization.
@@ -42,4 +42,19 @@ type Permissions struct {
 	IsSuperAdmin bool `json:"isSuperAdmin,omitempty"`
 	// Organizations are any organizations the user has access to.
 	Organizations []OrganizationPermissions `json:"organizations,omitempty"`
+}
+
+// Scope maps a named API scope to a set of permissions.
+type Scope struct {
+	// Name is the name of the scope.
+	Name string `json:"name"`
+	// Permissions is the set of permissions allowed for that scope.
+	Permissions []constants.Permission `json:"permissions"`
+}
+
+// ACL maps scopes to permissions.
+type ACL struct {
+	IsSuperAdmin bool `json:"isSuperAdmin,omitempty"`
+	// Scopes is the set of scoped APIs the role can access.
+	Scopes []*Scope `json:"scopes,omitempty"`
 }
