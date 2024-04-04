@@ -26,6 +26,8 @@ import (
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/spf13/pflag"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 	"golang.org/x/oauth2"
 
 	"github.com/unikorn-cloud/core/pkg/authorization/userinfo"
@@ -106,6 +108,10 @@ func (a *Authorizer) authorizeOAuth2(r *http.Request) (string, *userinfo.UserInf
 
 		ctx = oidc.ClientContext(ctx, client)
 	}
+
+	ctx = oidc.HeaderInjectClientContext(ctx, func(h http.Header) {
+		otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(h))
+	})
 
 	// Perform userinfo call against the identity service that will validate the token
 	// and also return some information about the user.
