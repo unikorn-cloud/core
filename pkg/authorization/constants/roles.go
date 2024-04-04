@@ -14,14 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package userinfo
+package constants
 
-import (
-	"context"
-
-	"github.com/unikorn-cloud/core/pkg/authorization/rbac"
+const (
+	// SuperAdmin users can do anything, anywhere, and should be
+	// restricted to platform operators only.
+	SuperAdmin = "superAdmin"
 )
 
-func NewAuthorizer(ctx context.Context, getter rbac.ACLGetter) (rbac.Authorizer, error) {
-	return rbac.New(ctx, getter)
-}
+// +kubebuilder:validation:Enum=create;read;update;delete
+type Permission string
+
+const (
+	Create Permission = "create"
+	Read   Permission = "read"
+	Update Permission = "update"
+	Delete Permission = "delete"
+)

@@ -25,3 +25,29 @@ func (p *Permissions) LookupOrganization(organization string) (*OrganizationPerm
 
 	return nil, ErrPermissionDenied
 }
+
+func (p *OrganizationPermissions) HasRole(name string) bool {
+	if p == nil {
+		return false
+	}
+
+	for _, group := range p.Groups {
+		for _, role := range group.Roles {
+			if role == name {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func (a *ACL) GetScope(name string) *Scope {
+	for _, scope := range a.Scopes {
+		if scope.Name == name {
+			return scope
+		}
+	}
+
+	return nil
+}

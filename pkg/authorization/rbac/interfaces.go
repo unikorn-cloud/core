@@ -17,11 +17,18 @@ limitations under the License.
 package rbac
 
 import (
-	"github.com/unikorn-cloud/core/pkg/authorization/roles"
+	"context"
+
+	"github.com/unikorn-cloud/core/pkg/authorization/constants"
 )
+
+type ACLGetter interface {
+	// Get returns an ACL from whatever source the interface reprensents.
+	Get(ctx context.Context) (*ACL, error)
+}
 
 // Authorizer defines an interface for authorization.
 type Authorizer interface {
 	// Allow allows access based on API scope and required permissions.
-	Allow(scope string, permission roles.Permission) error
+	Allow(ctx context.Context, scope string, permission constants.Permission) error
 }
