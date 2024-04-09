@@ -28,12 +28,26 @@ type GroupPermissions struct {
 	Roles []string `json:"roles"`
 }
 
+// ProjectPermissions define projects the user hass access to
+// and the roles that granted those permissions.
+type ProjectPermissions struct {
+	// Name is the project name.
+	Name string `json:"name"`
+	// Roles are the privileges a user has within the project.
+	Roles []string `json:"roles"`
+}
+
 // OrganizationPermissions are privilege grants for an organization.
 type OrganizationPermissions struct {
 	// Name is the name of the organization.
 	Name string `json:"name"`
 	// Groups are any groups the user belongs to in an organization.
+	// These define access control lists.
 	Groups []GroupPermissions `json:"groups,omitempty"`
+	// Projects are any projects the user belongs to in an organization
+	// via group inclusion.  These define scoping rules when accessing
+	// resources.
+	Projects []ProjectPermissions `json:"projects,omitempty"`
 }
 
 // Permissions are privilege grants for the entire system.
