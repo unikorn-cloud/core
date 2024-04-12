@@ -101,7 +101,7 @@ func New(ctx context.Context, schemes ...SchemeAdder) (client.Client, error) {
 		},
 	}
 
-	c, err := client.New(config, clientOptions)
+	c, err := client.NewWithWatch(config, clientOptions)
 	if err != nil {
 		return nil, err
 	}
