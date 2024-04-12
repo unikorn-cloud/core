@@ -110,6 +110,9 @@ const (
 	// manually restarting services based on a Deployment/DaemonSet changing.
 	ConfigurationHashAnnotation = "unikorn.unikorn-cloud.org/config-hash"
 
+	// RegionAnnotation tells you what region something lives in.
+	RegionAnnotation = "region.unikorn-cloud.org/name"
+
 	// Finalizer is applied to resources that need to be deleted manually
 	// and do other complex logic.
 	Finalizer = "unikorn"
