@@ -25,7 +25,7 @@ import (
 	unikornv1 "github.com/unikorn-cloud/core/pkg/apis/unikorn/v1alpha1"
 	"github.com/unikorn-cloud/core/pkg/cd"
 	"github.com/unikorn-cloud/core/pkg/cd/argocd"
-	coreclient "github.com/unikorn-cloud/core/pkg/client"
+	"github.com/unikorn-cloud/core/pkg/client"
 	"github.com/unikorn-cloud/core/pkg/constants"
 	coreerrors "github.com/unikorn-cloud/core/pkg/errors"
 	"github.com/unikorn-cloud/core/pkg/manager/options"
@@ -35,9 +35,9 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	kerrors "k8s.io/apimachinery/pkg/api/errors"
 
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
@@ -55,18 +55,18 @@ type Reconciler struct {
 	// options allows CLI options to be interrogated in the reconciler.
 	options *options.Options
 
-	// client is the Kubernetes client.
-	client client.Client
+	// manager grants access to things like clients and eventing.
+	manager manager.Manager
 
 	// createProvisioner provides a type agnosic method to create a root provisioner.
 	createProvisioner ProvisionerCreateFunc
 }
 
 // NewReconciler creates a new reconciler.
-func NewReconciler(options *options.Options, client client.Client, createProvisioner ProvisionerCreateFunc) *Reconciler {
+func NewReconciler(options *options.Options, manager manager.Manager, createProvisioner ProvisionerCreateFunc) *Reconciler {
 	return &Reconciler{
 		options:           options,
-		client:            client,
+		manager:           manager,
 		createProvisioner: createProvisioner,
 	}
 }
@@ -79,7 +79,7 @@ func (r *Reconciler) getDriver() (cd.Driver, error) {
 		return nil, coreerrors.ErrCDDriver
 	}
 
-	return argocd.New(r.client, argocd.Options{}), nil
+	return argocd.New(r.manager.GetClient(), argocd.Options{}), nil
 }
 
 // Reconcile is the top-level reconcile interface that controller-runtime will
@@ -97,12 +97,15 @@ func (r *Reconciler) Reconcile(ctx context.Context, request reconcile.Request) (
 		return reconcile.Result{}, err
 	}
 
+	// Add the manager to grant access to eventing.
+	ctx = NewContext(ctx, r.manager)
+
 	// The static client is used by the application provisioner to get access to
 	// application bundles and definitions regardless of remote cluster scoping etc.
-	ctx = coreclient.NewContextWithStaticClient(ctx, r.client)
+	ctx = client.NewContextWithStaticClient(ctx, r.manager.GetClient())
 
 	// The dynamic client context is updated as remote clusters are descended into.
-	ctx = coreclient.NewContextWithDynamicClient(ctx, r.client)
+	ctx = client.NewContextWithDynamicClient(ctx, r.manager.GetClient())
 
 	// The driver context is updated as remote provisioners are descended into.
 	ctx = cd.NewContext(ctx, driver)
@@ -112,7 +115,7 @@ func (r *Reconciler) Reconcile(ctx context.Context, request reconcile.Request) (
 	ctx = application.NewContext(ctx, object)
 
 	// See if the object exists or not, if not it's been deleted.
-	if err := r.client.Get(ctx, request.NamespacedName, object); err != nil {
+	if err := r.manager.GetClient().Get(ctx, request.NamespacedName, object); err != nil {
 		if kerrors.IsNotFound(err) {
 			log.Info("object deleted")
 
@@ -164,7 +167,7 @@ func (r *Reconciler) reconcileDelete(ctx context.Context, provisioner provisione
 
 	// All good, signal the resource can be deleted.
 	if ok := controllerutil.RemoveFinalizer(object, constants.Finalizer); ok {
-		if err := r.client.Update(ctx, object); err != nil {
+		if err := r.manager.GetClient().Update(ctx, object); err != nil {
 			return reconcile.Result{}, err
 		}
 	}
@@ -177,7 +180,7 @@ func (r *Reconciler) reconcileDelete(ctx context.Context, provisioner provisione
 func (r *Reconciler) reconcileNormal(ctx context.Context, provisioner provisioners.Provisioner, object unikornv1.ManagableResourceInterface) (reconcile.Result, error) {
 	// Add the finalizer so we can orchestrate resource garbage collection.
 	if ok := controllerutil.AddFinalizer(object, constants.Finalizer); ok {
-		if err := r.client.Update(ctx, object); err != nil {
+		if err := r.manager.GetClient().Update(ctx, object); err != nil {
 			return reconcile.Result{}, err
 		}
 	}
@@ -240,7 +243,7 @@ func (r *Reconciler) handleReconcileCondition(ctx context.Context, object unikor
 
 	object.StatusConditionWrite(unikornv1.ConditionAvailable, status, reason, message)
 
-	if err := r.client.Status().Update(ctx, object); err != nil {
+	if err := r.manager.GetClient().Status().Update(ctx, object); err != nil {
 		return err
 	}
 

@@ -35,6 +35,7 @@ import (
 	coreclient "github.com/unikorn-cloud/core/pkg/client"
 	"github.com/unikorn-cloud/core/pkg/constants"
 	"github.com/unikorn-cloud/core/pkg/manager"
+	mockmanager "github.com/unikorn-cloud/core/pkg/manager/mock"
 	"github.com/unikorn-cloud/core/pkg/manager/options"
 	"github.com/unikorn-cloud/core/pkg/provisioners"
 	mockprovisioners "github.com/unikorn-cloud/core/pkg/provisioners/mock"
@@ -48,6 +49,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	crmanager "sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
@@ -102,6 +104,14 @@ func newRequest(namespace, name string) reconcile.Request {
 	return request
 }
 
+func (tc *testContext) newManager(c *gomock.Controller) crmanager.Manager {
+	m := mockmanager.NewMockManager(c)
+
+	m.EXPECT().GetClient().Return(tc.client).AnyTimes()
+
+	return m
+}
+
 // mustAssertStatus checks the status is as we expect.  Very rudimentary as we only support
 // the Available status.
 func mustAssertStatus(t *testing.T, resource unikornv1.StatusConditionReader, status corev1.ConditionStatus, reason unikornv1.ConditionReason) {
@@ -147,7 +157,7 @@ func TestReconcileDeleted(t *testing.T) {
 	p := mockprovisioners.NewMockManagerProvisioner(c)
 	p.EXPECT().Object().Return(&unikornv1fake.ManagedResource{})
 
-	reconciler := manager.NewReconciler(managerOptions(), tc.client, func() provisioners.ManagerProvisioner { return p })
+	reconciler := manager.NewReconciler(managerOptions(), tc.newManager(c), func() provisioners.ManagerProvisioner { return p })
 
 	_, err := reconciler.Reconcile(ctx, newRequest(testNamespace, testName))
 	assert.NoError(t, err)
@@ -174,7 +184,7 @@ func TestReconcileCreate(t *testing.T) {
 	p.EXPECT().Object().Return(&unikornv1fake.ManagedResource{})
 	p.EXPECT().Provision(gomock.Any()).Return(nil)
 
-	reconciler := manager.NewReconciler(managerOptions(), tc.client, func() provisioners.ManagerProvisioner { return p })
+	reconciler := manager.NewReconciler(managerOptions(), tc.newManager(c), func() provisioners.ManagerProvisioner { return p })
 
 	_, err := reconciler.Reconcile(ctx, newRequest(testNamespace, testName))
 	assert.NoError(t, err)
@@ -209,7 +219,7 @@ func TestReconcileCreateYield(t *testing.T) {
 	p.EXPECT().Object().Return(&unikornv1fake.ManagedResource{})
 	p.EXPECT().Provision(gomock.Any()).Return(provisioners.ErrYield)
 
-	reconciler := manager.NewReconciler(managerOptions(), tc.client, func() provisioners.ManagerProvisioner { return p })
+	reconciler := manager.NewReconciler(managerOptions(), tc.newManager(c), func() provisioners.ManagerProvisioner { return p })
 
 	_, err := reconciler.Reconcile(ctx, newRequest(testNamespace, testName))
 	assert.NoError(t, err)
@@ -246,7 +256,7 @@ func TestReconcileCreateCancelled(t *testing.T) {
 	p.EXPECT().Object().Return(&unikornv1fake.ManagedResource{})
 	p.EXPECT().Provision(gomock.Any()).Return(ctx.Err())
 
-	reconciler := manager.NewReconciler(managerOptions(), tc.client, func() provisioners.ManagerProvisioner { return p })
+	reconciler := manager.NewReconciler(managerOptions(), tc.newManager(c), func() provisioners.ManagerProvisioner { return p })
 
 	_, err := reconciler.Reconcile(ctx, newRequest(testNamespace, testName))
 	assert.NoError(t, err)
@@ -281,7 +291,7 @@ func TestReconcileCreateError(t *testing.T) {
 	p.EXPECT().Object().Return(&unikornv1fake.ManagedResource{})
 	p.EXPECT().Provision(gomock.Any()).Return(errUnhandled)
 
-	reconciler := manager.NewReconciler(managerOptions(), tc.client, func() provisioners.ManagerProvisioner { return p })
+	reconciler := manager.NewReconciler(managerOptions(), tc.newManager(c), func() provisioners.ManagerProvisioner { return p })
 
 	_, err := reconciler.Reconcile(ctx, newRequest(testNamespace, testName))
 	assert.NoError(t, err)
@@ -322,7 +332,7 @@ func TestReconcileDelete(t *testing.T) {
 	p.EXPECT().Object().Return(&unikornv1fake.ManagedResource{})
 	p.EXPECT().Deprovision(gomock.Any()).Return(nil)
 
-	reconciler := manager.NewReconciler(managerOptions(), tc.client, func() provisioners.ManagerProvisioner { return p })
+	reconciler := manager.NewReconciler(managerOptions(), tc.newManager(c), func() provisioners.ManagerProvisioner { return p })
 
 	_, err := reconciler.Reconcile(ctx, newRequest(testNamespace, testName))
 	assert.NoError(t, err)
@@ -364,7 +374,7 @@ func TestReconcileDeleteYield(t *testing.T) {
 	p.EXPECT().Object().Return(&unikornv1fake.ManagedResource{})
 	p.EXPECT().Deprovision(gomock.Any()).Return(provisioners.ErrYield)
 
-	reconciler := manager.NewReconciler(managerOptions(), tc.client, func() provisioners.ManagerProvisioner { return p })
+	reconciler := manager.NewReconciler(managerOptions(), tc.newManager(c), func() provisioners.ManagerProvisioner { return p })
 
 	_, err := reconciler.Reconcile(ctx, newRequest(testNamespace, testName))
 	assert.NoError(t, err)
@@ -407,7 +417,7 @@ func TestReconcileDeleteCancelled(t *testing.T) {
 	p.EXPECT().Object().Return(&unikornv1fake.ManagedResource{})
 	p.EXPECT().Deprovision(gomock.Any()).Return(ctx.Err())
 
-	reconciler := manager.NewReconciler(managerOptions(), tc.client, func() provisioners.ManagerProvisioner { return p })
+	reconciler := manager.NewReconciler(managerOptions(), tc.newManager(c), func() provisioners.ManagerProvisioner { return p })
 
 	_, err := reconciler.Reconcile(ctx, newRequest(testNamespace, testName))
 	assert.NoError(t, err)
@@ -448,7 +458,7 @@ func TestReconcileDeleteError(t *testing.T) {
 	p.EXPECT().Object().Return(&unikornv1fake.ManagedResource{})
 	p.EXPECT().Deprovision(gomock.Any()).Return(errUnhandled)
 
-	reconciler := manager.NewReconciler(managerOptions(), tc.client, func() provisioners.ManagerProvisioner { return p })
+	reconciler := manager.NewReconciler(managerOptions(), tc.newManager(c), func() provisioners.ManagerProvisioner { return p })
 
 	_, err := reconciler.Reconcile(ctx, newRequest(testNamespace, testName))
 	assert.NoError(t, err)
