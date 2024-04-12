@@ -18,6 +18,7 @@ limitations under the License.
 package oidc
 
 import (
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"net/http"
@@ -26,6 +27,8 @@ import (
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/getkin/kin-openapi/openapi3filter"
 	"github.com/spf13/pflag"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 	"golang.org/x/oauth2"
 
 	"github.com/unikorn-cloud/core/pkg/authorization/userinfo"
@@ -74,6 +77,41 @@ func getHTTPAuthenticationScheme(r *http.Request) (string, string, error) {
 	return parts[0], parts[1], nil
 }
 
+type propagationFunc func(r *http.Request)
+
+type propagatingTransport struct {
+	base http.Transport
+	f    propagationFunc
+}
+
+func newPropagatingTransport(ctx context.Context) *propagatingTransport {
+	return &propagatingTransport{
+		f: func(r *http.Request) {
+			otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(r.Header))
+		},
+	}
+}
+
+func (t *propagatingTransport) Clone() *propagatingTransport {
+	return &propagatingTransport{
+		f: t.f,
+	}
+}
+
+func (t *propagatingTransport) CloseIdleConnections() {
+	t.base.CloseIdleConnections()
+}
+
+func (t *propagatingTransport) RegisterProtocol(scheme string, rt http.RoundTripper) {
+	t.base.RegisterProtocol(scheme, rt)
+}
+
+func (t *propagatingTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	t.f(req)
+
+	return t.base.RoundTrip(req)
+}
+
 // authorizeOAuth2 checks APIs that require and oauth2 bearer token.
 func (a *Authorizer) authorizeOAuth2(r *http.Request) (string, *userinfo.UserInfo, error) {
 	authorizationScheme, rawToken, err := getHTTPAuthenticationScheme(r)
@@ -88,6 +126,8 @@ func (a *Authorizer) authorizeOAuth2(r *http.Request) (string, *userinfo.UserInf
 	// Handle non-public CA certiifcates used in development.
 	ctx := r.Context()
 
+	transport := newPropagatingTransport(ctx)
+
 	if a.options.IssuerCA != nil {
 		certPool := x509.NewCertPool()
 
@@ -95,17 +135,17 @@ func (a *Authorizer) authorizeOAuth2(r *http.Request) (string, *userinfo.UserInf
 			return "", nil, errors.OAuth2InvalidRequest("failed to parse oidc issuer CA cert")
 		}
 
-		client := &http.Client{
-			Transport: &http.Transport{
-				TLSClientConfig: &tls.Config{
-					RootCAs:    certPool,
-					MinVersion: tls.VersionTLS13,
-				},
-			},
+		transport.base.TLSClientConfig = &tls.Config{
+			RootCAs:    certPool,
+			MinVersion: tls.VersionTLS13,
 		}
-
-		ctx = oidc.ClientContext(ctx, client)
 	}
+
+	client := &http.Client{
+		Transport: transport,
+	}
+
+	ctx = oidc.ClientContext(ctx, client)
 
 	// Perform userinfo call against the identity service that will validate the token
 	// and also return some information about the user.
