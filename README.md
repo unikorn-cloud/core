@@ -23,20 +23,20 @@ Unikorn provides the following functionality:
 * Application ordering and gating
   * Applications can be deployed in a set order, and only after the previous one is healthy
   * Applications can be deployed concurrently where functionally required, or for performance, all applications must be healthy before execution can continue
-* Remote cluster provisionng
+* Remote cluster provisioning
   * Applications can be provisioned on a remote cluster e.g. one provisioned by Unikorn
 * Dynamic application configuration
   * An opinionated API allows applications to be deployed to user demands
   * Unikorn provides methods to propagate these parameters to the underlying applications
 * Provisioning hooks
-  * These provide methods to hook into the CD application life-cycle and perform any remidation required due to bugs or deficiencies of the chosen CD backend
+  * These provide methods to hook into the CD application life-cycle and perform any remediation required due to bugs or deficiencies of the chosen CD backend
 
-In summary, Unikorn is an engine for orchestrating complex CD deployments, that would otherwise be impossible to acheive.
+In summary, Unikorn is an engine for orchestrating complex CD deployments, that would otherwise be impossible to achieve.
 
 ## Unikorn Controllers
 
 The controllers (aka operators) used by Unikorn are relatively simple.
-They are based upon Controller Runtime and use this library whererver possible, this provides:
+They are based upon Controller Runtime and use this library wherever possible, this provides:
 
 * Structured logging
 * Caching Kubernetes clients
@@ -50,22 +50,22 @@ The general algorithm is:
 
 * Setup the context (detailed below)
 * Get the requested resource
-  * If not found, it has been deleted so end reconcilliation
+  * If not found, it has been deleted so end reconciliation
 * If the deletion timestamp is set, it is being deleted
   * Run the deprovisioner
   * Update the custom resource status conditions
-  * If an error occurred, requeue the reconcile, otherwise remove the finalizer to allow deletion and end reconcilliation
+  * If an error occurred, re-queue the reconcile, otherwise remove the finalizer to allow deletion and end reconciliation
 * Otherwise we reconcile, either creating or updating resources
   * Add the finalizer to the custom resource if not already set to allow controlled deletion
   * Run the provisioner
   * Update the custom resource status conditions
-  * If an error occurred, requeue the reconcile, otherwise end reconcilliation
+  * If an error occurred, re-queue the reconcile, otherwise end reconciliation
 
 Like the core controller logic, the reconciler handles status conditions, regardless of the custom resource type, in a generic manner to provide consistency.
 
 ## Reconciler Context
 
-The context contains a number of important values that can be propagated anywhere during reconcilliation with only a single context parameter.
+The context contains a number of important values that can be propagated anywhere during reconciliation with only a single context parameter.
 These are:
 
 * Logger, provided by Controller Runtime
@@ -83,8 +83,8 @@ This is a very basic contract that says it will provision/deprovision as asked, 
 
 This forms the core provisioner of Unikorn, and is responsible for:
 
-* Looking up the application's versioning information e.g Helm repo, chart and version
-  * This may also include static configration describing how to provision the application e.g. parameters
+* Looking up the application's versioning information e.g Helm repository, chart and version
+  * This may also include static configuration describing how to provision the application e.g. parameters
 * Generating dynamic parameters and values etc from the top level custom resource
 * Creating a generic application definition and passing it to the CD driver for provisioning or deprovisioning
 * Running any life-cycle hooks, that allow application specific hacks to be performed when the CD is broken in some way
@@ -93,7 +93,7 @@ This forms the core provisioner of Unikorn, and is responsible for:
 
 Most CD tools allow you to manage applications on a remote Kubernetes instance.
 For the most part this requires access to just a Kubernetes configuration file.
-The remote cluster provisioner provides a way of managing the lifecycle of remote clusters.
+The remote cluster provisioner provides a way of managing the life-cycle of remote clusters.
 
 The remote cluster provisioner is just a set of algorithms, to make it work you need to provide it with a driver that is able to retrieve the Kubernetes configuration.
 
@@ -133,7 +133,7 @@ With Unikorn this is simple:
 
 ## CD Drivers
 
-The CD driver does all the heavy lifing of the system, it implements:
+The CD driver does all the heavy lifting of the system, it implements:
 
 * Application creation, update and deletion
 * Remote cluster creation and deletion
@@ -151,7 +151,7 @@ At present only Argo CD is implemented.
 
 The Argo CD driver assumes that Argo CD is running in namepsaced mode (as opposed to cluster scoped mode), and therefore all applications and remote clusters will be provisioned in the same namespace.
 
-Application names will be generated based on the applicaion ID, so ensure these are kept within the 63 character limit.
+Application names will be generated based on the application ID, so ensure these are kept within the 63 character limit.
 Applications are retrieved based on label selectors containing at least the application name.
 Applications may have an additional set of labels if the application name isn't unique within the host cluster and can be attached in the ID to ensure uniqueness, e.g. the control plane, project etc.
 
