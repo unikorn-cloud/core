@@ -22,6 +22,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/coreos/go-oidc/v3/oidc"
@@ -112,6 +113,31 @@ func (t *propagatingTransport) RoundTrip(req *http.Request) (*http.Response, err
 	return t.base.RoundTrip(req)
 }
 
+// oidcErrorIsUnauthorized tries to convert the error returned by the OIDC library
+// into a proper status code, as it doesn't wrap anything useful.
+// The error looks like "{code} {text code}: {body}".
+func oidcErrorIsUnauthorized(err error) bool {
+	// Does it look like it contains the colon?
+	fields := strings.Split(err.Error(), ":")
+	if len(fields) < 2 {
+		return false
+	}
+
+	// What about a number followed by a string?
+	fields = strings.Split(fields[0], " ")
+	if len(fields) < 2 {
+		return false
+	}
+
+	code, err := strconv.Atoi(fields[0])
+	if err != nil {
+		return false
+	}
+
+	// Is the number a 403?
+	return code == http.StatusUnauthorized
+}
+
 // authorizeOAuth2 checks APIs that require and oauth2 bearer token.
 func (a *Authorizer) authorizeOAuth2(r *http.Request) (string, *userinfo.UserInfo, error) {
 	authorizationScheme, rawToken, err := getHTTPAuthenticationScheme(r)
@@ -161,6 +187,10 @@ func (a *Authorizer) authorizeOAuth2(r *http.Request) (string, *userinfo.UserInf
 
 	ui, err := provider.UserInfo(ctx, oauth2.StaticTokenSource(token))
 	if err != nil {
+		if oidcErrorIsUnauthorized(err) {
+			return "", nil, errors.OAuth2AccessDenied("token validation failed").WithError(err)
+		}
+
 		return "", nil, err
 	}
 
