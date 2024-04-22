@@ -18,38 +18,8 @@ limitations under the License.
 package constants
 
 import (
-	"fmt"
-	"os"
-	"path"
 	"time"
 )
-
-var (
-	// Application is the application name.
-	//nolint:gochecknoglobals
-	Application = path.Base(os.Args[0])
-
-	// Version is the application version set via the Makefile.
-	//nolint:gochecknoglobals
-	Version string
-
-	// Revision is the git revision set via the Makefile.
-	//nolint:gochecknoglobals
-	Revision string
-)
-
-// VersionString returns a canonical version string.  It's based on
-// HTTP's User-Agent so can be used to set that too, if this ever has to
-// call out ot other micro services.
-func VersionString() string {
-	return fmt.Sprintf("%s/%s (revision/%s)", Application, Version, Revision)
-}
-
-// IsProduction tells us whether we need to check for silly assumptions that
-// don't exist or are mostly irrelevant in development land.
-func IsProduction() bool {
-	return Version != DeveloperVersion
-}
 
 const (
 	// This is the default version in the Makefile.

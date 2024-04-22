@@ -25,7 +25,6 @@ import (
 	"github.com/spf13/pflag"
 
 	coreclient "github.com/unikorn-cloud/core/pkg/client"
-	"github.com/unikorn-cloud/core/pkg/constants"
 	"github.com/unikorn-cloud/core/pkg/manager/options"
 
 	klog "k8s.io/klog/v2"
@@ -76,10 +75,12 @@ func getManager(f ControllerFactory) (manager.Manager, error) {
 		return nil, err
 	}
 
+	application, _, _ := f.Metadata()
+
 	options := manager.Options{
 		Scheme:           scheme,
 		LeaderElection:   true,
-		LeaderElectionID: constants.Application,
+		LeaderElectionID: application,
 	}
 
 	manager, err := manager.New(config, options)
@@ -102,7 +103,9 @@ func getController(o *options.Options, manager manager.Manager, f ControllerFact
 		Reconciler:              f.Reconciler(o, manager),
 	}
 
-	c, err := controller.New(constants.Application, manager, controllerOptions)
+	application, _, _ := f.Metadata()
+
+	c, err := controller.New(application, manager, controllerOptions)
 	if err != nil {
 		return nil, err
 	}
