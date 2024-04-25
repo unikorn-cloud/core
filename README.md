@@ -107,7 +107,7 @@ The remote cluster provisioner will create the remote cluster via the CD driver 
 These provide the following functionality:
 
 * Serial provisioner
-  * Ordered provisioning where one child provisioner is dependant on another
+  * Ordered provisioning where one child provisioner is dependent on another
   * It will return nil if all succeed, or the first error that is encountered
   * Deprovisioning will occur in reverse order
 * Concurrent provisioner
@@ -130,6 +130,41 @@ With Unikorn this is simple:
   * Create a remote cluster when possible (i.e. the kubeconfig is available)
   * On the remote cluster...
     * Create the CCM and CNI concurrently
+
+## Applications
+
+Consider the following:
+
+![Application Architecture](./docs/images/applications.png)
+
+### Application Resources
+
+Applications form the basis of all managed services in Unikorn.
+Most managed resource types are a collection of applications managed by provisioners in a specific way to yield an end result.
+
+Applications are defined only once e.g. there is only one instance of `cert-manager` in the system.
+This aids in presenting applications to end-users in an application catalog, and keeps presentation logic simple.
+
+Applications define metadata about the application: its source, documentation, license, icon etc.
+
+Each application aggregates together a number of different versions.
+Again this simplifies logic when determining whether an upgrade is available as we only need to look at the application to gather all the data we need.
+
+Application versions define where to get the application from (typically a Helm repository, but it may refer to a GitHub branch for development purposes, or when a hot fix is not available via official channels).
+They also define any static parameters that should be passed to the CD driver.
+Where special handling is necessary by a provisioner, an interface version allows the provision to behave differently for different versions if Helm interfaces change.
+
+### Application Sets/Bundles
+
+Application sets conceptually are a set of versioned applications that are bundled together and applied to another managed resource, for example a set of optional applications that can installed on a Kubernetes cluster, and are user specified.
+
+Application bundles are almost exactly the same.
+Consider a Kubernetes cluster: that has an versioned application for the cluster, one for the CNI, another for the cloud controller manager etc.
+They differ from application sets in that the set of applications is (mostly) static for that resource type, and they are _versioned_.
+
+Application bundle versioning allows us to define and test a very limited set of permutations when it comes to resource provisioning and resource upgrade.
+If it were free-for-all, then the number of permutations for testing is a really large polynomial that's impossible to test.
+If we limit bundle versions to say N-2, then we only need worry about a single creation and two upgrade scenarios.
 
 ## CD Drivers
 
@@ -162,7 +197,7 @@ Like applications, care should be taken to ensure server names do not alias thro
 
 When provisioning applications, the driver will return `ErrYield` if the application does not report healthy status.
 
-The behaviour is the same when deprovisioning applications, returning `ErrYield` until the application has been full deleted by ArgoCD.
+The behavior is the same when deprovisioning applications, returning `ErrYield` until the application has been full deleted by ArgoCD.
 You can enable a feature called "background deletion", which assumes success.
 This is typically used when destroying a remote cluster, as the deletion of said cluster will also result in the deletion of all resources, and Argo CD will eventually remove applications referring to a non-existent remote cluster.
 
