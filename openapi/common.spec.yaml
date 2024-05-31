@@ -1,0 +1,53 @@
+components:
+  schemas:
+    kubernetesLabelValue:
+      description: |-
+        A valid Kubenetes label value, typically used for resource names that can be
+        indexed in the database.
+      type: string
+      pattern: '^[0-9A-Za-z](?:[0-9A-Za-z-_.]{0,61}[0-9A-Za-z])?$'
+    resourceMetadata:
+      description: Resource metadata valid for all API resource reads and writes.
+      required:
+      - name
+      properties:
+        name:
+          $ref: '#/components/schemas/kubernetesLabelValue'
+        description:
+          description: |-
+            The resource description, this optionally augments the name with more context.
+          type: string
+    resourceProvisioningStatus:
+      description: The provisioning state of a resource.
+      type: string
+      enum:
+      - unknown
+      - provisioning
+      - provisioned
+      - deprovisioning
+      - error
+    resourceReadMetadata:
+      description: Resource metadata valid for all reads.
+      allOf:
+      - $ref: '#/components/schemas/resourceMetadata'
+      - type: object
+        required:
+        - id
+        - creationTime
+        - provisioningStatus
+        properties:
+          id:
+            description: The unique resource ID.
+            type: string
+          creationTime:
+            description: The time the resource was created.
+            type: string
+            format: date-time
+          deletionTime:
+            description: The time the resource was deleted.
+            type: string
+            format: date-time
+          provisioningStatus:
+            $ref: '#/components/schemas/resourceProvisioningStatus'
+    resourceWriteMetadata:
+      $ref: '#/components/schemas/resourceMetadata'
