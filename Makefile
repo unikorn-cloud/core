@@ -72,6 +72,10 @@ openapi/types.go: openapi/common.spec.yaml
 	@go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@$(OPENAPI_CODEGEN_VERSION)
 	oapi-codegen -generate types,skip-prune -package openapi -o $@ $<
 
+openapi/schema.go: openapi/common.spec.yaml
+	@go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@$(OPENAPI_CODEGEN_VERSION)
+	oapi-codegen -generate spec,skip-prune -package openapi -o $@ $<
+
 # Create any CRDs defined into the target directory.
 $(CRDDIR): $(APISRC)
 	@mkdir -p $@
