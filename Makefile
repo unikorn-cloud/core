@@ -29,6 +29,8 @@ CONTROLLER_TOOLS_VERSION=v0.14.0
 # This should be kept in sync with the Kubenetes library versions defined in go.mod.
 CODEGEN_VERSION=v0.27.3
 
+OPENAPI_CODEGEN_VERSION=v1.12.4
+
 # Defined the mock generator version.
 MOCKGEN_VERSION=v0.3.0
 
@@ -51,7 +53,7 @@ GENCLIENTS = $(MODULE)/$(GENDIR)/clientset
 
 # Main target, builds all binaries.
 .PHONY: all
-all: $(GENDIR) $(CRDDIR)
+all: $(GENDIR) $(CRDDIR) openapi/types.go
 
 # TODO: we may wamt to consider porting the rest of the CRD and client generation
 # stuff over... that said, we don't need the clients really do we, controller-runtime
@@ -65,6 +67,10 @@ generate:
 test-unit:
 	go test -coverpkg ./... -coverprofile cover.out ./...
 	go tool cover -html cover.out -o cover.html
+
+openapi/types.go: openapi/common.spec.yaml
+	@go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@$(OPENAPI_CODEGEN_VERSION)
+	oapi-codegen -generate types,skip-prune -package openapi -o $@ $<
 
 # Create any CRDs defined into the target directory.
 $(CRDDIR): $(APISRC)
