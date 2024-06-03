@@ -77,6 +77,7 @@ func OrganizationScopedResourceReadMetadata(in metav1.Object, status openapi.Res
 	out := openapi.OrganizationScopedResourceReadMetadata{
 		Id:                 temp.Id,
 		Name:               temp.Name,
+		Description:        temp.Description,
 		CreationTime:       temp.CreationTime,
 		ProvisioningStatus: temp.ProvisioningStatus,
 		OrganizationId:     labels[constants.OrganizationLabel],
@@ -95,6 +96,7 @@ func ProjectScopedResourceReadMetadata(in metav1.Object, status openapi.Resource
 	out := openapi.ProjectScopedResourceReadMetadata{
 		Id:                 temp.Id,
 		Name:               temp.Name,
+		Description:        temp.Description,
 		CreationTime:       temp.CreationTime,
 		ProvisioningStatus: temp.ProvisioningStatus,
 		OrganizationId:     temp.OrganizationId,
