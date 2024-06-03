@@ -67,6 +67,39 @@ func ResourceReadMetadata(in metav1.Object, status openapi.ResourceProvisioningS
 	return out
 }
 
+// OrganizationScopedResourceReadMetadata extracts organization scoped metdata from a resource
+// for GET APIS.
+func OrganizationScopedResourceReadMetadata(in metav1.Object, status openapi.ResourceProvisioningStatus, organizationID string) openapi.OrganizationScopedResourceReadMetadata {
+	temp := ResourceReadMetadata(in, status)
+
+	out := openapi.OrganizationScopedResourceReadMetadata{
+		Id:                 temp.Id,
+		Name:               temp.Name,
+		CreationTime:       temp.CreationTime,
+		ProvisioningStatus: temp.ProvisioningStatus,
+		OrganizationId:     organizationID,
+	}
+
+	return out
+}
+
+// ProjectScopedResourceReadMetadata extracts project scoped metdata from a resource for
+// GET APIs.
+func ProjectScopedResourceReadMetadata(in metav1.Object, status openapi.ResourceProvisioningStatus, organizationID, projectID string) openapi.ProjectScopedResourceReadMetadata {
+	temp := OrganizationScopedResourceReadMetadata(in, status, organizationID)
+
+	out := openapi.ProjectScopedResourceReadMetadata{
+		Id:                 temp.Id,
+		Name:               temp.Name,
+		CreationTime:       temp.CreationTime,
+		ProvisioningStatus: temp.ProvisioningStatus,
+		OrganizationId:     temp.OrganizationId,
+		ProjectId:          projectID,
+	}
+
+	return out
+}
+
 // generateResourceID creates a valid Kubernetes name from a UUID.
 func generateResourceID() string {
 	for {
@@ -79,8 +112,8 @@ func generateResourceID() string {
 	}
 }
 
-// ObjectMetadata creates Kubernetes object metadata from generic request metadata.
-func ObjectMetadata(in *openapi.ResourceWriteMetadata, namespace string, labels map[string]string) metav1.ObjectMeta {
+// objectMetadata creates Kubernetes object metadata from generic request metadata.
+func objectMetadata(in *openapi.ResourceWriteMetadata, namespace string, labels map[string]string) metav1.ObjectMeta {
 	out := metav1.ObjectMeta{
 		Namespace: namespace,
 		Name:      generateResourceID(),
@@ -100,6 +133,32 @@ func ObjectMetadata(in *openapi.ResourceWriteMetadata, namespace string, labels 
 	}
 
 	return out
+}
+
+// ObjectMetadata creates Kubernetes object metadata from unscoped resource request metadata.
+func ObjectMetadata(in *openapi.ResourceWriteMetadata, namespace string) metav1.ObjectMeta {
+	return objectMetadata(in, namespace, nil)
+}
+
+// OrgaizationScopedObjectMetadata creates Kubernetes object metadata from organization scoped
+// resource request metadata.
+func OrgaizationScopedObjectMetadata(in *openapi.ResourceWriteMetadata, namespace, organizationID string) metav1.ObjectMeta {
+	labels := map[string]string{
+		constants.OrganizationLabel: organizationID,
+	}
+
+	return objectMetadata(in, namespace, labels)
+}
+
+// ProjectScopedObjectMetadata creates Kubernetes object metadata from project scoped
+// resource request metadata.
+func ProjectScopedObjectMetadata(in *openapi.ResourceWriteMetadata, namespace, organizationID, projectID string) metav1.ObjectMeta {
+	labels := map[string]string{
+		constants.OrganizationLabel: organizationID,
+		constants.ProjectLabel:      projectID,
+	}
+
+	return objectMetadata(in, namespace, labels)
 }
 
 // UpdateObjectMetadata abstracts away metadata updates e.g. name and description changes.
