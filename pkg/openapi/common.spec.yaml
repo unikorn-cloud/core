@@ -51,3 +51,23 @@ components:
             $ref: '#/components/schemas/resourceProvisioningStatus'
     resourceWriteMetadata:
       $ref: '#/components/schemas/resourceMetadata'
+    organizationScopedResourceReadMetadata:
+      allOf:
+      - $ref: '#/components/schemas/resourceReadMetadata'
+      - type: object
+        required:
+        - organizationId
+        properties:
+          organizationId:
+            description: The organization identifier the resource belongs to.
+            type: string
+    projectScopedResourceReadMetadata:
+      allOf:
+      - $ref: '#/components/schemas/organizationScopedResourceReadMetadata'
+      - type: object
+        required:
+        - projectId
+        properties:
+          projectId:
+            description: The project identifier the resource belongs to.
+            type: string
