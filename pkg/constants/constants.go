@@ -25,6 +25,15 @@ const (
 	// This is the default version in the Makefile.
 	DeveloperVersion = "0.0.0"
 
+	// NameLabel is attached to every resource to give it a mutable display
+	// name.  While the character set is limited to [0-9A-Za-z_-.] it is at least
+	// indexed in etcd which gives us another string to our bow.
+	NameLabel = "unikorn-cloud.org/name"
+
+	// DescriptionAnnotation is optionally attached to a resource to allow
+	// an unconstriained and verbose description about the resource.
+	DescriptionAnnotation = "unikorn-cloud.org/description"
+
 	// VersionLabel is a label applied to resources so we know the application
 	// version that was used to create them (and thus what metadata is valid
 	// for them).  Metadata may be upgraded to a later version for any resource.
