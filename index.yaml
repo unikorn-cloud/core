@@ -2,6 +2,17 @@ apiVersion: v1
 entries:
   core:
   - apiVersion: v2
+    appVersion: v0.1.37
+    created: "2024-06-03T09:31:07.240114632Z"
+    description: A Helm chart for deploying Unikorn Core
+    digest: a343646800f62cacbe211bd9635454bec09a95d877a6e15700ebe55d4344f539
+    icon: https://assets.unikorn-cloud.org/images/logos/dark-on-light/icon.svg
+    name: core
+    type: application
+    urls:
+    - https://github.com/unikorn-cloud/core/releases/download/v0.1.37/core-v0.1.37.tgz
+    version: v0.1.37
+  - apiVersion: v2
     appVersion: v0.1.36
     created: "2024-06-03T09:21:02.253452556Z"
     description: A Helm chart for deploying Unikorn Core
@@ -397,4 +408,4 @@ entries:
     urls:
     - https://github.com/unikorn-cloud/core/releases/download/v0.1.0/core-v0.1.0.tgz
     version: v0.1.0
-generated: "2024-06-03T09:21:02.254087152Z"
+generated: "2024-06-03T09:31:07.240462044Z"
