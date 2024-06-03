@@ -144,9 +144,9 @@ func ObjectMetadata(in *openapi.ResourceWriteMetadata, namespace string) metav1.
 	return objectMetadata(in, namespace, nil)
 }
 
-// OrgaizationScopedObjectMetadata creates Kubernetes object metadata from organization scoped
+// OrganizationScopedObjectMetadata creates Kubernetes object metadata from organization scoped
 // resource request metadata.
-func OrgaizationScopedObjectMetadata(in *openapi.ResourceWriteMetadata, namespace, organizationID string) metav1.ObjectMeta {
+func OrganizationScopedObjectMetadata(in *openapi.ResourceWriteMetadata, namespace, organizationID string) metav1.ObjectMeta {
 	labels := map[string]string{
 		constants.OrganizationLabel: organizationID,
 	}
