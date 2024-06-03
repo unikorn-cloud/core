@@ -69,7 +69,9 @@ func ResourceReadMetadata(in metav1.Object, status openapi.ResourceProvisioningS
 
 // OrganizationScopedResourceReadMetadata extracts organization scoped metdata from a resource
 // for GET APIS.
-func OrganizationScopedResourceReadMetadata(in metav1.Object, status openapi.ResourceProvisioningStatus, organizationID string) openapi.OrganizationScopedResourceReadMetadata {
+func OrganizationScopedResourceReadMetadata(in metav1.Object, status openapi.ResourceProvisioningStatus) openapi.OrganizationScopedResourceReadMetadata {
+	labels := in.GetLabels()
+
 	temp := ResourceReadMetadata(in, status)
 
 	out := openapi.OrganizationScopedResourceReadMetadata{
@@ -77,7 +79,7 @@ func OrganizationScopedResourceReadMetadata(in metav1.Object, status openapi.Res
 		Name:               temp.Name,
 		CreationTime:       temp.CreationTime,
 		ProvisioningStatus: temp.ProvisioningStatus,
-		OrganizationId:     organizationID,
+		OrganizationId:     labels[constants.OrganizationLabel],
 	}
 
 	return out
@@ -85,8 +87,10 @@ func OrganizationScopedResourceReadMetadata(in metav1.Object, status openapi.Res
 
 // ProjectScopedResourceReadMetadata extracts project scoped metdata from a resource for
 // GET APIs.
-func ProjectScopedResourceReadMetadata(in metav1.Object, status openapi.ResourceProvisioningStatus, organizationID, projectID string) openapi.ProjectScopedResourceReadMetadata {
-	temp := OrganizationScopedResourceReadMetadata(in, status, organizationID)
+func ProjectScopedResourceReadMetadata(in metav1.Object, status openapi.ResourceProvisioningStatus) openapi.ProjectScopedResourceReadMetadata {
+	labels := in.GetLabels()
+
+	temp := OrganizationScopedResourceReadMetadata(in, status)
 
 	out := openapi.ProjectScopedResourceReadMetadata{
 		Id:                 temp.Id,
@@ -94,7 +98,7 @@ func ProjectScopedResourceReadMetadata(in metav1.Object, status openapi.Resource
 		CreationTime:       temp.CreationTime,
 		ProvisioningStatus: temp.ProvisioningStatus,
 		OrganizationId:     temp.OrganizationId,
-		ProjectId:          projectID,
+		ProjectId:          labels[constants.ProjectLabel],
 	}
 
 	return out
