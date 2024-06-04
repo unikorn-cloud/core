@@ -29,6 +29,7 @@ import (
 	"github.com/unikorn-cloud/core/pkg/cd"
 	"github.com/unikorn-cloud/core/pkg/cd/mock"
 	coreclient "github.com/unikorn-cloud/core/pkg/client"
+	"github.com/unikorn-cloud/core/pkg/constants"
 	"github.com/unikorn-cloud/core/pkg/provisioners"
 	"github.com/unikorn-cloud/core/pkg/provisioners/application"
 	mockprovisioners "github.com/unikorn-cloud/core/pkg/provisioners/mock"
@@ -91,17 +92,17 @@ func mustNewTestContext(t *testing.T, objects ...client.Object) *testContext {
 }
 
 const (
-	applicationName         = "test"
-	overrideApplicationName = "testinate"
-	repo                    = "foo"
-	chart                   = "bar"
-	version                 = "baz"
+	applicationID   = "c785837a-7412-49a6-ac7e-6d75ab6ca577"
+	applicationName = "test"
+	repo            = "foo"
+	chart           = "bar"
+	version         = "baz"
 )
 
 func getApplicationReference(ctx context.Context) (*unikornv1.ApplicationReference, error) {
 	ref := &unikornv1.ApplicationReference{
 		Kind:    util.ToPointer(unikornv1.ApplicationReferenceKindHelm),
-		Name:    util.ToPointer(applicationName),
+		Name:    util.ToPointer(applicationID),
 		Version: util.ToPointer(version),
 	}
 
@@ -115,7 +116,10 @@ func TestApplicationCreateHelm(t *testing.T) {
 
 	app := &unikornv1.HelmApplication{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: applicationName,
+			Name: applicationID,
+			Labels: map[string]string{
+				constants.NameLabel: applicationName,
+			},
 		},
 		Spec: unikornv1.HelmApplicationSpec{
 			Versions: []unikornv1.HelmApplicationVersion{
@@ -176,7 +180,10 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 
 	app := &unikornv1.HelmApplication{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: applicationName,
+			Name: applicationID,
+			Labels: map[string]string{
+				constants.NameLabel: applicationName,
+			},
 		},
 		Spec: unikornv1.HelmApplicationSpec{
 			Versions: []unikornv1.HelmApplicationVersion{
@@ -221,7 +228,7 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 	r.EXPECT().ID().Return(remoteID)
 
 	driverAppID := &cd.ResourceIdentifier{
-		Name:   overrideApplicationName,
+		Name:   applicationName,
 		Labels: newManagedResourceLabels(),
 	}
 
@@ -252,7 +259,7 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 
 	driver.EXPECT().CreateOrUpdateHelmApplication(ctx, driverAppID, driverApp).Return(provisioners.ErrYield)
 
-	provisioner := application.New(getApplicationReference).WithApplicationName(overrideApplicationName).AllowDegraded()
+	provisioner := application.New(getApplicationReference).AllowDegraded()
 	provisioner.OnRemote(r)
 
 	assert.ErrorIs(t, provisioner.Provision(ctx), provisioners.ErrYield)
@@ -267,7 +274,10 @@ func TestApplicationCreateGit(t *testing.T) {
 
 	app := &unikornv1.HelmApplication{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: applicationName,
+			Name: applicationID,
+			Labels: map[string]string{
+				constants.NameLabel: applicationName,
+			},
 		},
 		Spec: unikornv1.HelmApplicationSpec{
 			Versions: []unikornv1.HelmApplicationVersion{
@@ -382,7 +392,10 @@ func TestApplicationCreateMutate(t *testing.T) {
 
 	app := &unikornv1.HelmApplication{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: applicationName,
+			Name: applicationID,
+			Labels: map[string]string{
+				constants.NameLabel: applicationName,
+			},
 		},
 		Spec: unikornv1.HelmApplicationSpec{
 			Versions: []unikornv1.HelmApplicationVersion{
@@ -455,7 +468,10 @@ func TestApplicationDeleteNotFound(t *testing.T) {
 
 	app := &unikornv1.HelmApplication{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: applicationName,
+			Name: applicationID,
+			Labels: map[string]string{
+				constants.NameLabel: applicationName,
+			},
 		},
 		Spec: unikornv1.HelmApplicationSpec{
 			Versions: []unikornv1.HelmApplicationVersion{
