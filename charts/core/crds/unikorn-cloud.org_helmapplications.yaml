@@ -17,6 +17,9 @@ spec:
   scope: Cluster
   versions:
   - additionalPrinterColumns:
+    - jsonPath: .metadata.labels['unikorn-cloud\.org/name']
+      name: display name
+      type: string
     - jsonPath: .metadata.creationTimestamp
       name: age
       type: date
@@ -44,9 +47,6 @@ spec:
             type: object
           spec:
             properties:
-              description:
-                description: Description describes what the application does.
-                type: string
               documentation:
                 description: Documentation defines a URL to 3rd party documentation.
                 type: string
@@ -62,9 +62,6 @@ spec:
               license:
                 description: License describes the licence the application is released
                   under.
-                type: string
-              name:
-                description: Name is the human readable application name.
                 type: string
               tags:
                 description: |-
@@ -186,11 +183,9 @@ spec:
                     rule: '!(has(self.chart) && has(self.path))'
                 type: array
             required:
-            - description
             - documentation
             - icon
             - license
-            - name
             - tags
             type: object
           status:
