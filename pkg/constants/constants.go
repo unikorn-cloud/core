@@ -44,7 +44,7 @@ const (
 	// you have to select based on project and CP name, because of name reuse, but
 	// this raises the problem that selecting a project's namespace will match multiple
 	// so this provides a concrete type associated with each resource.
-	KindLabel = "unikorn.unikorn-cloud.org/kind"
+	KindLabel = "unikorn-cloud.org/kind"
 
 	// KindLabelValueOrganization is used to denote a resource belongs to this type.
 	KindLabelValueOrganization = "organization"
@@ -64,33 +64,26 @@ const (
 
 	// ProjectLabel is a label applied to namespaces to indicate it is under
 	// control of this tool.  Useful for label selection.
-	ProjectLabel = "unikorn.unikorn-cloud.org/project"
-
-	// ClusterManagerLabel is a label applied to resources to indicate is belongs
-	// to a specific cluster manager.
-	ClusterManagerLabel = "unikorn.unikorn-cloud.org/clustermanager"
+	ProjectLabel = "unikorn-cloud.org/project"
 
 	// KubernetesClusterLabel is applied to resources to indicate it belongs
 	// to a specific cluster.
-	KubernetesClusterLabel = "unikorn.unikorn-cloud.org/cluster"
+	KubernetesClusterLabel = "unikorn-cloud.org/cluster"
 
 	// ApplicationLabel is applied to ArgoCD applications to differentiate
 	// between them.
-	ApplicationLabel = "unikorn.unikorn-cloud.org/application"
+	ApplicationLabel = "unikorn-cloud.org/application"
 
 	// ApplicationIDLabel is used to lookup applications based on their ID.
-	ApplicationIDLabel = "unikorn.unikorn-cloud.org/application-id"
-
-	// IngressEndpointAnnotation helps us find the ingress IP address.
-	IngressEndpointAnnotation = "unikorn.unikorn-cloud.org/ingress-endpoint"
+	ApplicationIDLabel = "unikorn-cloud.org/application-id"
 
 	// ConfigurationHashAnnotation is used where application owners refuse to
 	// poll configuration updates and we (and all other users) are forced into
 	// manually restarting services based on a Deployment/DaemonSet changing.
-	ConfigurationHashAnnotation = "unikorn.unikorn-cloud.org/config-hash"
+	ConfigurationHashAnnotation = "unikorn-cloud.org/config-hash"
 
 	// RegionAnnotation tells you what region something lives in.
-	RegionAnnotation = "region.unikorn-cloud.org/name"
+	RegionAnnotation = "unikorn-cloud.org/region"
 
 	// Finalizer is applied to resources that need to be deleted manually
 	// and do other complex logic.
@@ -112,7 +105,6 @@ const (
 func LabelPriorities() []string {
 	return []string{
 		KubernetesClusterLabel,
-		ClusterManagerLabel,
 		ProjectLabel,
 		OrganizationLabel,
 	}
