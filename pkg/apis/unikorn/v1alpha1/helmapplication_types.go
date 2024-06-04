@@ -34,6 +34,7 @@ type HelmApplicationList struct {
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 // +kubebuilder:resource:scope=Cluster,categories=unikorn
+// +kubebuilder:printcolumn:name="display name",type="string",JSONPath=".metadata.labels['unikorn-cloud\\.org/name']"
 // +kubebuilder:printcolumn:name="age",type="date",JSONPath=".metadata.creationTimestamp"
 type HelmApplication struct {
 	metav1.TypeMeta   `json:",inline"`
@@ -43,10 +44,6 @@ type HelmApplication struct {
 }
 
 type HelmApplicationSpec struct {
-	// Name is the human readable application name.
-	Name *string `json:"name"`
-	// Description describes what the application does.
-	Description *string `json:"description"`
 	// Documentation defines a URL to 3rd party documentation.
 	Documentation *string `json:"documentation"`
 	// License describes the licence the application is released under.
