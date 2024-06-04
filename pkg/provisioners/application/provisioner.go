@@ -24,6 +24,7 @@ import (
 	unikornv1 "github.com/unikorn-cloud/core/pkg/apis/unikorn/v1alpha1"
 	"github.com/unikorn-cloud/core/pkg/cd"
 	clientlib "github.com/unikorn-cloud/core/pkg/client"
+	"github.com/unikorn-cloud/core/pkg/constants"
 	"github.com/unikorn-cloud/core/pkg/provisioners"
 	"github.com/unikorn-cloud/core/pkg/util"
 
@@ -75,14 +76,6 @@ var _ provisioners.Provisioner = &Provisioner{}
 // InNamespace deploys the application into an explicit namespace.
 func (p *Provisioner) InNamespace(namespace string) *Provisioner {
 	p.namespace = namespace
-
-	return p
-}
-
-// WithApplicationName allows the application name to be modified, rather than using
-// application.Name.
-func (p *Provisioner) WithApplicationName(name string) *Provisioner {
-	p.Name = name
 
 	return p
 }
@@ -293,11 +286,7 @@ func (p *Provisioner) initialize(ctx context.Context) error {
 		return err
 	}
 
-	// This may have been manually overridden.
-	// TODO: this is only used by the clusteropenstack...
-	if p.Name == "" {
-		p.Name = application.Name
-	}
+	p.Name = application.Labels[constants.NameLabel]
 
 	version, err := application.GetVersion(*ref.Version)
 	if err != nil {
