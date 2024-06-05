@@ -151,6 +151,8 @@ func (r *Reconciler) Reconcile(ctx context.Context, request reconcile.Request) (
 
 // reconcileDelete handles object deletion.
 func (r *Reconciler) reconcileDelete(ctx context.Context, provisioner provisioners.Provisioner, object unikornv1.ManagableResourceInterface) (reconcile.Result, error) {
+	log := log.FromContext(ctx)
+
 	perr := provisioner.Deprovision(ctx)
 
 	if err := r.handleReconcileCondition(ctx, object, perr, true); err != nil {
@@ -161,7 +163,10 @@ func (r *Reconciler) reconcileDelete(ctx context.Context, provisioner provisione
 	// NOTE: DO NOT return an error, and use a constant period or you will
 	// suffer from an exponential back-off and kill performance.
 	if perr != nil {
-		//nolint:nilerr
+		if !errors.Is(perr, provisioners.ErrYield) {
+			log.Error(perr, "deprovisioning failed unexpectedly")
+		}
+
 		return reconcile.Result{RequeueAfter: constants.DefaultYieldTimeout}, nil
 	}
 
@@ -178,6 +183,8 @@ func (r *Reconciler) reconcileDelete(ctx context.Context, provisioner provisione
 // reconcileNormal adds the application finalizer, provisions the resource and
 // updates the resource status to indicate progress.
 func (r *Reconciler) reconcileNormal(ctx context.Context, provisioner provisioners.Provisioner, object unikornv1.ManagableResourceInterface) (reconcile.Result, error) {
+	log := log.FromContext(ctx)
+
 	// Add the finalizer so we can orchestrate resource garbage collection.
 	if ok := controllerutil.AddFinalizer(object, constants.Finalizer); ok {
 		if err := r.manager.GetClient().Update(ctx, object); err != nil {
@@ -196,7 +203,10 @@ func (r *Reconciler) reconcileNormal(ctx context.Context, provisioner provisione
 	// NOTE: DO NOT return an error, and use a constant period or you will
 	// suffer from an exponential back-off and kill performance.
 	if perr != nil {
-		//nolint:nilerr
+		if !errors.Is(perr, provisioners.ErrYield) {
+			log.Error(perr, "provisioning failed unexpectedly")
+		}
+
 		return reconcile.Result{RequeueAfter: constants.DefaultYieldTimeout}, nil
 	}
 
