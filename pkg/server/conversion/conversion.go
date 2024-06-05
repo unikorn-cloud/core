@@ -32,15 +32,15 @@ func ConvertStatusCondition(in *unikornv1.Condition) openapi.ResourceProvisionin
 	//nolint:exhaustive
 	switch in.Reason {
 	case unikornv1.ConditionReasonProvisioning:
-		return openapi.Provisioning
+		return openapi.ResourceProvisioningStatusProvisioning
 	case unikornv1.ConditionReasonProvisioned:
-		return openapi.Provisioned
+		return openapi.ResourceProvisioningStatusProvisioned
 	case unikornv1.ConditionReasonErrored:
-		return openapi.Error
+		return openapi.ResourceProvisioningStatusError
 	case unikornv1.ConditionReasonDeprovisioning:
-		return openapi.Deprovisioning
+		return openapi.ResourceProvisioningStatusDeprovisioning
 	default:
-		return openapi.Unknown
+		return openapi.ResourceProvisioningStatusUnknown
 	}
 }
 

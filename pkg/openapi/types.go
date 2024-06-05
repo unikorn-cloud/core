@@ -7,14 +7,45 @@ import (
 	"time"
 )
 
+// Defines values for ErrorError.
+const (
+	AccessDenied            ErrorError = "access_denied"
+	Conflict                ErrorError = "conflict"
+	Forbidden               ErrorError = "forbidden"
+	InvalidClient           ErrorError = "invalid_client"
+	InvalidGrant            ErrorError = "invalid_grant"
+	InvalidRequest          ErrorError = "invalid_request"
+	InvalidScope            ErrorError = "invalid_scope"
+	MethodNotAllowed        ErrorError = "method_not_allowed"
+	NotFound                ErrorError = "not_found"
+	ServerError             ErrorError = "server_error"
+	TemporarilyUnavailable  ErrorError = "temporarily_unavailable"
+	UnauthorizedClient      ErrorError = "unauthorized_client"
+	UnsupportedGrantType    ErrorError = "unsupported_grant_type"
+	UnsupportedMediaType    ErrorError = "unsupported_media_type"
+	UnsupportedResponseType ErrorError = "unsupported_response_type"
+)
+
 // Defines values for ResourceProvisioningStatus.
 const (
-	Deprovisioning ResourceProvisioningStatus = "deprovisioning"
-	Error          ResourceProvisioningStatus = "error"
-	Provisioned    ResourceProvisioningStatus = "provisioned"
-	Provisioning   ResourceProvisioningStatus = "provisioning"
-	Unknown        ResourceProvisioningStatus = "unknown"
+	ResourceProvisioningStatusDeprovisioning ResourceProvisioningStatus = "deprovisioning"
+	ResourceProvisioningStatusError          ResourceProvisioningStatus = "error"
+	ResourceProvisioningStatusProvisioned    ResourceProvisioningStatus = "provisioned"
+	ResourceProvisioningStatusProvisioning   ResourceProvisioningStatus = "provisioning"
+	ResourceProvisioningStatusUnknown        ResourceProvisioningStatus = "unknown"
 )
+
+// Error Generic error message, compatible with oauth2.
+type Error struct {
+	// Error A terse error string expanding on the HTTP error code. Errors are based on the OAuth2 specification, but are expanded with proprietary status codes for APIs other than those specified by OAuth2.
+	Error ErrorError `json:"error"`
+
+	// ErrorDescription Verbose message describing the error.
+	ErrorDescription string `json:"error_description"`
+}
+
+// ErrorError A terse error string expanding on the HTTP error code. Errors are based on the OAuth2 specification, but are expanded with proprietary status codes for APIs other than those specified by OAuth2.
+type ErrorError string
 
 // KubernetesLabelValue A valid Kubenetes label value, typically used for resource names that can be
 // indexed in the database.
@@ -110,3 +141,21 @@ type ResourceReadMetadata struct {
 
 // ResourceWriteMetadata Resource metadata valid for all API resource reads and writes.
 type ResourceWriteMetadata = ResourceMetadata
+
+// BadRequestResponse Generic error message, compatible with oauth2.
+type BadRequestResponse = Error
+
+// ConflictResponse Generic error message, compatible with oauth2.
+type ConflictResponse = Error
+
+// ForbiddenResponse Generic error message, compatible with oauth2.
+type ForbiddenResponse = Error
+
+// InternalServerErrorResponse Generic error message, compatible with oauth2.
+type InternalServerErrorResponse = Error
+
+// NotFoundResponse Generic error message, compatible with oauth2.
+type NotFoundResponse = Error
+
+// UnauthorizedResponse Generic error message, compatible with oauth2.
+type UnauthorizedResponse = Error
