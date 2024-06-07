@@ -1,3 +1,8 @@
+openapi: 3.0.3
+info:
+  title: Common API types.
+  version: 0.1.44
+paths: {}
 components:
   schemas:
     error:
@@ -37,6 +42,10 @@ components:
         indexed in the database.
       type: string
       pattern: '^[0-9A-Za-z](?:[0-9A-Za-z-_.]{0,61}[0-9A-Za-z])?$'
+    semver:
+      description: A semantic version.
+      type: string
+      pattern: '^v\d+\.\d+\.\d+$'
     resourceMetadata:
       description: Resource metadata valid for all API resource reads and writes.
       required:
@@ -48,6 +57,26 @@ components:
           description: |-
             The resource description, this optionally augments the name with more context.
           type: string
+    staticResourceMetadata:
+      description: |
+        This metadata is for resources that just exist, and don't require
+        any provisioning and health status, but benefit from a standarized
+        metadata format.
+      type: object
+      allOf:
+      - $ref: '#/components/schemas/resourceMetadata'
+      - type: object
+        required:
+        - id
+        - creationTime
+        properties:
+          id:
+            description: The unique resource ID.
+            type: string
+          creationTime:
+            description: The time the resource was created.
+            type: string
+            format: date-time
     resourceProvisioningStatus:
       description: The provisioning state of a resource.
       type: string
@@ -60,20 +89,11 @@ components:
     resourceReadMetadata:
       description: Resource metadata valid for all reads.
       allOf:
-      - $ref: '#/components/schemas/resourceMetadata'
+      - $ref: '#/components/schemas/staticResourceMetadata'
       - type: object
         required:
-        - id
-        - creationTime
         - provisioningStatus
         properties:
-          id:
-            description: The unique resource ID.
-            type: string
-          creationTime:
-            description: The time the resource was created.
-            type: string
-            format: date-time
           deletionTime:
             description: The time the resource was deleted.
             type: string

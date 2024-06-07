@@ -23,6 +23,8 @@ jobs:
       run: make touch
     - name: License Checker
       run: make license
+    - name: Validate OpenAPI Schema
+      run: make validate
   Runtime:
     runs-on: ubuntu-latest
     steps:

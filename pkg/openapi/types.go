@@ -142,6 +142,25 @@ type ResourceReadMetadata struct {
 // ResourceWriteMetadata Resource metadata valid for all API resource reads and writes.
 type ResourceWriteMetadata = ResourceMetadata
 
+// Semver A semantic version.
+type Semver = string
+
+// StaticResourceMetadata defines model for staticResourceMetadata.
+type StaticResourceMetadata struct {
+	// CreationTime The time the resource was created.
+	CreationTime time.Time `json:"creationTime"`
+
+	// Description The resource description, this optionally augments the name with more context.
+	Description *string `json:"description,omitempty"`
+
+	// Id The unique resource ID.
+	Id string `json:"id"`
+
+	// Name A valid Kubenetes label value, typically used for resource names that can be
+	// indexed in the database.
+	Name KubernetesLabelValue `json:"name"`
+}
+
 // BadRequestResponse Generic error message, compatible with oauth2.
 type BadRequestResponse = Error
 
