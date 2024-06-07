@@ -105,6 +105,11 @@ lint: $(GENDIR)
 	$(GOBIN)/golangci-lint run ./...
 	helm lint --strict charts/core
 
+# Validate the server OpenAPI schema is legit.
+.PHONY: validate
+validate: $(OPENAPI_FILES)
+	go run ./hack/validate_openapi
+
 # Perform license checking.
 # This must pass or you will be denied by CI.
 .PHONY: license
