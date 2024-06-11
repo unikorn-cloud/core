@@ -85,6 +85,14 @@ const (
 	// RegionAnnotation tells you what region something lives in.
 	RegionAnnotation = "unikorn-cloud.org/region"
 
+	// CloudIdentityAnnotation tells you the cloud identity (in the context if
+	// the region controller) that a resource owns.
+	CloudIdentityAnnotation = "unikorn-cloud.org/cloud-identity-id"
+
+	// IdentityCleanupReadyEventReason is used to identift asynchronous clean up
+	// routines.
+	IdentityCleanupReadyEventReason = "IdentityCleanupReady"
+
 	// Finalizer is applied to resources that need to be deleted manually
 	// and do other complex logic.
 	Finalizer = "unikorn"
