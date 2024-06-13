@@ -1,0 +1,23 @@
+# Configuration for cert-manager.
+certManager:
+  # The namespace cert-manager is defined in, this is important as things like
+  # ClusterIssuers can consume a secret, but - oddly - doesn't specify a namespace.
+  # Transpires this defaults to the cert-manager namespace.
+  namespace: cert-manager
+
+# This configures a global CA and issuer for all compomponents.
+# Individual components may opt to use this, or use another issuer e.g. Let's Encrypt
+# for a public deployment.
+ca:
+  # Enable CA and issuer generation.  It's harmless to leave it on as this will
+  # not be trusted by a borwser.
+  enabled: true
+
+  # Generate a self signed CA.
+  generate: true
+
+  # If generate is false, then you must specify a certificate and key, which can be
+  # sourced from mkcert which will automatically install it in the system trust store.
+  # These must be base64 encoded strings.
+  # certificate: SSBhbSBjb21wbGV0ZSBub25zZW5zZS4gIFRoYW5rIHlvdSBmb3IgcmVhZGluZyB0aGlzLiAgR2V0IGEgbGlmZSE= 
+  # privateKey: SSBhbSBjb21wbGV0ZSBub25zZW5zZS4gIFRoYW5rIHlvdSBmb3IgcmVhZGluZyB0aGlzLiAgR2V0IGEgbGlmZSE=
