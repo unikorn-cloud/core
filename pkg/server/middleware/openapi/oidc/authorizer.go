@@ -34,6 +34,10 @@ import (
 
 	"github.com/unikorn-cloud/core/pkg/authorization/userinfo"
 	"github.com/unikorn-cloud/core/pkg/server/errors"
+
+	corev1 "k8s.io/api/core/v1"
+
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 type Options struct {
@@ -41,24 +45,32 @@ type Options struct {
 	// using the JWKS endpoint.
 	Issuer string
 
-	// IssuerCA is the root CA of the identity endpoint.
-	IssuerCA []byte
+	// IssuerCASecretNamespace tells us where to source the CA secret.
+	IssuerCASecretNamespace string
+
+	// IssuerCASecretName is the root CA secret of the identity endpoint.
+	IssuerCASecretName string
 }
 
 func (o *Options) AddFlags(f *pflag.FlagSet) {
 	f.StringVar(&o.Issuer, "oidc-issuer", "", "OIDC issuer URL to use for token validation.")
-	f.BytesBase64Var(&o.IssuerCA, "oidc-issuer-ca", nil, "base64 OIDC endpoint CA certificate.")
+	f.StringVar(&o.IssuerCASecretNamespace, "oidc-issuer-ca-secret-namespace", "", "OIDC endpoint CA certificate secret namespace, defaults to the current namespace if not specified.")
+	f.StringVar(&o.IssuerCASecretName, "oidc-issuer-ca-secret-name", "", "Optional OIDC endpoint CA certificate secret for self-signed CAs.")
 }
 
 // Authorizer provides OpenAPI based authorization middleware.
 type Authorizer struct {
-	options *Options
+	client    client.Client
+	namespace string
+	options   *Options
 }
 
 // NewAuthorizer returns a new authorizer with required parameters.
-func NewAuthorizer(options *Options) *Authorizer {
+func NewAuthorizer(client client.Client, namespace string, options *Options) *Authorizer {
 	return &Authorizer{
-		options: options,
+		client:    client,
+		namespace: namespace,
+		options:   options,
 	}
 }
 
@@ -138,6 +150,47 @@ func oidcErrorIsUnauthorized(err error) bool {
 	return code == http.StatusUnauthorized
 }
 
+func (a *Authorizer) tlsClientConfig(ctx context.Context) (*tls.Config, error) {
+	if a.options.IssuerCASecretName == "" {
+		//nolint:nilnil
+		return nil, nil
+	}
+
+	namespace := a.namespace
+
+	if a.options.IssuerCASecretNamespace != "" {
+		namespace = a.options.IssuerCASecretNamespace
+	}
+
+	secret := &corev1.Secret{}
+
+	if err := a.client.Get(ctx, client.ObjectKey{Namespace: namespace, Name: a.options.IssuerCASecretName}, secret); err != nil {
+		return nil, errors.OAuth2ServerError("unable to fetch issuer CA").WithError(err)
+	}
+
+	if secret.Type != corev1.SecretTypeTLS {
+		return nil, errors.OAuth2ServerError("issuer CA not of type kubernetes.io/tls")
+	}
+
+	cert, ok := secret.Data[corev1.TLSCertKey]
+	if !ok {
+		return nil, errors.OAuth2ServerError("issuer CA missing tls.crt")
+	}
+
+	certPool := x509.NewCertPool()
+
+	if ok := certPool.AppendCertsFromPEM(cert); !ok {
+		return nil, errors.OAuth2InvalidRequest("failed to parse oidc issuer CA cert")
+	}
+
+	config := &tls.Config{
+		RootCAs:    certPool,
+		MinVersion: tls.VersionTLS13,
+	}
+
+	return config, nil
+}
+
 // authorizeOAuth2 checks APIs that require and oauth2 bearer token.
 func (a *Authorizer) authorizeOAuth2(r *http.Request) (string, *userinfo.UserInfo, error) {
 	authorizationScheme, rawToken, err := getHTTPAuthenticationScheme(r)
@@ -152,20 +205,13 @@ func (a *Authorizer) authorizeOAuth2(r *http.Request) (string, *userinfo.UserInf
 	// Handle non-public CA certiifcates used in development.
 	ctx := r.Context()
 
-	transport := newPropagatingTransport(ctx)
-
-	if a.options.IssuerCA != nil {
-		certPool := x509.NewCertPool()
-
-		if ok := certPool.AppendCertsFromPEM(a.options.IssuerCA); !ok {
-			return "", nil, errors.OAuth2InvalidRequest("failed to parse oidc issuer CA cert")
-		}
-
-		transport.base.TLSClientConfig = &tls.Config{
-			RootCAs:    certPool,
-			MinVersion: tls.VersionTLS13,
-		}
+	tlsClientConfig, err := a.tlsClientConfig(r.Context())
+	if err != nil {
+		return "", nil, err
 	}
+
+	transport := newPropagatingTransport(ctx)
+	transport.base.TLSClientConfig = tlsClientConfig
 
 	client := &http.Client{
 		Transport: transport,
