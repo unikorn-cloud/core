@@ -72,6 +72,9 @@ type OrganizationScopedResourceReadMetadata struct {
 	// OrganizationId The organization identifier the resource belongs to.
 	OrganizationId string `json:"organizationId"`
 
+	// OrganizationName The organization name the resource belongs to.
+	OrganizationName *string `json:"organizationName,omitempty"`
+
 	// ProvisioningStatus The provisioning state of a resource.
 	ProvisioningStatus ResourceProvisioningStatus `json:"provisioningStatus"`
 }
@@ -97,8 +100,14 @@ type ProjectScopedResourceReadMetadata struct {
 	// OrganizationId The organization identifier the resource belongs to.
 	OrganizationId string `json:"organizationId"`
 
+	// OrganizationName The organization name the resource belongs to.
+	OrganizationName *string `json:"organizationName,omitempty"`
+
 	// ProjectId The project identifier the resource belongs to.
 	ProjectId string `json:"projectId"`
+
+	// ProjectName The project name the resource belongs to.
+	ProjectName *string `json:"projectName,omitempty"`
 
 	// ProvisioningStatus The provisioning state of a resource.
 	ProvisioningStatus ResourceProvisioningStatus `json:"provisioningStatus"`

@@ -110,6 +110,9 @@ components:
           organizationId:
             description: The organization identifier the resource belongs to.
             type: string
+          organizationName:
+            description: The organization name the resource belongs to.
+            type: string
     projectScopedResourceReadMetadata:
       allOf:
       - $ref: '#/components/schemas/organizationScopedResourceReadMetadata'
@@ -119,6 +122,9 @@ components:
         properties:
           projectId:
             description: The project identifier the resource belongs to.
+            type: string
+          projectName:
+            description: The project name the resource belongs to.
             type: string
     resourceWriteMetadata:
       $ref: '#/components/schemas/resourceMetadata'
