@@ -1,5 +1,7 @@
 /bin
 /sboms
+/charts/core/Chart.lock
+/charts/core/charts
 *.swp
 cover.out
 cover.html
