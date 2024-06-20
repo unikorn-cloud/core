@@ -265,6 +265,12 @@ func (d *Driver) CreateOrUpdateHelmApplication(ctx context.Context, id *cd.Resou
 		resource = temp
 	}
 
+	// Make sure the application is actual synchronized before checking the health.
+	// It can appear healty without being synced apparently.
+	if resource.Status.Sync == nil || resource.Status.Sync.Status != argoprojv1.Synced {
+		return provisioners.ErrYield
+	}
+
 	if resource.Status.Health == nil {
 		return provisioners.ErrYield
 	}

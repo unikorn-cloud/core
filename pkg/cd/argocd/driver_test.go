@@ -125,10 +125,16 @@ func TestApplicationCreateHelm(t *testing.T) {
 	application.Status.Health = &argoprojv1.ApplicationHealth{
 		Status: argoprojv1.Degraded,
 	}
+	application.Status.Sync = &argoprojv1.ApplicationSync{
+		Status: argoprojv1.Unknown,
+	}
 	assert.NoError(t, tc.client.Update(context.TODO(), application))
 	assert.ErrorIs(t, tc.driver.CreateOrUpdateHelmApplication(context.TODO(), id, app), provisioners.ErrYield)
 
 	app.AllowDegraded = true
+	application = mustGetApplication(t, tc, id)
+	application.Status.Sync.Status = argoprojv1.Synced
+	assert.NoError(t, tc.client.Update(context.TODO(), application))
 	assert.NoError(t, tc.driver.CreateOrUpdateHelmApplication(context.TODO(), id, app))
 
 	application = mustGetApplication(t, tc, id)
