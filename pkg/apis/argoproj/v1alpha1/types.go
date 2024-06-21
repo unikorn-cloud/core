@@ -134,6 +134,8 @@ type ApplicationIgnoreDifference struct {
 type ApplicationStatus struct {
 	// Health defines the application's health status.
 	Health *ApplicationHealth `json:"health"`
+	// Sync defines the application's synchronization status.
+	Sync *ApplicationSync `json:"sync"`
 }
 
 type ApplicationHealthStatus string
@@ -151,4 +153,21 @@ const (
 type ApplicationHealth struct {
 	// Status reports the health status.
 	Status ApplicationHealthStatus `json:"status"`
+}
+
+type ApplicationSyncStatus string
+
+const (
+	// Synced is when the application has synchronized correctly, you must
+	// check this as it's possible for the application to be healthy but
+	// also not synced, which is broken.
+	Synced ApplicationSyncStatus = "Synced"
+
+	// Unknown means Argos not done anything yet.
+	Unknown ApplicationSyncStatus = "Unknown"
+)
+
+type ApplicationSync struct {
+	// Status reports te sync status.
+	Status ApplicationSyncStatus `json:"status"`
 }
