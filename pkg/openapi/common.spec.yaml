@@ -77,6 +77,9 @@ components:
             description: The time the resource was created.
             type: string
             format: date-time
+          createdBy:
+            description: The user who created the resource.
+            type: string
     resourceProvisioningStatus:
       description: The provisioning state of a resource.
       type: string
@@ -110,9 +113,6 @@ components:
           organizationId:
             description: The organization identifier the resource belongs to.
             type: string
-          organizationName:
-            description: The organization name the resource belongs to.
-            type: string
     projectScopedResourceReadMetadata:
       allOf:
       - $ref: '#/components/schemas/organizationScopedResourceReadMetadata'
@@ -122,9 +122,6 @@ components:
         properties:
           projectId:
             description: The project identifier the resource belongs to.
-            type: string
-          projectName:
-            description: The project name the resource belongs to.
             type: string
     resourceWriteMetadata:
       $ref: '#/components/schemas/resourceMetadata'
