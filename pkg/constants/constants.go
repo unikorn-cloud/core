@@ -34,10 +34,9 @@ const (
 	// an unconstriained and verbose description about the resource.
 	DescriptionAnnotation = "unikorn-cloud.org/description"
 
-	// VersionLabel is a label applied to resources so we know the application
-	// version that was used to create them (and thus what metadata is valid
-	// for them).  Metadata may be upgraded to a later version for any resource.
-	VersionLabel = "unikorn.unikorn-cloud.org/version"
+	// UserAnnotation is optionally attached to a resource to show who
+	// created it.
+	UserAnnotation = "unikorn-cloud.org/user"
 
 	// KindLabel is used to match a resource that may be owned by a particular kind.
 	// For example, projects and cluster managers are modelled on namespaces.  For CPs

@@ -60,6 +60,10 @@ func ResourceReadMetadata(in metav1.Object, status openapi.ResourceProvisioningS
 		out.Description = &v
 	}
 
+	if v, ok := annotations[constants.UserAnnotation]; ok {
+		out.CreatedBy = &v
+	}
+
 	if v := in.GetDeletionTimestamp(); v != nil {
 		out.DeletionTime = &v.Time
 	}
@@ -78,6 +82,7 @@ func OrganizationScopedResourceReadMetadata(in metav1.Object, status openapi.Res
 		Id:                 temp.Id,
 		Name:               temp.Name,
 		Description:        temp.Description,
+		CreatedBy:          temp.CreatedBy,
 		CreationTime:       temp.CreationTime,
 		ProvisioningStatus: temp.ProvisioningStatus,
 		OrganizationId:     labels[constants.OrganizationLabel],
@@ -97,6 +102,7 @@ func ProjectScopedResourceReadMetadata(in metav1.Object, status openapi.Resource
 		Id:                 temp.Id,
 		Name:               temp.Name,
 		Description:        temp.Description,
+		CreatedBy:          temp.CreatedBy,
 		CreationTime:       temp.CreationTime,
 		ProvisioningStatus: temp.ProvisioningStatus,
 		OrganizationId:     temp.OrganizationId,
@@ -118,53 +124,79 @@ func generateResourceID() string {
 	}
 }
 
-// objectMetadata creates Kubernetes object metadata from generic request metadata.
-func objectMetadata(in *openapi.ResourceWriteMetadata, namespace string, labels map[string]string) metav1.ObjectMeta {
+// ObjectMetadata implements a builder pattern.
+type ObjectMetadata struct {
+	metadata       *openapi.ResourceWriteMetadata
+	namespace      string
+	organizationID string
+	projectID      string
+	user           string
+}
+
+// NewObjectMetadata requests the bare minimum to build an object metadata object.
+func NewObjectMetadata(metadata *openapi.ResourceWriteMetadata, namespace string) *ObjectMetadata {
+	return &ObjectMetadata{
+		metadata:  metadata,
+		namespace: namespace,
+	}
+}
+
+// WithOrganization adds an organization for scoped resources.
+func (o *ObjectMetadata) WithOrganization(id string) *ObjectMetadata {
+	o.organizationID = id
+
+	return o
+}
+
+// WithProject adds a project for scoped resources.
+func (o *ObjectMetadata) WithProject(id string) *ObjectMetadata {
+	o.projectID = id
+
+	return o
+}
+
+// WithUser adds a user for resources that are created by a user.  The username is
+// expected to be derived from access token introspection, and use the subject, so
+// it's canonical and consistent.
+func (o *ObjectMetadata) WithUser(user string) *ObjectMetadata {
+	o.user = user
+
+	return o
+}
+
+// Get renders the object metadata ready for inclusion into a Kubernetes resource.
+func (o *ObjectMetadata) Get() metav1.ObjectMeta {
 	out := metav1.ObjectMeta{
-		Namespace: namespace,
+		Namespace: o.namespace,
 		Name:      generateResourceID(),
 		Labels: map[string]string{
-			constants.NameLabel: in.Name,
+			constants.NameLabel: o.metadata.Name,
 		},
 	}
 
-	for k, v := range labels {
-		out.Labels[k] = v
+	if o.organizationID != "" {
+		out.Labels[constants.OrganizationLabel] = o.organizationID
 	}
 
-	if in.Description != nil {
-		out.Annotations = map[string]string{
-			constants.DescriptionAnnotation: *in.Description,
-		}
+	if o.projectID != "" {
+		out.Labels[constants.ProjectLabel] = o.projectID
+	}
+
+	annotations := map[string]string{}
+
+	if o.metadata.Description != nil {
+		annotations[constants.DescriptionAnnotation] = *o.metadata.Description
+	}
+
+	if o.user != "" {
+		annotations[constants.UserAnnotation] = o.user
+	}
+
+	if len(annotations) > 0 {
+		out.Annotations = annotations
 	}
 
 	return out
-}
-
-// ObjectMetadata creates Kubernetes object metadata from unscoped resource request metadata.
-func ObjectMetadata(in *openapi.ResourceWriteMetadata, namespace string) metav1.ObjectMeta {
-	return objectMetadata(in, namespace, nil)
-}
-
-// OrganizationScopedObjectMetadata creates Kubernetes object metadata from organization scoped
-// resource request metadata.
-func OrganizationScopedObjectMetadata(in *openapi.ResourceWriteMetadata, namespace, organizationID string) metav1.ObjectMeta {
-	labels := map[string]string{
-		constants.OrganizationLabel: organizationID,
-	}
-
-	return objectMetadata(in, namespace, labels)
-}
-
-// ProjectScopedObjectMetadata creates Kubernetes object metadata from project scoped
-// resource request metadata.
-func ProjectScopedObjectMetadata(in *openapi.ResourceWriteMetadata, namespace, organizationID, projectID string) metav1.ObjectMeta {
-	labels := map[string]string{
-		constants.OrganizationLabel: organizationID,
-		constants.ProjectLabel:      projectID,
-	}
-
-	return objectMetadata(in, namespace, labels)
 }
 
 // UpdateObjectMetadata abstracts away metadata updates e.g. name and description changes.

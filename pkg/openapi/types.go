@@ -53,6 +53,9 @@ type KubernetesLabelValue = string
 
 // OrganizationScopedResourceReadMetadata defines model for organizationScopedResourceReadMetadata.
 type OrganizationScopedResourceReadMetadata struct {
+	// CreatedBy The user who created the resource.
+	CreatedBy *string `json:"createdBy,omitempty"`
+
 	// CreationTime The time the resource was created.
 	CreationTime time.Time `json:"creationTime"`
 
@@ -71,9 +74,6 @@ type OrganizationScopedResourceReadMetadata struct {
 
 	// OrganizationId The organization identifier the resource belongs to.
 	OrganizationId string `json:"organizationId"`
-
-	// OrganizationName The organization name the resource belongs to.
-	OrganizationName *string `json:"organizationName,omitempty"`
 
 	// ProvisioningStatus The provisioning state of a resource.
 	ProvisioningStatus ResourceProvisioningStatus `json:"provisioningStatus"`
@@ -81,6 +81,9 @@ type OrganizationScopedResourceReadMetadata struct {
 
 // ProjectScopedResourceReadMetadata defines model for projectScopedResourceReadMetadata.
 type ProjectScopedResourceReadMetadata struct {
+	// CreatedBy The user who created the resource.
+	CreatedBy *string `json:"createdBy,omitempty"`
+
 	// CreationTime The time the resource was created.
 	CreationTime time.Time `json:"creationTime"`
 
@@ -100,14 +103,8 @@ type ProjectScopedResourceReadMetadata struct {
 	// OrganizationId The organization identifier the resource belongs to.
 	OrganizationId string `json:"organizationId"`
 
-	// OrganizationName The organization name the resource belongs to.
-	OrganizationName *string `json:"organizationName,omitempty"`
-
 	// ProjectId The project identifier the resource belongs to.
 	ProjectId string `json:"projectId"`
-
-	// ProjectName The project name the resource belongs to.
-	ProjectName *string `json:"projectName,omitempty"`
 
 	// ProvisioningStatus The provisioning state of a resource.
 	ProvisioningStatus ResourceProvisioningStatus `json:"provisioningStatus"`
@@ -128,6 +125,9 @@ type ResourceProvisioningStatus string
 
 // ResourceReadMetadata defines model for resourceReadMetadata.
 type ResourceReadMetadata struct {
+	// CreatedBy The user who created the resource.
+	CreatedBy *string `json:"createdBy,omitempty"`
+
 	// CreationTime The time the resource was created.
 	CreationTime time.Time `json:"creationTime"`
 
@@ -156,6 +156,9 @@ type Semver = string
 
 // StaticResourceMetadata defines model for staticResourceMetadata.
 type StaticResourceMetadata struct {
+	// CreatedBy The user who created the resource.
+	CreatedBy *string `json:"createdBy,omitempty"`
+
 	// CreationTime The time the resource was created.
 	CreationTime time.Time `json:"creationTime"`
 
