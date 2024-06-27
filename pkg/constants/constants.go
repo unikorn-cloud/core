@@ -34,9 +34,9 @@ const (
 	// an unconstriained and verbose description about the resource.
 	DescriptionAnnotation = "unikorn-cloud.org/description"
 
-	// UserAnnotation is optionally attached to a resource to show who
+	// CreatorAnnotation is optionally attached to a resource to show who
 	// created it.
-	UserAnnotation = "unikorn-cloud.org/user"
+	CreatorAnnotation = "unikorn-cloud.org/creator"
 
 	// KindLabel is used to match a resource that may be owned by a particular kind.
 	// For example, projects and cluster managers are modelled on namespaces.  For CPs

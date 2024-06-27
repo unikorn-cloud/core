@@ -60,7 +60,7 @@ func ResourceReadMetadata(in metav1.Object, status openapi.ResourceProvisioningS
 		out.Description = &v
 	}
 
-	if v, ok := annotations[constants.UserAnnotation]; ok {
+	if v, ok := annotations[constants.CreatorAnnotation]; ok {
 		out.CreatedBy = &v
 	}
 
@@ -189,7 +189,7 @@ func (o *ObjectMetadata) Get() metav1.ObjectMeta {
 	}
 
 	if o.user != "" {
-		annotations[constants.UserAnnotation] = o.user
+		annotations[constants.CreatorAnnotation] = o.user
 	}
 
 	if len(annotations) > 0 {
@@ -201,6 +201,16 @@ func (o *ObjectMetadata) Get() metav1.ObjectMeta {
 
 // UpdateObjectMetadata abstracts away metadata updates e.g. name and description changes.
 func UpdateObjectMetadata(out, in metav1.Object) {
+	// Some annotations are persistent e.g. the creator.
+	// TODO: we could make the distinction between creator and modifier, even have
+	// a modification timestamp.
+	currentAnnotations := out.GetAnnotations()
+	requiredAnnotations := in.GetAnnotations()
+
+	if v, ok := currentAnnotations[constants.CreatorAnnotation]; ok {
+		requiredAnnotations[constants.CreatorAnnotation] = v
+	}
+
 	out.SetLabels(in.GetLabels())
-	out.SetAnnotations(in.GetAnnotations())
+	out.SetAnnotations(requiredAnnotations)
 }
