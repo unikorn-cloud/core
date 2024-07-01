@@ -17,9 +17,11 @@ limitations under the License.
 package conversion
 
 import (
+	"context"
 	"unicode"
 
 	unikornv1 "github.com/unikorn-cloud/core/pkg/apis/unikorn/v1alpha1"
+	"github.com/unikorn-cloud/core/pkg/authorization/userinfo"
 	"github.com/unikorn-cloud/core/pkg/constants"
 	"github.com/unikorn-cloud/core/pkg/openapi"
 
@@ -130,7 +132,7 @@ type ObjectMetadata struct {
 	namespace      string
 	organizationID string
 	projectID      string
-	user           string
+	labels         map[string]string
 }
 
 // NewObjectMetadata requests the bare minimum to build an object metadata object.
@@ -155,22 +157,29 @@ func (o *ObjectMetadata) WithProject(id string) *ObjectMetadata {
 	return o
 }
 
-// WithUser adds a user for resources that are created by a user.  The username is
-// expected to be derived from access token introspection, and use the subject, so
-// it's canonical and consistent.
-func (o *ObjectMetadata) WithUser(user string) *ObjectMetadata {
-	o.user = user
+// WithLabel allows non-generic labels to be attached to a resource.
+func (o *ObjectMetadata) WithLabel(key, value string) *ObjectMetadata {
+	if o.labels == nil {
+		o.labels = map[string]string{}
+	}
+
+	o.labels[key] = value
 
 	return o
 }
 
 // Get renders the object metadata ready for inclusion into a Kubernetes resource.
-func (o *ObjectMetadata) Get() metav1.ObjectMeta {
+func (o *ObjectMetadata) Get(ctx context.Context) metav1.ObjectMeta {
+	userinfo := userinfo.FromContext(ctx)
+
 	out := metav1.ObjectMeta{
 		Namespace: o.namespace,
 		Name:      generateResourceID(),
 		Labels: map[string]string{
 			constants.NameLabel: o.metadata.Name,
+		},
+		Annotations: map[string]string{
+			constants.CreatorAnnotation: userinfo.Subject,
 		},
 	}
 
@@ -182,18 +191,12 @@ func (o *ObjectMetadata) Get() metav1.ObjectMeta {
 		out.Labels[constants.ProjectLabel] = o.projectID
 	}
 
-	annotations := map[string]string{}
+	for k, v := range o.labels {
+		out.Labels[k] = v
+	}
 
 	if o.metadata.Description != nil {
-		annotations[constants.DescriptionAnnotation] = *o.metadata.Description
-	}
-
-	if o.user != "" {
-		annotations[constants.CreatorAnnotation] = o.user
-	}
-
-	if len(annotations) > 0 {
-		out.Annotations = annotations
+		out.Annotations[constants.DescriptionAnnotation] = *o.metadata.Description
 	}
 
 	return out
