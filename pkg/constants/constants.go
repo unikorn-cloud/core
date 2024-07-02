@@ -81,9 +81,6 @@ const (
 	// manually restarting services based on a Deployment/DaemonSet changing.
 	ConfigurationHashAnnotation = "unikorn-cloud.org/config-hash"
 
-	// RegionAnnotation tells you what region something lives in.
-	RegionAnnotation = "unikorn-cloud.org/region"
-
 	// CloudIdentityAnnotation tells you the cloud identity (in the context if
 	// the region controller) that a resource owns.
 	CloudIdentityAnnotation = "unikorn-cloud.org/cloud-identity-id"

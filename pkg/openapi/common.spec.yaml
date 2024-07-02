@@ -123,6 +123,19 @@ components:
           projectId:
             description: The project identifier the resource belongs to.
             type: string
+    # While this is specific to the region controller, you cannot have
+    # aggregates spanning schemas as the generator doesn't copy over
+    # types contained in the remote.
+    regionScopedResourceMetadata:
+      allOf:
+      - $ref: '#/components/schemas/projectScopedResourceReadMetadata'
+      - type: object
+        required:
+        - regionId
+        properties:
+          regionId:
+            description: A region identifier.
+            type: string
     resourceWriteMetadata:
       $ref: '#/components/schemas/resourceMetadata'
   responses:
