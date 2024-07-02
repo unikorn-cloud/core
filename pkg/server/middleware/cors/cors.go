@@ -24,8 +24,8 @@ import (
 
 	"github.com/spf13/pflag"
 
+	"github.com/unikorn-cloud/core/pkg/openapi"
 	"github.com/unikorn-cloud/core/pkg/server/errors"
-	"github.com/unikorn-cloud/core/pkg/server/middleware/openapi"
 	"github.com/unikorn-cloud/core/pkg/util"
 )
 
