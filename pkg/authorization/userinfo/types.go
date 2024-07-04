@@ -18,11 +18,6 @@ package userinfo
 
 import (
 	"github.com/go-jose/go-jose/v3/jwt"
-
-	"github.com/unikorn-cloud/core/pkg/authorization/rbac"
 )
 
-type UserInfo struct {
-	jwt.Claims `json:",inline"`
-	RBAC       *rbac.Permissions `json:"rbac,omitempty"`
-}
+type UserInfo jwt.Claims
