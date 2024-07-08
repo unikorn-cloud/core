@@ -32,42 +32,10 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.22.0"
 	"go.opentelemetry.io/otel/trace"
 
+	"github.com/unikorn-cloud/core/pkg/server/middleware"
+
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
-
-// loggingResponseWriter is the ubiquitous reimplementation of a response
-// writer that allows access to the HTTP status code in middleware.
-type loggingResponseWriter struct {
-	next          http.ResponseWriter
-	code          int
-	contentLength int
-}
-
-// Check the correct interface is implmented.
-var _ http.ResponseWriter = &loggingResponseWriter{}
-
-func (w *loggingResponseWriter) Header() http.Header {
-	return w.next.Header()
-}
-
-func (w *loggingResponseWriter) Write(body []byte) (int, error) {
-	w.contentLength += len(body)
-
-	return w.next.Write(body)
-}
-
-func (w *loggingResponseWriter) WriteHeader(statusCode int) {
-	w.code = statusCode
-	w.next.WriteHeader(statusCode)
-}
-
-func (w *loggingResponseWriter) StatusCode() int {
-	if w.code == 0 {
-		return http.StatusOK
-	}
-
-	return w.code
-}
 
 // logValuesFromSpan gets a generic set of key/value pairs from a span for logging.
 func logValuesFromSpanContext(name string, s trace.SpanContext) []interface{} {
@@ -233,12 +201,12 @@ func httpRequestAttributes(r *http.Request) []attribute.KeyValue {
 	return attr
 }
 
-func httpResponseAttributes(w *loggingResponseWriter) []attribute.KeyValue {
+func httpResponseAttributes(w *middleware.LoggingResponseWriter) []attribute.KeyValue {
 	var attr []attribute.KeyValue
 
 	attr = append(attr, semconv.HTTPResponseStatusCode(w.StatusCode()))
-	attr = append(attr, semconv.HTTPResponseBodySize(w.contentLength))
-	attr = append(attr, httpHeaderAttributes(w.next.Header(), "http.response.header")...)
+	attr = append(attr, semconv.HTTPResponseBodySize(w.ContentLength()))
+	attr = append(attr, httpHeaderAttributes(w.Header(), "http.response.header")...)
 
 	return attr
 }
@@ -281,9 +249,7 @@ func Middleware(serviceName, version string) func(next http.Handler) http.Handle
 			// Create a new request with any contextual information the tracer has added.
 			request := r.WithContext(ctx)
 
-			writer := &loggingResponseWriter{
-				next: w,
-			}
+			writer := middleware.NewLoggingResponseWriter(w)
 
 			next.ServeHTTP(writer, request)
 
