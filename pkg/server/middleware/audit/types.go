@@ -1,5 +1,4 @@
 /*
-Copyright 2022-2024 EscherCloud.
 Copyright 2024 the Unikorn Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package formatter
+package audit
 
-func injectSpaces(a []any) []any {
-	b := []any{a[0]}
+type Component struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
+}
 
-	for i := 1; i < len(a); i++ {
-		b = append(b, " ", a[i])
-	}
+type Actor struct {
+	Subject string `json:"subject"`
+}
 
-	return b
+type Resource struct {
+	Type string `json:"type"`
+	ID   string `json:"id,omitempty"`
+}
+
+type Operation struct {
+	Verb string `json:"verb"`
+}
+
+type Result struct {
+	Status int `json:"status"`
 }
