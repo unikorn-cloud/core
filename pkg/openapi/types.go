@@ -110,40 +110,6 @@ type ProjectScopedResourceReadMetadata struct {
 	ProvisioningStatus ResourceProvisioningStatus `json:"provisioningStatus"`
 }
 
-// RegionScopedResourceMetadata defines model for regionScopedResourceMetadata.
-type RegionScopedResourceMetadata struct {
-	// CreatedBy The user who created the resource.
-	CreatedBy *string `json:"createdBy,omitempty"`
-
-	// CreationTime The time the resource was created.
-	CreationTime time.Time `json:"creationTime"`
-
-	// DeletionTime The time the resource was deleted.
-	DeletionTime *time.Time `json:"deletionTime,omitempty"`
-
-	// Description The resource description, this optionally augments the name with more context.
-	Description *string `json:"description,omitempty"`
-
-	// Id The unique resource ID.
-	Id string `json:"id"`
-
-	// Name A valid Kubenetes label value, typically used for resource names that can be
-	// indexed in the database.
-	Name KubernetesLabelValue `json:"name"`
-
-	// OrganizationId The organization identifier the resource belongs to.
-	OrganizationId string `json:"organizationId"`
-
-	// ProjectId The project identifier the resource belongs to.
-	ProjectId string `json:"projectId"`
-
-	// ProvisioningStatus The provisioning state of a resource.
-	ProvisioningStatus ResourceProvisioningStatus `json:"provisioningStatus"`
-
-	// RegionId A region identifier.
-	RegionId string `json:"regionId"`
-}
-
 // ResourceMetadata Resource metadata valid for all API resource reads and writes.
 type ResourceMetadata struct {
 	// Description The resource description, this optionally augments the name with more context.
