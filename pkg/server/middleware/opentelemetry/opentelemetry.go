@@ -202,10 +202,16 @@ func httpRequestAttributes(r *http.Request) []attribute.KeyValue {
 }
 
 func httpResponseAttributes(w *middleware.LoggingResponseWriter) []attribute.KeyValue {
+	var bodySize int
+
+	if body := w.Body(); body != nil {
+		bodySize = body.Len()
+	}
+
 	var attr []attribute.KeyValue
 
 	attr = append(attr, semconv.HTTPResponseStatusCode(w.StatusCode()))
-	attr = append(attr, semconv.HTTPResponseBodySize(w.ContentLength()))
+	attr = append(attr, semconv.HTTPResponseBodySize(bodySize))
 	attr = append(attr, httpHeaderAttributes(w.Header(), "http.response.header")...)
 
 	return attr

@@ -17,6 +17,7 @@ limitations under the License.
 package audit
 
 import (
+	"encoding/json"
 	"net/http"
 	"regexp"
 	"strings"
@@ -59,24 +60,41 @@ func New(next http.Handler, openapi *openapi.Schema, application, version string
 }
 
 // getResource will resolve to a resource type.
-func getResource(route *routers.Route, params map[string]string) *Resource {
-	// We are looking for "/.../resource/{idParameter}"
-	// or failing that "/.../resource"
-	matches := regexp.MustCompile(`/([^/]+)/{([^/}]+)}$`).FindStringSubmatch(route.Path)
-	if matches == nil {
+func getResource(w *middleware.LoggingResponseWriter, r *http.Request, route *routers.Route, params map[string]string) *Resource {
+	// Creates rely on the response containing the resource ID in the response metadata.
+	if r.Method == http.MethodPost {
+		// Nothing written, possibly a bug somewhere?
+		if w.Body() == nil {
+			return nil
+		}
+
+		var metadata struct {
+			Metadata openapi.ResourceReadMetadata `json:"metadata"`
+		}
+
+		// Not a canonical API resource, possibly a bug somewhere?
+		if err := json.Unmarshal(w.Body().Bytes(), &metadata); err != nil {
+			return nil
+		}
+
 		segments := strings.Split(route.Path, "/")
 
 		return &Resource{
 			Type: segments[len(segments)-1],
+			ID:   metadata.Metadata.Id,
 		}
 	}
 
-	resource := &Resource{
+	// Read, updates and deletes you can get the information from the route.
+	matches := regexp.MustCompile(`/([^/]+)/{([^/}]+)}$`).FindStringSubmatch(route.Path)
+	if matches == nil {
+		return nil
+	}
+
+	return &Resource{
 		Type: matches[1],
 		ID:   params[matches[2]],
 	}
-
-	return resource
 }
 
 // ServeHTTP implements the http.Handler interface.
@@ -112,6 +130,12 @@ func (l *Logger) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// If you cannot derive the resource, then discard.
+	resource := getResource(writer, r, route, params)
+	if resource == nil {
+		return
+	}
+
 	logParams := []any{
 		"component", &Component{
 			Name:    l.application,
@@ -124,7 +148,7 @@ func (l *Logger) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			Verb: r.Method,
 		},
 		"scope", params,
-		"resource", getResource(route, params),
+		"resource", resource,
 		"result", &Result{
 			Status: writer.StatusCode(),
 		},
