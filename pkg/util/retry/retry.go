@@ -19,9 +19,37 @@ package retry
 
 import (
 	"context"
-	"fmt"
 	"time"
 )
+
+// Error allows the last error to be retrieved.
+type Error struct {
+	context  error
+	callback error
+}
+
+// Error implements the error interface.
+func (e *Error) Error() string {
+	return e.callback.Error()
+}
+
+// Unwrap allows access to either of the errors via errors.Is or errors.As.
+func (e *Error) Unwrap() []error {
+	return []error{
+		e.context,
+		e.callback,
+	}
+}
+
+// Context gets the context error.
+func (e *Error) Context() error {
+	return e.context
+}
+
+// Callback gets the last callback error.
+func (e *Error) Callback() error {
+	return e.callback
+}
 
 // Callback is a callback that must return nil to escape the retry loop.
 type Callback func() error
@@ -60,13 +88,10 @@ func (r *Retrier) DoWithContext(c context.Context, f Callback) error {
 	for {
 		select {
 		case <-c.Done():
-			// NOTE: we wrap the context error here, knowing it's a timeout
-			// is more important than the last callback error, because of
-			// reconcile yielding code.  If this becomes a problem, we may
-			// need to define our own "expired" error type, that can wrap
-			// the underlying error.
-			//nolint:errorlint
-			return fmt.Errorf("%w: %s", c.Err(), rerr)
+			return &Error{
+				context:  c.Err(),
+				callback: rerr,
+			}
 		case <-t.C:
 			if rerr = f(); rerr != nil {
 				break
