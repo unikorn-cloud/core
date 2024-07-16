@@ -17,15 +17,16 @@ limitations under the License.
 package middleware
 
 import (
+	"bytes"
 	"net/http"
 )
 
 // LoggingResponseWriter is the ubiquitous reimplementation of a response
 // writer that allows access to the HTTP status code in middleware.
 type LoggingResponseWriter struct {
-	next          http.ResponseWriter
-	code          int
-	contentLength int
+	next http.ResponseWriter
+	code int
+	body *bytes.Buffer
 }
 
 func NewLoggingResponseWriter(next http.ResponseWriter) *LoggingResponseWriter {
@@ -42,7 +43,11 @@ func (w *LoggingResponseWriter) Header() http.Header {
 }
 
 func (w *LoggingResponseWriter) Write(body []byte) (int, error) {
-	w.contentLength += len(body)
+	if w.body == nil {
+		w.body = &bytes.Buffer{}
+	}
+
+	w.body.Write(body)
 
 	return w.next.Write(body)
 }
@@ -60,6 +65,6 @@ func (w *LoggingResponseWriter) StatusCode() int {
 	return w.code
 }
 
-func (w *LoggingResponseWriter) ContentLength() int {
-	return w.contentLength
+func (w *LoggingResponseWriter) Body() *bytes.Buffer {
+	return w.body
 }
