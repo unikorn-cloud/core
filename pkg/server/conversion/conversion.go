@@ -18,6 +18,9 @@ package conversion
 
 import (
 	"context"
+	"errors"
+	"fmt"
+	"time"
 	"unicode"
 
 	unikornv1 "github.com/unikorn-cloud/core/pkg/apis/unikorn/v1alpha1"
@@ -27,6 +30,10 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/uuid"
+)
+
+var (
+	ErrAnnotation = errors.New("a required annotation was missing")
 )
 
 // ConvertStatusCondition translates from Kubernetes status conditions to API ones.
@@ -66,6 +73,17 @@ func ResourceReadMetadata(in metav1.Object, status openapi.ResourceProvisioningS
 		out.CreatedBy = &v
 	}
 
+	if v, ok := annotations[constants.ModifierAnnotation]; ok {
+		out.ModifiedBy = &v
+	}
+
+	if v, ok := annotations[constants.ModifiedTimestampAnnotation]; ok {
+		t, err := time.Parse(time.RFC3339, v)
+		if err == nil {
+			out.ModifiedTime = &t
+		}
+	}
+
 	if v := in.GetDeletionTimestamp(); v != nil {
 		out.DeletionTime = &v.Time
 	}
@@ -86,6 +104,8 @@ func OrganizationScopedResourceReadMetadata(in metav1.Object, status openapi.Res
 		Description:        temp.Description,
 		CreatedBy:          temp.CreatedBy,
 		CreationTime:       temp.CreationTime,
+		ModifiedBy:         temp.ModifiedBy,
+		ModifiedTime:       temp.ModifiedTime,
 		ProvisioningStatus: temp.ProvisioningStatus,
 		OrganizationId:     labels[constants.OrganizationLabel],
 	}
@@ -106,6 +126,8 @@ func ProjectScopedResourceReadMetadata(in metav1.Object, status openapi.Resource
 		Description:        temp.Description,
 		CreatedBy:          temp.CreatedBy,
 		CreationTime:       temp.CreationTime,
+		ModifiedBy:         temp.ModifiedBy,
+		ModifiedTime:       temp.ModifiedTime,
 		ProvisioningStatus: temp.ProvisioningStatus,
 		OrganizationId:     temp.OrganizationId,
 		ProjectId:          labels[constants.ProjectLabel],
@@ -202,18 +224,33 @@ func (o *ObjectMetadata) Get(ctx context.Context) metav1.ObjectMeta {
 	return out
 }
 
-// UpdateObjectMetadata abstracts away metadata updates e.g. name and description changes.
-func UpdateObjectMetadata(out, in metav1.Object) {
-	// Some annotations are persistent e.g. the creator.
-	// TODO: we could make the distinction between creator and modifier, even have
-	// a modification timestamp.
-	currentAnnotations := out.GetAnnotations()
-	requiredAnnotations := in.GetAnnotations()
+// UpdateObjectMetadata abstracts away metadata updates.
+func UpdateObjectMetadata(required, current metav1.Object, persistedAnnotations ...string) error {
+	requiredAnnotations := required.GetAnnotations()
+	currentAnnotations := current.GetAnnotations()
+
+	// Persist any component specific annotations.
+	for _, annotation := range persistedAnnotations {
+		v, ok := currentAnnotations[annotation]
+		if !ok {
+			return fmt.Errorf("%w: %s", ErrAnnotation, annotation)
+		}
+
+		requiredAnnotations[annotation] = v
+	}
+
+	// When updating, the required creator is now the updater.
+	requiredAnnotations[constants.ModifierAnnotation] = requiredAnnotations[constants.CreatorAnnotation]
+	requiredAnnotations[constants.ModifiedTimestampAnnotation] = time.Now().UTC().Format(time.RFC3339)
+
+	// And preserve the original creator.
+	requiredAnnotations[constants.CreatorAnnotation] = currentAnnotations[constants.CreatorAnnotation]
 
 	if v, ok := currentAnnotations[constants.CreatorAnnotation]; ok {
 		requiredAnnotations[constants.CreatorAnnotation] = v
 	}
 
-	out.SetLabels(in.GetLabels())
-	out.SetAnnotations(requiredAnnotations)
+	required.SetAnnotations(requiredAnnotations)
+
+	return nil
 }

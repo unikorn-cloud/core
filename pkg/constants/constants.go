@@ -38,6 +38,14 @@ const (
 	// created it.
 	CreatorAnnotation = "unikorn-cloud.org/creator"
 
+	// ModifierAnnotation is optionally attached to a resource to show who
+	// last modified it.
+	ModifierAnnotation = "unikorn-cloud.org/modifier"
+
+	// ModifiedTimestampAnnotation augments Kubernetes metadata to provide mtime
+	// like functionality.
+	ModifiedTimestampAnnotation = "unikorn-cloud.org/modifiedTimestamp"
+
 	// KindLabel is used to match a resource that may be owned by a particular kind.
 	// For example, projects and cluster managers are modelled on namespaces.  For CPs
 	// you have to select based on project and CP name, because of name reuse, but
