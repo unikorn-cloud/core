@@ -80,6 +80,13 @@ components:
           createdBy:
             description: The user who created the resource.
             type: string
+          modifiedTime:
+            description: The time a resource was updated.
+            type: string
+            format: date-time
+          modifiedBy:
+            description: The user who updated the resource.
+            type: string
     resourceProvisioningStatus:
       description: The provisioning state of a resource.
       type: string

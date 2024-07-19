@@ -68,6 +68,12 @@ type OrganizationScopedResourceReadMetadata struct {
 	// Id The unique resource ID.
 	Id string `json:"id"`
 
+	// ModifiedBy The user who updated the resource.
+	ModifiedBy *string `json:"modifiedBy,omitempty"`
+
+	// ModifiedTime The time a resource was updated.
+	ModifiedTime *time.Time `json:"modifiedTime,omitempty"`
+
 	// Name A valid Kubenetes label value, typically used for resource names that can be
 	// indexed in the database.
 	Name KubernetesLabelValue `json:"name"`
@@ -95,6 +101,12 @@ type ProjectScopedResourceReadMetadata struct {
 
 	// Id The unique resource ID.
 	Id string `json:"id"`
+
+	// ModifiedBy The user who updated the resource.
+	ModifiedBy *string `json:"modifiedBy,omitempty"`
+
+	// ModifiedTime The time a resource was updated.
+	ModifiedTime *time.Time `json:"modifiedTime,omitempty"`
 
 	// Name A valid Kubenetes label value, typically used for resource names that can be
 	// indexed in the database.
@@ -140,6 +152,12 @@ type ResourceReadMetadata struct {
 	// Id The unique resource ID.
 	Id string `json:"id"`
 
+	// ModifiedBy The user who updated the resource.
+	ModifiedBy *string `json:"modifiedBy,omitempty"`
+
+	// ModifiedTime The time a resource was updated.
+	ModifiedTime *time.Time `json:"modifiedTime,omitempty"`
+
 	// Name A valid Kubenetes label value, typically used for resource names that can be
 	// indexed in the database.
 	Name KubernetesLabelValue `json:"name"`
@@ -167,6 +185,12 @@ type StaticResourceMetadata struct {
 
 	// Id The unique resource ID.
 	Id string `json:"id"`
+
+	// ModifiedBy The user who updated the resource.
+	ModifiedBy *string `json:"modifiedBy,omitempty"`
+
+	// ModifiedTime The time a resource was updated.
+	ModifiedTime *time.Time `json:"modifiedTime,omitempty"`
 
 	// Name A valid Kubenetes label value, typically used for resource names that can be
 	// indexed in the database.
