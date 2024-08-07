@@ -60,13 +60,16 @@ func mutate() error {
 func (p *Provisioner) Provision(ctx context.Context) error {
 	log := log.FromContext(ctx)
 
-	c := clientlib.DynamicClientFromContext(ctx)
+	clusterContext, err := clientlib.ClusterFromContext(ctx)
+	if err != nil {
+		return err
+	}
 
 	objectKey := client.ObjectKeyFromObject(p.resource)
 
 	log.Info("creating object", "key", objectKey)
 
-	result, err := controllerutil.CreateOrUpdate(ctx, c, p.resource, mutate)
+	result, err := controllerutil.CreateOrUpdate(ctx, clusterContext.Client, p.resource, mutate)
 	if err != nil {
 		return err
 	}
@@ -80,13 +83,16 @@ func (p *Provisioner) Provision(ctx context.Context) error {
 func (p *Provisioner) Deprovision(ctx context.Context) error {
 	log := log.FromContext(ctx)
 
-	c := clientlib.DynamicClientFromContext(ctx)
+	clusterContext, err := clientlib.ClusterFromContext(ctx)
+	if err != nil {
+		return err
+	}
 
 	objectKey := client.ObjectKeyFromObject(p.resource)
 
 	log.Info("deleting object", "key", objectKey)
 
-	if err := c.Delete(ctx, p.resource); err != nil {
+	if err := clusterContext.Client.Delete(ctx, p.resource); err != nil {
 		if errors.IsNotFound(err) {
 			log.Info("object deleted", "key", objectKey)
 

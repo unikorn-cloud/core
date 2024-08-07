@@ -27,4 +27,10 @@ var (
 
 	// ErrCDDriver is raised when a CD driver is not handled.
 	ErrCDDriver = errors.New("unhandled CD driver")
+
+	// ErrInvalidContext is raised when the context is not correctly polulated.
+	ErrInvalidContext = errors.New("context invalid")
+
+	// ErrKubeconfig is raised wne the Kubeconfig isn't correct.
+	ErrKubeconfig = errors.New("kubeconfig error")
 )

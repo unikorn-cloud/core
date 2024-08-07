@@ -20,32 +20,68 @@ package client
 import (
 	"context"
 
+	"github.com/unikorn-cloud/core/pkg/cd"
+	"github.com/unikorn-cloud/core/pkg/errors"
+
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
+
+// ClusterContext is available to all provisioners and is updated when invoked
+// within the scope of a remote cluster provisioner.  In general, you should avoid
+// having to use this, because it implies hackery.
+type ClusterContext struct {
+	// Client is a Kubernetes client that can access resources on the remote
+	// cluster.  This is typically used to extract Kubenetes configuration to
+	// chain to the next remote cluster.  It is also used when some combination
+	// of Helm application/ArgoCD is broken and needs manual intervention.
+	Client client.Client
+	// ID is the unique remote cluster ID as cunsumed by the CD layer.
+	// This is only set on invocation of a remote cluster provisioner.
+	ID *cd.ResourceIdentifier
+	// Host is the Kubernetes endpoint hostname. This is only set on
+	// invocation of a remote cluster provisioner.
+	Host string
+	// Port is the Kubernetes endpoint port. This is only set on
+	// invocation of a remote cluster provisioner.
+	Port string
+}
 
 type key int
 
 const (
-	// staticClientKey is the client that is scoped to the static cluster.
-	staticClientKey key = iota
+	// provisionerClientKey is the client that is scoped to the cluster containing
+	// the current provisioner (i.e. continuous deployment layer).
+	provisionerClientKey key = iota
 
-	// dynamicClientKey is the current client that is scoped to the current remote cluster.
-	dynamicClientKey
+	// clusterKey sets the cluster so it's propagated to all
+	// descendant provisioners in the call graph.
+	clusterKey
 )
 
-func NewContextWithStaticClient(ctx context.Context, client client.Client) context.Context {
-	return context.WithValue(ctx, staticClientKey, client)
+func NewContextWithProvisionerClient(ctx context.Context, client client.Client) context.Context {
+	return context.WithValue(ctx, provisionerClientKey, client)
 }
 
-func StaticClientFromContext(ctx context.Context) client.Client {
-	//nolint:forcetypeassert
-	return ctx.Value(staticClientKey).(client.Client)
-}
-func NewContextWithDynamicClient(ctx context.Context, client client.Client) context.Context {
-	return context.WithValue(ctx, dynamicClientKey, client)
+func ProvisionerClientFromContext(ctx context.Context) (client.Client, error) {
+	if value := ctx.Value(provisionerClientKey); value != nil {
+		if client, ok := value.(client.Client); ok {
+			return client, nil
+		}
+	}
+
+	return nil, errors.ErrInvalidContext
 }
 
-func DynamicClientFromContext(ctx context.Context) client.Client {
-	//nolint:forcetypeassert
-	return ctx.Value(dynamicClientKey).(client.Client)
+func NewContextWithCluster(ctx context.Context, remote *ClusterContext) context.Context {
+	return context.WithValue(ctx, clusterKey, remote)
+}
+
+func ClusterFromContext(ctx context.Context) (*ClusterContext, error) {
+	if value := ctx.Value(clusterKey); value != nil {
+		if remote, ok := value.(*ClusterContext); ok {
+			return remote, nil
+		}
+	}
+
+	return nil, errors.ErrInvalidContext
 }
