@@ -19,11 +19,15 @@ package remotecluster
 
 import (
 	"context"
-	"errors"
+	goerrors "errors"
+	"fmt"
+	"net"
+	"net/url"
 	"sync"
 
 	"github.com/unikorn-cloud/core/pkg/cd"
 	clientlib "github.com/unikorn-cloud/core/pkg/client"
+	"github.com/unikorn-cloud/core/pkg/errors"
 	"github.com/unikorn-cloud/core/pkg/provisioners"
 
 	"k8s.io/client-go/tools/clientcmd"
@@ -72,6 +76,14 @@ type remoteClusterProvisioner struct {
 
 	// child is the provisioner to run on the remote cluster.
 	child provisioners.Provisioner
+
+	// backgroundDeletion, if set, is propagated to descendant provisioners via
+	// the context.  At present, this is only available on remote provisioners,
+	// and is intended to be used for quickly discarding applications on dynamically
+	// provisioned clusters that will be destroyed anyway.  The one caveat is that
+	// it cannot be used with remotes where applications need to be given a chance to
+	// clean up resources that will be orphaned.
+	backgroundDeletion bool
 }
 
 // Ensure the Provisioner interface is implemented.
@@ -81,25 +93,33 @@ var _ provisioners.Provisioner = &remoteClusterProvisioner{}
 type ProvisionerOption func(p *remoteClusterProvisioner)
 
 func BackgroundDeletion(p *remoteClusterProvisioner) {
-	// TODO: This mutates the child and causes side effects, could we
-	// propagate this information via the context?
-	p.child.BackgroundDeletion()
+	p.backgroundDeletion = true
 }
 
 // GetClient gets a client from the remote generator.
 // NOTE: this must only be called in Provision/Deprovision so it
 // respects the context we are in as regards nested remotes.
-func (r *RemoteCluster) GetClient(ctx context.Context) (client.Client, error) {
+func (r *RemoteCluster) getClient(ctx context.Context) (client.Client, *clientcmdapi.Config, error) {
+	config, err := r.generator.Config(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	getter := func() (*clientcmdapi.Config, error) {
-		return r.generator.Config(ctx)
+		return config, nil
 	}
 
 	restConfig, err := clientcmd.BuildConfigFromKubeconfigGetter("", getter)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return client.New(restConfig, client.Options{Scheme: clientlib.DynamicClientFromContext(ctx).Scheme()})
+	client, err := client.New(restConfig, client.Options{})
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return client, config, nil
 }
 
 // ProvisionOn returns a provisioner that will provision the remote,
@@ -157,22 +177,62 @@ func (p *remoteClusterProvisioner) provisionRemote(ctx context.Context) error {
 	return nil
 }
 
+func getKuebernetesURL(config *clientcmdapi.Config) (*url.URL, error) {
+	configContext := config.Contexts[config.CurrentContext]
+	if configContext == nil {
+		return nil, fmt.Errorf("%w: unable to lookup context", errors.ErrKubeconfig)
+	}
+
+	cluster := config.Clusters[configContext.Cluster]
+	if cluster == nil {
+		return nil, fmt.Errorf("%w: unable to lookup cluster", errors.ErrKubeconfig)
+	}
+
+	return url.Parse(cluster.Server)
+}
+
+func getHostPort(url *url.URL) (string, string) {
+	host, port, err := net.SplitHostPort(url.Host)
+	if err != nil {
+		host = url.Host
+
+		switch url.Scheme {
+		case "http":
+			port = "80"
+		case "https":
+			port = "443"
+		}
+	}
+
+	return host, port
+}
+
 // Provision implements the Provision interface.
 func (p *remoteClusterProvisioner) Provision(ctx context.Context) error {
 	if err := p.provisionRemote(ctx); err != nil {
 		return err
 	}
 
-	client, err := p.remote.GetClient(ctx)
+	client, config, err := p.remote.getClient(ctx)
 	if err != nil {
 		return err
 	}
 
-	ctx = clientlib.NewContextWithDynamicClient(ctx, client)
+	url, err := getKuebernetesURL(config)
+	if err != nil {
+		return err
+	}
 
-	// TODO: This mutates the child and causes side effects, could we
-	// Remove the applications.
-	p.child.OnRemote(p.remote.generator)
+	host, port := getHostPort(url)
+
+	clusterContext := &clientlib.ClusterContext{
+		Client: client,
+		ID:     p.remote.generator.ID(),
+		Host:   host,
+		Port:   port,
+	}
+
+	ctx = clientlib.NewContextWithCluster(ctx, clusterContext)
 
 	// Remote is registered, create the remote applications.
 	if err := p.child.Provision(ctx); err != nil {
@@ -191,9 +251,9 @@ func (p *remoteClusterProvisioner) Deprovision(ctx context.Context) error {
 	// has completed successfully.
 	deprovisioned := false
 
-	client, err := p.remote.GetClient(ctx)
+	client, config, err := p.remote.getClient(ctx)
 	if err != nil {
-		if !errors.Is(err, provisioners.ErrYield) {
+		if !goerrors.Is(err, provisioners.ErrYield) {
 			return err
 		}
 
@@ -201,11 +261,25 @@ func (p *remoteClusterProvisioner) Deprovision(ctx context.Context) error {
 	}
 
 	if !deprovisioned {
-		ctx = clientlib.NewContextWithDynamicClient(ctx, client)
+		url, err := getKuebernetesURL(config)
+		if err != nil {
+			return err
+		}
 
-		// TODO: This mutates the child and causes side effects, could we
-		// Remove the applications.
-		p.child.OnRemote(p.remote.generator)
+		host, port := getHostPort(url)
+
+		clusterContext := &clientlib.ClusterContext{
+			Client: client,
+			ID:     p.remote.generator.ID(),
+			Host:   host,
+			Port:   port,
+		}
+
+		ctx = clientlib.NewContextWithCluster(ctx, clusterContext)
+
+		if p.backgroundDeletion {
+			ctx = NewContextWithBackgroundDeletion(ctx, true)
+		}
 
 		if err := p.child.Deprovision(ctx); err != nil {
 			return err

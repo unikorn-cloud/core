@@ -32,7 +32,6 @@ import (
 	"github.com/unikorn-cloud/core/pkg/constants"
 	"github.com/unikorn-cloud/core/pkg/provisioners"
 	"github.com/unikorn-cloud/core/pkg/provisioners/application"
-	mockprovisioners "github.com/unikorn-cloud/core/pkg/provisioners/mock"
 	"github.com/unikorn-cloud/core/pkg/util"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -152,8 +151,13 @@ func TestApplicationCreateHelm(t *testing.T) {
 	driver := mock.NewMockDriver(c)
 	owner := newManagedResource()
 
+	clusterContext := &coreclient.ClusterContext{
+		Client: tc.client,
+	}
+
 	ctx := context.Background()
-	ctx = coreclient.NewContextWithStaticClient(ctx, tc.client)
+	ctx = coreclient.NewContextWithProvisionerClient(ctx, tc.client)
+	ctx = coreclient.NewContextWithCluster(ctx, clusterContext)
 	ctx = cd.NewContext(ctx, driver)
 	ctx = application.NewContext(ctx, owner)
 
@@ -224,9 +228,6 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 		},
 	}
 
-	r := mockprovisioners.NewMockRemoteCluster(c)
-	r.EXPECT().ID().Return(remoteID)
-
 	driverAppID := &cd.ResourceIdentifier{
 		Name:   applicationName,
 		Labels: newManagedResourceLabels(),
@@ -252,15 +253,20 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 	driver := mock.NewMockDriver(c)
 	owner := newManagedResource()
 
+	clusterContext := &coreclient.ClusterContext{
+		ID:     remoteID,
+		Client: tc.client,
+	}
+
 	ctx := context.Background()
-	ctx = coreclient.NewContextWithStaticClient(ctx, tc.client)
+	ctx = coreclient.NewContextWithProvisionerClient(ctx, tc.client)
+	ctx = coreclient.NewContextWithCluster(ctx, clusterContext)
 	ctx = cd.NewContext(ctx, driver)
 	ctx = application.NewContext(ctx, owner)
 
 	driver.EXPECT().CreateOrUpdateHelmApplication(ctx, driverAppID, driverApp).Return(provisioners.ErrYield)
 
 	provisioner := application.New(getApplicationReference).AllowDegraded()
-	provisioner.OnRemote(r)
 
 	assert.ErrorIs(t, provisioner.Provision(ctx), provisioners.ErrYield)
 }
@@ -310,8 +316,13 @@ func TestApplicationCreateGit(t *testing.T) {
 	driver := mock.NewMockDriver(c)
 	owner := newManagedResource()
 
+	clusterContext := &coreclient.ClusterContext{
+		Client: tc.client,
+	}
+
 	ctx := context.Background()
-	ctx = coreclient.NewContextWithStaticClient(ctx, tc.client)
+	ctx = coreclient.NewContextWithProvisionerClient(ctx, tc.client)
+	ctx = coreclient.NewContextWithCluster(ctx, clusterContext)
 	ctx = cd.NewContext(ctx, driver)
 	ctx = application.NewContext(ctx, owner)
 
@@ -446,8 +457,13 @@ func TestApplicationCreateMutate(t *testing.T) {
 	driver := mock.NewMockDriver(c)
 	owner := newManagedResource()
 
+	clusterContext := &coreclient.ClusterContext{
+		Client: tc.client,
+	}
+
 	ctx := context.Background()
-	ctx = coreclient.NewContextWithStaticClient(ctx, tc.client)
+	ctx = coreclient.NewContextWithProvisionerClient(ctx, tc.client)
+	ctx = coreclient.NewContextWithCluster(ctx, clusterContext)
 	ctx = cd.NewContext(ctx, driver)
 	ctx = application.NewContext(ctx, owner)
 
@@ -499,7 +515,7 @@ func TestApplicationDeleteNotFound(t *testing.T) {
 	owner := newManagedResource()
 
 	ctx := context.Background()
-	ctx = coreclient.NewContextWithStaticClient(ctx, tc.client)
+	ctx = coreclient.NewContextWithProvisionerClient(ctx, tc.client)
 	ctx = cd.NewContext(ctx, driver)
 	ctx = application.NewContext(ctx, owner)
 

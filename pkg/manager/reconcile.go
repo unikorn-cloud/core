@@ -102,10 +102,15 @@ func (r *Reconciler) Reconcile(ctx context.Context, request reconcile.Request) (
 
 	// The static client is used by the application provisioner to get access to
 	// application bundles and definitions regardless of remote cluster scoping etc.
-	ctx = client.NewContextWithStaticClient(ctx, r.manager.GetClient())
+	ctx = client.NewContextWithProvisionerClient(ctx, r.manager.GetClient())
 
-	// The dynamic client context is updated as remote clusters are descended into.
-	ctx = client.NewContextWithDynamicClient(ctx, r.manager.GetClient())
+	// The cluster context is updated as remote clusters are descended into.
+	clusterContext := &client.ClusterContext{
+		// TODO: cluster information.
+		Client: r.manager.GetClient(),
+	}
+
+	ctx = client.NewContextWithCluster(ctx, clusterContext)
 
 	// The driver context is updated as remote provisioners are descended into.
 	ctx = cd.NewContext(ctx, driver)

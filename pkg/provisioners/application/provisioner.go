@@ -26,6 +26,7 @@ import (
 	clientlib "github.com/unikorn-cloud/core/pkg/client"
 	"github.com/unikorn-cloud/core/pkg/constants"
 	"github.com/unikorn-cloud/core/pkg/provisioners"
+	"github.com/unikorn-cloud/core/pkg/provisioners/remotecluster"
 	"github.com/unikorn-cloud/core/pkg/util"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -204,15 +205,18 @@ func (p *Provisioner) getValues(ctx context.Context) (interface{}, error) {
 }
 
 // getClusterID returns the destination cluster name.
-func (p *Provisioner) getClusterID() *cd.ResourceIdentifier {
-	if p.Remote != nil {
-		return p.Remote.ID()
+func (p *Provisioner) getClusterID(ctx context.Context) (*cd.ResourceIdentifier, error) {
+	clusterContext, err := clientlib.ClusterFromContext(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil
+	return clusterContext.ID, nil
 }
 
 // generateApplication converts the provided object to a canonical form for a driver.
+//
+//nolint:cyclop
 func (p *Provisioner) generateApplication(ctx context.Context) (*cd.HelmApplication, error) {
 	parameters, err := p.getParameters(ctx)
 	if err != nil {
@@ -224,13 +228,18 @@ func (p *Provisioner) generateApplication(ctx context.Context) (*cd.HelmApplicat
 		return nil, err
 	}
 
+	clusterID, err := p.getClusterID(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	cdApplication := &cd.HelmApplication{
 		Repo:          *p.applicationVersion.Repo,
 		Version:       *p.applicationVersion.Version,
 		Release:       p.getReleaseName(ctx),
 		Parameters:    parameters,
 		Values:        values,
-		Cluster:       p.getClusterID(),
+		Cluster:       clusterID,
 		Namespace:     p.namespace,
 		AllowDegraded: p.allowDegraded,
 	}
@@ -273,7 +282,10 @@ func (p *Provisioner) initialize(ctx context.Context) error {
 		return err
 	}
 
-	cli := clientlib.StaticClientFromContext(ctx)
+	cli, err := clientlib.ProvisionerClientFromContext(ctx)
+	if err != nil {
+		return err
+	}
 
 	key := client.ObjectKey{
 		Name: *ref.Name,
@@ -306,7 +318,7 @@ func (p *Provisioner) Provision(ctx context.Context) error {
 		return err
 	}
 
-	log.Info("provisioning application", "application", p.Name, "remote", p.Remote)
+	log.Info("provisioning application", "application", p.Name)
 
 	// Convert the generic object type into what's expected by the driver interface.
 	id, err := p.getResourceID(ctx)
@@ -351,7 +363,7 @@ func (p *Provisioner) Deprovision(ctx context.Context) error {
 		return err
 	}
 
-	if err := cd.FromContext(ctx).DeleteHelmApplication(ctx, id, p.BackgroundDelete); err != nil {
+	if err := cd.FromContext(ctx).DeleteHelmApplication(ctx, id, remotecluster.BackgroundDeletionFromContext(ctx)); err != nil {
 		return err
 	}
 

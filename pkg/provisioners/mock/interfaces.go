@@ -14,7 +14,6 @@ import (
 
 	v1alpha1 "github.com/unikorn-cloud/core/pkg/apis/unikorn/v1alpha1"
 	cd "github.com/unikorn-cloud/core/pkg/cd"
-	provisioners "github.com/unikorn-cloud/core/pkg/provisioners"
 	gomock "go.uber.org/mock/gomock"
 	api "k8s.io/client-go/tools/clientcmd/api"
 )
@@ -94,18 +93,6 @@ func (m *MockProvisioner) EXPECT() *MockProvisionerMockRecorder {
 	return m.recorder
 }
 
-// BackgroundDeletion mocks base method.
-func (m *MockProvisioner) BackgroundDeletion() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "BackgroundDeletion")
-}
-
-// BackgroundDeletion indicates an expected call of BackgroundDeletion.
-func (mr *MockProvisionerMockRecorder) BackgroundDeletion() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BackgroundDeletion", reflect.TypeOf((*MockProvisioner)(nil).BackgroundDeletion))
-}
-
 // Deprovision mocks base method.
 func (m *MockProvisioner) Deprovision(ctx context.Context) error {
 	m.ctrl.T.Helper()
@@ -118,18 +105,6 @@ func (m *MockProvisioner) Deprovision(ctx context.Context) error {
 func (mr *MockProvisionerMockRecorder) Deprovision(ctx any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Deprovision", reflect.TypeOf((*MockProvisioner)(nil).Deprovision), ctx)
-}
-
-// OnRemote mocks base method.
-func (m *MockProvisioner) OnRemote(remote provisioners.RemoteCluster) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "OnRemote", remote)
-}
-
-// OnRemote indicates an expected call of OnRemote.
-func (mr *MockProvisionerMockRecorder) OnRemote(remote any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnRemote", reflect.TypeOf((*MockProvisioner)(nil).OnRemote), remote)
 }
 
 // Provision mocks base method.
@@ -183,18 +158,6 @@ func (m *MockManagerProvisioner) EXPECT() *MockManagerProvisionerMockRecorder {
 	return m.recorder
 }
 
-// BackgroundDeletion mocks base method.
-func (m *MockManagerProvisioner) BackgroundDeletion() {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "BackgroundDeletion")
-}
-
-// BackgroundDeletion indicates an expected call of BackgroundDeletion.
-func (mr *MockManagerProvisionerMockRecorder) BackgroundDeletion() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BackgroundDeletion", reflect.TypeOf((*MockManagerProvisioner)(nil).BackgroundDeletion))
-}
-
 // Deprovision mocks base method.
 func (m *MockManagerProvisioner) Deprovision(ctx context.Context) error {
 	m.ctrl.T.Helper()
@@ -221,18 +184,6 @@ func (m *MockManagerProvisioner) Object() v1alpha1.ManagableResourceInterface {
 func (mr *MockManagerProvisionerMockRecorder) Object() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Object", reflect.TypeOf((*MockManagerProvisioner)(nil).Object))
-}
-
-// OnRemote mocks base method.
-func (m *MockManagerProvisioner) OnRemote(remote provisioners.RemoteCluster) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "OnRemote", remote)
-}
-
-// OnRemote indicates an expected call of OnRemote.
-func (mr *MockManagerProvisionerMockRecorder) OnRemote(remote any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OnRemote", reflect.TypeOf((*MockManagerProvisioner)(nil).OnRemote), remote)
 }
 
 // Provision mocks base method.
