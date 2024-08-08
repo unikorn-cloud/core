@@ -69,8 +69,14 @@ The context contains a number of important values that can be propagated anywher
 These are:
 
 * Logger, provided by Controller Runtime
-* A static Kubernetes client that always points to the base cluster Unikorn is running in
-* A dynamic Kubernetes client that changes as a result of scope changes (detailed below)
+* A Kubernetes client scoped to the current provisioner system
+  * By default this is the host system
+  * This is used primarily by the application provisioner to create applications for the CD driver
+* A cluster scoped to the current cluster that is being provisioned
+  * By default this is the host system
+  * When you invoke a provisioner in a remote cluster, this will be updated to that cluster
+  * This is used primarily to get secrets created in that cluster by an application e.g. credentials that need to be exposed to higher layers, typically Kubernetes configurations for nested remote clusters
+  * It can also be used for hacks where the provisioner needs direct access to resources on the system, but this is discouraged
 * A CD driver that provides a generic interface to CD backends
 * A reference to the controlling object (i.e. the custom resource) used to uniquely identify applications and remote clusters
 
@@ -98,7 +104,7 @@ The remote cluster provisioner provides a way of managing the life-cycle of remo
 The remote cluster provisioner is just a set of algorithms, to make it work you need to provide it with a driver that is able to retrieve the Kubernetes configuration.
 
 It also doesn't actually implement the Provisioner interface, but acts as a factory that creates them when you wish to provision a child provisioner on the remote cluster.
-When invoked, the child will be executed with a new context containing a dynamic Kubernetes client that can directly access the remote cluster, and can be used in application life-cycle hooks.
+When invoked, the child will be executed with a new context containing Kubernetes cluster information, including a client, that can directly access the remote cluster, and can be used in application life-cycle hooks.
 
 The remote cluster provisioner will create the remote cluster via the CD driver when first provisioned, and will deprovision it after all children have been deprovisioned.
 
