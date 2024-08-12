@@ -19,5 +19,18 @@ ca:
   # If generate is false, then you must specify a certificate and key, which can be
   # sourced from mkcert which will automatically install it in the system trust store.
   # These must be base64 encoded strings.
-  # certificate: SSBhbSBjb21wbGV0ZSBub25zZW5zZS4gIFRoYW5rIHlvdSBmb3IgcmVhZGluZyB0aGlzLiAgR2V0IGEgbGlmZSE= 
+  # certificate: SSBhbSBjb21wbGV0ZSBub25zZW5zZS4gIFRoYW5rIHlvdSBmb3IgcmVhZGluZyB0aGlzLiAgR2V0IGEgbGlmZSE=
   # privateKey: SSBhbSBjb21wbGV0ZSBub25zZW5zZS4gIFRoYW5rIHlvdSBmb3IgcmVhZGluZyB0aGlzLiAgR2V0IGEgbGlmZSE=
+
+# Unikorn uses mTLS for credentialless authentication between componets.  This is
+# only used in asynchronous controllers where a user access token is not availabile.
+clientCA:
+  # Enable CA and issuer creation.
+  enabled: true
+
+  # Generate a self signed CA.
+  # This is typically used at a single site to act as the trust root.
+  # You will need to (somehow) distribute this to other sites so that services
+  # can issue certificates as the CA is rotated.  The other option is to just
+  # issue them here at the root and distribute then to the services themselves.
+  generate: true

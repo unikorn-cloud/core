@@ -17,14 +17,12 @@ limitations under the License.
 package conversion
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"time"
 	"unicode"
 
 	unikornv1 "github.com/unikorn-cloud/core/pkg/apis/unikorn/v1alpha1"
-	"github.com/unikorn-cloud/core/pkg/authorization/userinfo"
 	"github.com/unikorn-cloud/core/pkg/constants"
 	"github.com/unikorn-cloud/core/pkg/openapi"
 
@@ -149,79 +147,52 @@ func generateResourceID() string {
 }
 
 // ObjectMetadata implements a builder pattern.
-type ObjectMetadata struct {
-	metadata       *openapi.ResourceWriteMetadata
-	namespace      string
-	organizationID string
-	projectID      string
-	labels         map[string]string
-}
+type ObjectMetadata metav1.ObjectMeta
 
 // NewObjectMetadata requests the bare minimum to build an object metadata object.
-func NewObjectMetadata(metadata *openapi.ResourceWriteMetadata, namespace string) *ObjectMetadata {
-	return &ObjectMetadata{
-		metadata:  metadata,
-		namespace: namespace,
+func NewObjectMetadata(metadata *openapi.ResourceWriteMetadata, namespace, actor string) *ObjectMetadata {
+	o := &ObjectMetadata{
+		Namespace: namespace,
+		Name:      generateResourceID(),
+		Labels: map[string]string{
+			constants.NameLabel: metadata.Name,
+		},
+		Annotations: map[string]string{
+			constants.CreatorAnnotation: actor,
+		},
 	}
+
+	if metadata.Description != nil {
+		o.Annotations[constants.DescriptionAnnotation] = *metadata.Description
+	}
+
+	return o
 }
 
 // WithOrganization adds an organization for scoped resources.
 func (o *ObjectMetadata) WithOrganization(id string) *ObjectMetadata {
-	o.organizationID = id
+	o.Labels[constants.OrganizationLabel] = id
 
 	return o
 }
 
 // WithProject adds a project for scoped resources.
 func (o *ObjectMetadata) WithProject(id string) *ObjectMetadata {
-	o.projectID = id
+	o.Labels[constants.ProjectLabel] = id
 
 	return o
 }
 
 // WithLabel allows non-generic labels to be attached to a resource.
 func (o *ObjectMetadata) WithLabel(key, value string) *ObjectMetadata {
-	if o.labels == nil {
-		o.labels = map[string]string{}
-	}
-
-	o.labels[key] = value
+	o.Labels[key] = value
 
 	return o
 }
 
 // Get renders the object metadata ready for inclusion into a Kubernetes resource.
-func (o *ObjectMetadata) Get(ctx context.Context) metav1.ObjectMeta {
-	userinfo := userinfo.FromContext(ctx)
-
-	out := metav1.ObjectMeta{
-		Namespace: o.namespace,
-		Name:      generateResourceID(),
-		Labels: map[string]string{
-			constants.NameLabel: o.metadata.Name,
-		},
-		Annotations: map[string]string{
-			constants.CreatorAnnotation: userinfo.Subject,
-		},
-	}
-
-	if o.organizationID != "" {
-		out.Labels[constants.OrganizationLabel] = o.organizationID
-	}
-
-	if o.projectID != "" {
-		out.Labels[constants.ProjectLabel] = o.projectID
-	}
-
-	for k, v := range o.labels {
-		out.Labels[k] = v
-	}
-
-	if o.metadata.Description != nil {
-		out.Annotations[constants.DescriptionAnnotation] = *o.metadata.Description
-	}
-
-	return out
+func (o *ObjectMetadata) Get() metav1.ObjectMeta {
+	return metav1.ObjectMeta(*o)
 }
 
 // UpdateObjectMetadata abstracts away metadata updates.

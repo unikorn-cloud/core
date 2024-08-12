@@ -93,10 +93,6 @@ const (
 	// the region controller) that a resource owns.
 	CloudIdentityAnnotation = "unikorn-cloud.org/cloud-identity-id"
 
-	// IdentityCleanupReadyEventReason is used to identift asynchronous clean up
-	// routines.
-	IdentityCleanupReadyEventReason = "IdentityCleanupReady"
-
 	// Finalizer is applied to resources that need to be deleted manually
 	// and do other complex logic.
 	Finalizer = "unikorn"
