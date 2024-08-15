@@ -39,14 +39,25 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
+// ControllerOptions abstracts controller specific flags.
+type ControllerOptions interface {
+	// AddFlags adds a set of flags to the flagset.
+	AddFlags(f *pflag.FlagSet)
+}
+
 // ControllerFactory allows creation of a Unikorn controller with
 // minimal code.
 type ControllerFactory interface {
 	// Metadata returns the application, version and revision.
 	Metadata() (string, string, string)
 
+	// Options may be nil, otherwise it's a controller specific set of
+	// options that are added to the flagset on start up and passed to the
+	// reonciler.
+	Options() ControllerOptions
+
 	// Reconciler returns a new reconciler instance.
-	Reconciler(options *options.Options, manager manager.Manager) reconcile.Reconciler
+	Reconciler(options *options.Options, controllerOptions ControllerOptions, manager manager.Manager) reconcile.Reconciler
 
 	// RegisterWatches adds any watches that would trigger a reconcile.
 	RegisterWatches(manager manager.Manager, controller controller.Controller) error
@@ -92,20 +103,20 @@ func getManager(f ControllerFactory) (manager.Manager, error) {
 }
 
 // getController returns a generic controller.
-func getController(o *options.Options, manager manager.Manager, f ControllerFactory) (controller.Controller, error) {
+func getController(o *options.Options, controllerOptions ControllerOptions, manager manager.Manager, f ControllerFactory) (controller.Controller, error) {
 	// This prevents a single bad reconcile from affecting all the rest by
 	// boning the whole container.
 	recoverPanic := true
 
-	controllerOptions := controller.Options{
+	options := controller.Options{
 		MaxConcurrentReconciles: o.MaxConcurrentReconciles,
 		RecoverPanic:            &recoverPanic,
-		Reconciler:              f.Reconciler(o, manager),
+		Reconciler:              f.Reconciler(o, controllerOptions, manager),
 	}
 
 	application, _, _ := f.Metadata()
 
-	c, err := controller.New(application, manager, controllerOptions)
+	c, err := controller.New(application, manager, options)
 	if err != nil {
 		return nil, err
 	}
@@ -136,6 +147,11 @@ func Run(f ControllerFactory) {
 	o := &options.Options{}
 	o.AddFlags(pflag.CommandLine)
 
+	controllerOptions := f.Options()
+	if controllerOptions != nil {
+		controllerOptions.AddFlags(pflag.CommandLine)
+	}
+
 	pflag.Parse()
 
 	logr := zap.New(zap.UseFlagOptions(zapOptions))
@@ -159,7 +175,7 @@ func Run(f ControllerFactory) {
 		os.Exit(1)
 	}
 
-	controller, err := getController(o, manager, f)
+	controller, err := getController(o, controllerOptions, manager, f)
 	if err != nil {
 		logger.Error(err, "controller creation error")
 		os.Exit(1)

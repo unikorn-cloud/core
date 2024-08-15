@@ -48,7 +48,7 @@ var (
 )
 
 // ProvisionerCreateFunc provides a type agnosic method to create a root provisioner.
-type ProvisionerCreateFunc func() provisioners.ManagerProvisioner
+type ProvisionerCreateFunc func(ControllerOptions) provisioners.ManagerProvisioner
 
 // Reconciler is a generic reconciler for all manager types.
 type Reconciler struct {
@@ -60,14 +60,18 @@ type Reconciler struct {
 
 	// createProvisioner provides a type agnosic method to create a root provisioner.
 	createProvisioner ProvisionerCreateFunc
+
+	// controllerOptions are options to be passed to the reconciler.
+	controllerOptions ControllerOptions
 }
 
 // NewReconciler creates a new reconciler.
-func NewReconciler(options *options.Options, manager manager.Manager, createProvisioner ProvisionerCreateFunc) *Reconciler {
+func NewReconciler(options *options.Options, controllerOptions ControllerOptions, manager manager.Manager, createProvisioner ProvisionerCreateFunc) *Reconciler {
 	return &Reconciler{
 		options:           options,
 		manager:           manager,
 		createProvisioner: createProvisioner,
+		controllerOptions: controllerOptions,
 	}
 }
 
@@ -88,7 +92,7 @@ func (r *Reconciler) getDriver() (cd.Driver, error) {
 func (r *Reconciler) Reconcile(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
 	log := log.FromContext(ctx)
 
-	provisioner := r.createProvisioner()
+	provisioner := r.createProvisioner(r.controllerOptions)
 
 	object := provisioner.Object()
 

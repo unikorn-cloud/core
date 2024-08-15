@@ -18,15 +18,41 @@ limitations under the License.
 package util
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
+
+	clientlib "github.com/unikorn-cloud/core/pkg/client"
+
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/labels"
+
+	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
 var (
 	ErrNamespaceLookup = errors.New("unable to lookup namespace")
 )
+
+func GetResourceNamespace(ctx context.Context, l labels.Set) (*corev1.Namespace, error) {
+	c, err := clientlib.ProvisionerClientFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	namespaces := &corev1.NamespaceList{}
+	if err := c.List(ctx, namespaces, &client.ListOptions{LabelSelector: l.AsSelector()}); err != nil {
+		return nil, err
+	}
+
+	if len(namespaces.Items) != 1 {
+		return nil, fmt.Errorf("%w: labels %v", ErrNamespaceLookup, l)
+	}
+
+	return &namespaces.Items[0], nil
+}
 
 // GetConfigurationHash is used to restart badly behaved apps that don't respect configuration
 // changes.

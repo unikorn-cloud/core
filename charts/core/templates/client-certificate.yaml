@@ -1,0 +1,22 @@
+{{- if (and .Values.clientCA .Values.clientCA.enabled .Values.clientCA.generate) }}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: unikorn-client-ca
+  namespace: {{ .Values.certManager.namespace }}
+  labels:
+    {{- include "unikorn.labels" . | nindent 4 }}
+spec:
+  issuerRef:
+    group: cert-manager.io
+    kind: Issuer
+    name: unikorn-self-signed-issuer
+  privateKey:
+    algorithm: RSA
+    encoding: PKCS8
+    size: 4096
+  secretName: unikorn-client-ca
+  isCA: true
+  commonName: Unikorn Client CA
+  duration: 87600h
+{{- end }}

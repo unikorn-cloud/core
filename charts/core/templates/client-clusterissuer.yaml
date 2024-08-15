@@ -1,0 +1,11 @@
+{{- if (and .Values.ca .Values.ca.enabled) }}
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: unikorn-client-issuer
+  labels:
+    {{- include "unikorn.labels" . | nindent 4 }}
+spec:
+  ca:
+    secretName: unikorn-client-ca
+{{- end }}

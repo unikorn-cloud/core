@@ -33,4 +33,10 @@ var (
 
 	// ErrKubeconfig is raised wne the Kubeconfig isn't correct.
 	ErrKubeconfig = errors.New("kubeconfig error")
+
+	// ErrSecretFormatError is returned when a secret doesn't meet the specification.
+	ErrSecretFormatError = errors.New("secret incorrectly formatted")
+
+	// ErrAPIStatus is returned when an API status code is unexpected.
+	ErrAPIStatus = errors.New("api status code unexpected")
 )
