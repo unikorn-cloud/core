@@ -26,6 +26,7 @@ import (
 
 	coreclient "github.com/unikorn-cloud/core/pkg/client"
 	"github.com/unikorn-cloud/core/pkg/manager/options"
+	"github.com/unikorn-cloud/core/pkg/manager/otel"
 
 	klog "k8s.io/klog/v2"
 
@@ -147,6 +148,9 @@ func Run(f ControllerFactory) {
 	o := &options.Options{}
 	o.AddFlags(pflag.CommandLine)
 
+	otelOptions := &otel.Options{}
+	otelOptions.AddFlags(pflag.CommandLine)
+
 	controllerOptions := f.Options()
 	if controllerOptions != nil {
 		controllerOptions.AddFlags(pflag.CommandLine)
@@ -163,6 +167,13 @@ func Run(f ControllerFactory) {
 
 	logger := log.Log.WithName("init")
 	logger.Info("service starting", "application", application, "version", version, "revision", revision)
+
+	ctx := signals.SetupSignalHandler()
+
+	if err := otelOptions.Setup(ctx); err != nil {
+		logger.Error(err, "open telemetry setup failed")
+		os.Exit(1)
+	}
 
 	if err := doUpgrade(f); err != nil {
 		logger.Error(err, "resource upgrade failed")
@@ -186,7 +197,7 @@ func Run(f ControllerFactory) {
 		os.Exit(1)
 	}
 
-	if err := manager.Start(signals.SetupSignalHandler()); err != nil {
+	if err := manager.Start(ctx); err != nil {
 		logger.Error(err, "manager terminated")
 		os.Exit(1)
 	}
