@@ -196,32 +196,38 @@ func (o *ObjectMetadata) Get() metav1.ObjectMeta {
 }
 
 // UpdateObjectMetadata abstracts away metadata updates.
-func UpdateObjectMetadata(required, current metav1.Object, persistedAnnotations ...string) error {
-	requiredAnnotations := required.GetAnnotations()
-	currentAnnotations := current.GetAnnotations()
+func UpdateObjectMetadata(required, current metav1.Object, requiredAnnotations, optionalAnnotations []string) error {
+	req := required.GetAnnotations()
+	cur := current.GetAnnotations()
 
 	// Persist any component specific annotations.
-	for _, annotation := range persistedAnnotations {
-		v, ok := currentAnnotations[annotation]
+	for _, annotation := range requiredAnnotations {
+		v, ok := cur[annotation]
 		if !ok {
 			return fmt.Errorf("%w: %s", ErrAnnotation, annotation)
 		}
 
-		requiredAnnotations[annotation] = v
+		req[annotation] = v
+	}
+
+	for _, annotation := range optionalAnnotations {
+		if v, ok := cur[annotation]; ok {
+			req[annotation] = v
+		}
 	}
 
 	// When updating, the required creator is now the updater.
-	requiredAnnotations[constants.ModifierAnnotation] = requiredAnnotations[constants.CreatorAnnotation]
-	requiredAnnotations[constants.ModifiedTimestampAnnotation] = time.Now().UTC().Format(time.RFC3339)
+	req[constants.ModifierAnnotation] = req[constants.CreatorAnnotation]
+	req[constants.ModifiedTimestampAnnotation] = time.Now().UTC().Format(time.RFC3339)
 
 	// And preserve the original creator.
-	requiredAnnotations[constants.CreatorAnnotation] = currentAnnotations[constants.CreatorAnnotation]
+	req[constants.CreatorAnnotation] = cur[constants.CreatorAnnotation]
 
-	if v, ok := currentAnnotations[constants.CreatorAnnotation]; ok {
-		requiredAnnotations[constants.CreatorAnnotation] = v
+	if v, ok := cur[constants.CreatorAnnotation]; ok {
+		req[constants.CreatorAnnotation] = v
 	}
 
-	required.SetAnnotations(requiredAnnotations)
+	required.SetAnnotations(req)
 
 	return nil
 }
