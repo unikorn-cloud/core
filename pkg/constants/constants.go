@@ -89,9 +89,13 @@ const (
 	// manually restarting services based on a Deployment/DaemonSet changing.
 	ConfigurationHashAnnotation = "unikorn-cloud.org/config-hash"
 
-	// CloudIdentityAnnotation tells you the cloud identity (in the context if
+	// IdentityAnnotation tells you the cloud identity (in the context of
 	// the region controller) that a resource owns.
-	CloudIdentityAnnotation = "unikorn-cloud.org/cloud-identity-id"
+	IdentityAnnotation = "unikorn-cloud.org/identity-id"
+
+	// PhysicalNetworkAnnotation tells you the physical network (in the
+	// context of a region controller) that a recource owns.
+	PhysicalNetworkAnnotation = "unikorn-cloud.org/physical-network-id"
 
 	// Finalizer is applied to resources that need to be deleted manually
 	// and do other complex logic.
