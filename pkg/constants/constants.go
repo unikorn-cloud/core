@@ -65,6 +65,9 @@ const (
 	// KindLabelValueKubernetesCluster is used to denote a resource belongs to this type.
 	KindLabelValueKubernetesCluster = "kubernetescluster"
 
+	// KindLabelValueBaremetalCluster is used to denote a resource belongs to this type.
+	KindLabelValueBaremetalCluster = "baremetalcluster"
+
 	// OrganizationLabel is a label applied to namespaces to indicate it is under
 	// control of this tool.  Useful for label selection.
 	OrganizationLabel = "unikorn-cloud.org/organization"
@@ -75,7 +78,11 @@ const (
 
 	// KubernetesClusterLabel is applied to resources to indicate it belongs
 	// to a specific cluster.
-	KubernetesClusterLabel = "unikorn-cloud.org/cluster"
+	KubernetesClusterLabel = "unikorn-cloud.org/kubernetescluster"
+
+	// BaremetalClusterLabel is applied to resources to indicate it belongs
+	// to a specific cluster.
+	BaremetalClusterLabel = "unikorn-cloud.org/baremetalcluster"
 
 	// ApplicationLabel is applied to ArgoCD applications to differentiate
 	// between them.
