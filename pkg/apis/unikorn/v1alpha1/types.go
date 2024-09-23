@@ -23,6 +23,7 @@ import (
 	"net"
 
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"sigs.k8s.io/structured-merge-diff/v4/value"
@@ -148,6 +149,33 @@ func (IPv4Prefix) OpenAPISchemaType() []string {
 
 func (IPv4Prefix) OpenAPISchemaFormat() string {
 	return ""
+}
+
+// MachineGeneric contains common things across all machine pool types.
+type MachineGeneric struct {
+	// Image is the region service image to deploy with.
+	ImageID *string `json:"imageId"`
+	// Flavor is the regions service flavor to deploy with.
+	FlavorID *string `json:"flavorId"`
+	// DiskSize is the persistent root disk size to deploy with.  This
+	// overrides the default ephemeral disk size defined in the flavor.
+	// This is irrelevant for baremetal machine flavors.
+	DiskSize *resource.Quantity `json:"diskSize,omitempty"`
+	// Replicas is the initial pool size to deploy.
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:default=3
+	Replicas *int `json:"replicas,omitempty"`
+}
+
+// Network generic constains common networking options.
+type NetworkGeneric struct {
+	// NodeNetwork is the IPv4 prefix for the node network.
+	// This is tyically used to populate a physical network address range.
+	NodeNetwork *IPv4Prefix `json:"nodeNetwork"`
+	// DNSNameservers sets the DNS nameservers for hosts on the network.
+	// +listType=set
+	// +kubebuilder:validation:MinItems=1
+	DNSNameservers []IPv4Address `json:"dnsNameservers"`
 }
 
 // +kubebuilder:validation:Enum=Available
