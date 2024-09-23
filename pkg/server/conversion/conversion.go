@@ -20,14 +20,13 @@ import (
 	"errors"
 	"fmt"
 	"time"
-	"unicode"
 
 	unikornv1 "github.com/unikorn-cloud/core/pkg/apis/unikorn/v1alpha1"
 	"github.com/unikorn-cloud/core/pkg/constants"
 	"github.com/unikorn-cloud/core/pkg/openapi"
+	"github.com/unikorn-cloud/core/pkg/util"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/uuid"
 )
 
 var (
@@ -134,18 +133,6 @@ func ProjectScopedResourceReadMetadata(in metav1.Object, status openapi.Resource
 	return out
 }
 
-// generateResourceID creates a valid Kubernetes name from a UUID.
-func generateResourceID() string {
-	for {
-		// NOTE: Kubernetes UUIDs are based on version 4, aka random,
-		// so the first character will be a letter eventually, like
-		// a 6/16 chance: tl;dr infinite loops are... improbable.
-		if id := uuid.NewUUID(); unicode.IsLetter(rune(id[0])) {
-			return string(id)
-		}
-	}
-}
-
 // ObjectMetadata implements a builder pattern.
 type ObjectMetadata metav1.ObjectMeta
 
@@ -153,7 +140,7 @@ type ObjectMetadata metav1.ObjectMeta
 func NewObjectMetadata(metadata *openapi.ResourceWriteMetadata, namespace, actor string) *ObjectMetadata {
 	o := &ObjectMetadata{
 		Namespace: namespace,
-		Name:      generateResourceID(),
+		Name:      util.GenerateResourceID(),
 		Labels: map[string]string{
 			constants.NameLabel: metadata.Name,
 		},
