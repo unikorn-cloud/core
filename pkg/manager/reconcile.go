@@ -104,6 +104,10 @@ func (r *Reconciler) Reconcile(ctx context.Context, request reconcile.Request) (
 	// Add the manager to grant access to eventing.
 	ctx = NewContext(ctx, r.manager)
 
+	// The namespace allows access to the current namespace to lookup any
+	// namespace scoped resources.
+	ctx = client.NewContextWithNamespace(ctx, r.options.Namespace)
+
 	// The static client is used by the application provisioner to get access to
 	// application bundles and definitions regardless of remote cluster scoping etc.
 	ctx = client.NewContextWithProvisionerClient(ctx, r.manager.GetClient())
