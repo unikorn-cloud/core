@@ -56,6 +56,9 @@ const (
 	// clusterKey sets the cluster so it's propagated to all
 	// descendant provisioners in the call graph.
 	clusterKey
+
+	// namespaceKey is used to propagate the process's namespace to clients.
+	namespaceKey
 )
 
 func NewContextWithProvisionerClient(ctx context.Context, client client.Client) context.Context {
@@ -84,4 +87,18 @@ func ClusterFromContext(ctx context.Context) (*ClusterContext, error) {
 	}
 
 	return nil, errors.ErrInvalidContext
+}
+
+func NewContextWithNamespace(ctx context.Context, namespace string) context.Context {
+	return context.WithValue(ctx, namespaceKey, namespace)
+}
+
+func NamespaceFromContext(ctx context.Context) (string, error) {
+	if value := ctx.Value(namespaceKey); value != nil {
+		if namespace, ok := value.(string); ok {
+			return namespace, nil
+		}
+	}
+
+	return "", errors.ErrInvalidContext
 }

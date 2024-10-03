@@ -282,13 +282,19 @@ func (p *Provisioner) initialize(ctx context.Context) error {
 		return err
 	}
 
+	namespace, err := clientlib.NamespaceFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
 	cli, err := clientlib.ProvisionerClientFromContext(ctx)
 	if err != nil {
 		return err
 	}
 
 	key := client.ObjectKey{
-		Name: *ref.Name,
+		Namespace: namespace,
+		Name:      *ref.Name,
 	}
 
 	// TODO: Take the kind into consideration??

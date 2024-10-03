@@ -91,6 +91,7 @@ func mustNewTestContext(t *testing.T, objects ...client.Object) *testContext {
 }
 
 const (
+	baseNamespace   = "scooby-doo"
 	applicationID   = "c785837a-7412-49a6-ac7e-6d75ab6ca577"
 	applicationName = "test"
 	repo            = "foo"
@@ -115,7 +116,8 @@ func TestApplicationCreateHelm(t *testing.T) {
 
 	app := &unikornv1.HelmApplication{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: applicationID,
+			Namespace: baseNamespace,
+			Name:      applicationID,
 			Labels: map[string]string{
 				constants.NameLabel: applicationName,
 			},
@@ -156,6 +158,7 @@ func TestApplicationCreateHelm(t *testing.T) {
 	}
 
 	ctx := context.Background()
+	ctx = coreclient.NewContextWithNamespace(ctx, baseNamespace)
 	ctx = coreclient.NewContextWithProvisionerClient(ctx, tc.client)
 	ctx = coreclient.NewContextWithCluster(ctx, clusterContext)
 	ctx = cd.NewContext(ctx, driver)
@@ -184,7 +187,8 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 
 	app := &unikornv1.HelmApplication{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: applicationID,
+			Namespace: baseNamespace,
+			Name:      applicationID,
 			Labels: map[string]string{
 				constants.NameLabel: applicationName,
 			},
@@ -259,6 +263,7 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 	}
 
 	ctx := context.Background()
+	ctx = coreclient.NewContextWithNamespace(ctx, baseNamespace)
 	ctx = coreclient.NewContextWithProvisionerClient(ctx, tc.client)
 	ctx = coreclient.NewContextWithCluster(ctx, clusterContext)
 	ctx = cd.NewContext(ctx, driver)
@@ -280,7 +285,8 @@ func TestApplicationCreateGit(t *testing.T) {
 
 	app := &unikornv1.HelmApplication{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: applicationID,
+			Namespace: baseNamespace,
+			Name:      applicationID,
 			Labels: map[string]string{
 				constants.NameLabel: applicationName,
 			},
@@ -321,6 +327,7 @@ func TestApplicationCreateGit(t *testing.T) {
 	}
 
 	ctx := context.Background()
+	ctx = coreclient.NewContextWithNamespace(ctx, baseNamespace)
 	ctx = coreclient.NewContextWithProvisionerClient(ctx, tc.client)
 	ctx = coreclient.NewContextWithCluster(ctx, clusterContext)
 	ctx = cd.NewContext(ctx, driver)
@@ -403,7 +410,8 @@ func TestApplicationCreateMutate(t *testing.T) {
 
 	app := &unikornv1.HelmApplication{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: applicationID,
+			Namespace: baseNamespace,
+			Name:      applicationID,
 			Labels: map[string]string{
 				constants.NameLabel: applicationName,
 			},
@@ -462,6 +470,7 @@ func TestApplicationCreateMutate(t *testing.T) {
 	}
 
 	ctx := context.Background()
+	ctx = coreclient.NewContextWithNamespace(ctx, baseNamespace)
 	ctx = coreclient.NewContextWithProvisionerClient(ctx, tc.client)
 	ctx = coreclient.NewContextWithCluster(ctx, clusterContext)
 	ctx = cd.NewContext(ctx, driver)
@@ -484,7 +493,8 @@ func TestApplicationDeleteNotFound(t *testing.T) {
 
 	app := &unikornv1.HelmApplication{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: applicationID,
+			Namespace: baseNamespace,
+			Name:      applicationID,
 			Labels: map[string]string{
 				constants.NameLabel: applicationName,
 			},
@@ -515,6 +525,7 @@ func TestApplicationDeleteNotFound(t *testing.T) {
 	owner := newManagedResource()
 
 	ctx := context.Background()
+	ctx = coreclient.NewContextWithNamespace(ctx, baseNamespace)
 	ctx = coreclient.NewContextWithProvisionerClient(ctx, tc.client)
 	ctx = cd.NewContext(ctx, driver)
 	ctx = application.NewContext(ctx, owner)
