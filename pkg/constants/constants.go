@@ -68,6 +68,9 @@ const (
 	// KindLabelValueComputeCluster is used to denote a resource belongs to this type.
 	KindLabelValueComputeCluster = "baremetalcluster"
 
+	// KindLabelValueApplicationSet is userd to denote a resource belongs to this type.
+	KindLabelValueApplicationSet = "applicationset"
+
 	// OrganizationLabel is a label applied to namespaces to indicate it is under
 	// control of this tool.  Useful for label selection.
 	OrganizationLabel = "unikorn-cloud.org/organization"
@@ -87,6 +90,10 @@ const (
 	// ApplicationLabel is applied to ArgoCD applications to differentiate
 	// between them.
 	ApplicationLabel = "unikorn-cloud.org/application"
+
+	// ApplicationSetLabel is applied to applications created by application
+	// sets to differentiate between them.
+	ApplicationSetLabel = "unikorn-cloud.org/applicationset"
 
 	// ApplicationIDLabel is used to lookup applications based on their ID.
 	ApplicationIDLabel = "unikorn-cloud.org/application-id"
