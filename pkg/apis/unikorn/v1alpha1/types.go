@@ -48,7 +48,7 @@ func (v *SemanticVersion) UnmarshalJSON(b []byte) error {
 }
 
 func (v SemanticVersion) MarshalJSON() ([]byte, error) {
-	return []byte(v.Original()), nil
+	return json.Marshal(v.Original())
 }
 
 func (v SemanticVersion) ToUnstructured() interface{} {
