@@ -84,6 +84,7 @@ const (
 	repo    = "foo"
 	chart   = "bar"
 	version = "baz"
+	branch  = "groot"
 )
 
 // TestApplicationCreateHelm tests that given the requested input the provisioner
@@ -247,6 +248,7 @@ func TestApplicationCreateGit(t *testing.T) {
 		Repo:    repo,
 		Path:    path,
 		Version: version,
+		Branch:  branch,
 	}
 
 	assert.ErrorIs(t, tc.driver.CreateOrUpdateHelmApplication(context.TODO(), id, app), provisioners.ErrYield)
@@ -255,7 +257,7 @@ func TestApplicationCreateGit(t *testing.T) {
 	assert.Equal(t, repo, application.Spec.Source.RepoURL)
 	assert.Equal(t, "", application.Spec.Source.Chart)
 	assert.Equal(t, path, application.Spec.Source.Path)
-	assert.Equal(t, version, application.Spec.Source.TargetRevision)
+	assert.Equal(t, branch, application.Spec.Source.TargetRevision)
 	assert.Nil(t, application.Spec.Source.Helm)
 	assert.Equal(t, "in-cluster", application.Spec.Destination.Name)
 	assert.Equal(t, "", application.Spec.Destination.Namespace)

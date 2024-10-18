@@ -141,6 +141,7 @@ func (d *Driver) GetHelmApplication(ctx context.Context, id *cd.ResourceIdentifi
 	return &resources.Items[0], nil
 }
 
+//nolint:cyclop
 func generateApplication(id *cd.ResourceIdentifier, app *cd.HelmApplication) (*argoprojv1.Application, error) {
 	var parameters []argoprojv1.HelmParameter
 
@@ -176,6 +177,12 @@ func generateApplication(id *cd.ResourceIdentifier, app *cd.HelmApplication) (*a
 		destinationName = clusterName(app.Cluster)
 	}
 
+	version := app.Version
+
+	if app.Branch != "" {
+		version = app.Branch
+	}
+
 	application := &argoprojv1.Application{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: id.Name + "-",
@@ -188,7 +195,7 @@ func generateApplication(id *cd.ResourceIdentifier, app *cd.HelmApplication) (*a
 				RepoURL:        app.Repo,
 				Chart:          app.Chart,
 				Path:           app.Path,
-				TargetRevision: app.Version,
+				TargetRevision: version,
 			},
 			Destination: argoprojv1.ApplicationDestination{
 				Name:      destinationName,

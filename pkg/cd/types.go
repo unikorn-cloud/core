@@ -85,6 +85,9 @@ type HelmApplication struct {
 	// Chart is required when using a Helm repository.
 	Chart string
 
+	// Branch is required when using a Git repository.
+	Branch string
+
 	// Path is required when using a Git repository.
 	Path string
 
