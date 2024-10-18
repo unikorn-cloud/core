@@ -110,10 +110,12 @@ func checkFirstComment(comment *ast.Comment) error {
 	headerLines := strings.Split(header, "\n")
 
 	// Expect a copyright, newline, a blank line, newline, nothing!.
+	//nolint:mnd
 	if len(headerLines) < 3 {
 		return fmt.Errorf("%w: first comment must have a copyright and space before the license", errFirstCommentNotLicense)
 	}
 
+	//nolint:mnd
 	lastHeaderLineIndex := len(headerLines) - 2
 
 	if headerLines[lastHeaderLineIndex] != "" {

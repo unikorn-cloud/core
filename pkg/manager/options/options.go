@@ -42,6 +42,7 @@ func (o *Options) AddFlags(flags *pflag.FlagSet) {
 	o.CDDriver.Kind = cd.DriverKindArgoCD
 
 	flags.StringVar(&o.Namespace, "namespace", "", "Namespace the process is running in")
+	//nolint:mnd
 	flags.IntVar(&o.MaxConcurrentReconciles, "max-concurrency", 16, "Maximum number of requests to process at the same time")
 	flags.Var(&o.CDDriver, "cd-driver", "CD backend driver to use from [argocd]")
 }

@@ -36,6 +36,7 @@ type Options struct {
 
 func (o *Options) AddFlags(f *pflag.FlagSet) {
 	f.StringSliceVar(&o.AllowedOrigins, "cors-allow-origin", []string{"*"}, "CORS allowed origins")
+	//nolint:mnd
 	f.IntVar(&o.MaxAge, "cors-max-age", 86400, "CORS maximum age (may be overridden by the browser)")
 }
 

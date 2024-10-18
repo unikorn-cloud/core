@@ -220,6 +220,7 @@ func httpResponseAttributes(w *middleware.LoggingResponseWriter) []attribute.Key
 func httpStatusToOtelCode(status int) (codes.Code, string) {
 	code := codes.Ok
 
+	//nolint:mnd
 	if status >= 400 {
 		code = codes.Error
 	}
