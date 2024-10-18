@@ -22,6 +22,8 @@ import (
 	"errors"
 	"net"
 
+	"github.com/masterminds/semver"
+
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -33,8 +35,25 @@ var (
 	ErrJSONUnmarshal = errors.New("failed to unmarshal JSON")
 )
 
-// +kubebuilder:validation:Pattern="^v(?:[0-9]+\\.){2}(?:[0-9]+)$"
-type SemanticVersion string
+// SemanticVersion allows semver in either v1.0.0 or 1.0.0 forms, although the latter is
+// technically the only correct one, things like Helm allow the former.
+// +kubebuilder:validation:Type=string
+// +kubebuilder:validation:Pattern="^v?[0-9]+(\\.[0-9]+)?(\\.[0-9]+)?(-([0-9A-Za-z\\-]+(\\.[0-9A-Za-z\\-]+)*))?(\\+([0-9A-Za-z\\-]+(\\.[0-9A-Za-z\\-]+)*))?$"
+type SemanticVersion struct {
+	semver.Version
+}
+
+func (v *SemanticVersion) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &v.Version)
+}
+
+func (v SemanticVersion) MarshalJSON() ([]byte, error) {
+	return []byte(v.Original()), nil
+}
+
+func (v SemanticVersion) ToUnstructured() interface{} {
+	return v.Original()
+}
 
 // +kubebuilder:validation:Type=string
 // +kubebuilder:validation:Pattern="^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$"

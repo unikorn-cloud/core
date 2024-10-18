@@ -60,19 +60,19 @@ type HelmApplicationSpec struct {
 	Versions []HelmApplicationVersion `json:"versions,omitempty"`
 }
 
-// +kubebuilder:validation:XValidation:rule="has(self.chart) || has(self.path)",message="either chart or path must be specified"
-// +kubebuilder:validation:XValidation:rule="!(has(self.chart) && has(self.path))",message="only one of chart or path may be specified"
+// +kubebuilder:validation:XValidation:rule="has(self.chart) || has(self.branch)",message="either chart or branch must be specified"
+// +kubebuilder:validation:XValidation:rule="!(has(self.chart) && has(self.branch))",message="only one of chart or branch may be specified"
 type HelmApplicationVersion struct {
 	// Repo is either a Helm chart repository, or git repository.
-	// If not set, uses the application default.
 	Repo *string `json:"repo"`
 	// Chart is the chart name in the repository.
-	// If not set, uses the application default.
 	Chart *string `json:"chart,omitempty"`
-	// Path is the path if the repo is a git repo.
-	// If not set, uses the application default.
+	// Branch defines the branch name if the repo is a git repository.
+	Branch *string `json:"branch,omitempty"`
+	// Path is the path if the repo is a git repository.
 	Path *string `json:"path,omitempty"`
-	// Version is the chart version, or a branch when a path is provided.
+	// Version is the chart version, but must also be set for Git based repositories.
+	// This value must be a semantic version.
 	Version *string `json:"version"`
 	// Release is the explicit release name for when chart resource names are dynamic.
 	// Typically we need predicatable names for things that are going to be remote
@@ -107,7 +107,7 @@ type HelmApplicationVersion struct {
 	// Recommends capture soft dependencies on other applications that may be
 	// installed after this one. Typically ths could be storage classes for a
 	// storage provider etc.
-	Recommends []HelmApplicationDependency `json:"recommends,omitempty"`
+	Recommends []HelmApplicationRecommendation `json:"recommends,omitempty"`
 }
 
 type HelmApplicationParameter struct {
@@ -118,7 +118,36 @@ type HelmApplicationParameter struct {
 }
 
 type HelmApplicationDependency struct {
-	// Name the name of the application to depend on.
+	// Name of the application to depend on.
+	Name *string `json:"name"`
+	// Constraints is a set of versioning constraints that must be met
+	// by a SAT solver, the set is composed as a logical AND so all
+	// constraints must be met.
+	Constraints []DependencyConstriant `json:"constraints,omitempty"`
+}
+
+// +kubebuilder:validation:Enum=Equal;GreaterThan;LessThan;GreaterThanOrEqual;LessThanOrEqual
+type DependencyConstraintOperator string
+
+const (
+	Equal              DependencyConstraintOperator = "Equal"
+	GreaterThan        DependencyConstraintOperator = "GreaterThan"
+	LessThan           DependencyConstraintOperator = "LessThan"
+	GreaterThanOrEqual DependencyConstraintOperator = "GreaterThanOrEqual"
+	LessThanOrEqual    DependencyConstraintOperator = "LessThanOrEqual"
+)
+
+type DependencyConstriant struct {
+	// Operator defines the constraint operation.
+	Operator DependencyConstraintOperator `json:"operator"`
+	// Version is the version the operator compares against.
+	Version SemanticVersion `json:"version"`
+}
+
+type HelmApplicationRecommendation struct {
+	// Name of the application to require.
+	// That recommendation MUST have a dependency with any constraints
+	// on this application.
 	Name *string `json:"name"`
 }
 

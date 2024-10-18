@@ -20,7 +20,7 @@ GOPATH := $(shell go env GOPATH)
 GOBIN := $(if $(shell go env GOBIN),$(shell go env GOBIN),$(GOPATH)/bin)
 
 # Defines the linter version.
-LINT_VERSION=v1.57.1
+LINT_VERSION=v1.61.0
 
 # Defines the version of the CRD generation tools to use.
 CONTROLLER_TOOLS_VERSION=v0.16.3

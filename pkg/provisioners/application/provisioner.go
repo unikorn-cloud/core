@@ -248,6 +248,10 @@ func (p *Provisioner) generateApplication(ctx context.Context) (*cd.HelmApplicat
 		cdApplication.Chart = *p.applicationVersion.Chart
 	}
 
+	if p.applicationVersion.Branch != nil {
+		cdApplication.Branch = *p.applicationVersion.Branch
+	}
+
 	if p.applicationVersion.Path != nil {
 		cdApplication.Path = *p.applicationVersion.Path
 	}

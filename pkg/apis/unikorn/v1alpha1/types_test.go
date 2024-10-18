@@ -21,6 +21,8 @@ import (
 	"net"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/unikorn-cloud/core/pkg/apis/unikorn/v1alpha1"
 )
 
@@ -44,6 +46,28 @@ var (
 		Mask: net.IPv4Mask(255, 255, 0, 0),
 	}
 )
+
+func TestSemanticVersionCanonical(t *testing.T) {
+	t.Parallel()
+
+	out := &v1alpha1.SemanticVersion{}
+
+	require.NoError(t, out.UnmarshalJSON([]byte(`"1.2.3-foo+bar"`)))
+	require.EqualValues(t, 1, out.Major())
+	require.EqualValues(t, 2, out.Minor())
+	require.EqualValues(t, 3, out.Patch())
+}
+
+func TestSemanticVersion(t *testing.T) {
+	t.Parallel()
+
+	out := &v1alpha1.SemanticVersion{}
+
+	require.NoError(t, out.UnmarshalJSON([]byte(`"v1.2.3-foo+bar"`)))
+	require.EqualValues(t, 1, out.Major())
+	require.EqualValues(t, 2, out.Minor())
+	require.EqualValues(t, 3, out.Patch())
+}
 
 func TestIPv4AddressUnmarshal(t *testing.T) {
 	t.Parallel()

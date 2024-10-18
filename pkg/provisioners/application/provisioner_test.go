@@ -32,9 +32,9 @@ import (
 	"github.com/unikorn-cloud/core/pkg/constants"
 	"github.com/unikorn-cloud/core/pkg/provisioners"
 	"github.com/unikorn-cloud/core/pkg/provisioners/application"
-	"github.com/unikorn-cloud/core/pkg/util"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/utils/ptr"
 
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
@@ -101,9 +101,9 @@ const (
 
 func getApplicationReference(ctx context.Context) (*unikornv1.ApplicationReference, error) {
 	ref := &unikornv1.ApplicationReference{
-		Kind:    util.ToPointer(unikornv1.ApplicationReferenceKindHelm),
-		Name:    util.ToPointer(applicationID),
-		Version: util.ToPointer(version),
+		Kind:    ptr.To(unikornv1.ApplicationReferenceKindHelm),
+		Name:    ptr.To(applicationID),
+		Version: ptr.To(version),
 	}
 
 	return ref, nil
@@ -126,9 +126,9 @@ func TestApplicationCreateHelm(t *testing.T) {
 			Versions: []unikornv1.HelmApplicationVersion{
 				{
 
-					Repo:    util.ToPointer(repo),
-					Chart:   util.ToPointer(chart),
-					Version: util.ToPointer(version),
+					Repo:    ptr.To(repo),
+					Chart:   ptr.To(chart),
+					Version: ptr.To(version),
 				},
 			},
 		},
@@ -196,18 +196,18 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 		Spec: unikornv1.HelmApplicationSpec{
 			Versions: []unikornv1.HelmApplicationVersion{
 				{
-					Repo:    util.ToPointer(repo),
-					Chart:   util.ToPointer(chart),
-					Version: util.ToPointer(version),
-					Release: util.ToPointer(release),
+					Repo:    ptr.To(repo),
+					Chart:   ptr.To(chart),
+					Version: ptr.To(version),
+					Release: ptr.To(release),
 					Parameters: []unikornv1.HelmApplicationParameter{
 						{
-							Name:  util.ToPointer(parameter),
-							Value: util.ToPointer(value),
+							Name:  ptr.To(parameter),
+							Value: ptr.To(value),
 						},
 					},
-					CreateNamespace: util.ToPointer(true),
-					ServerSideApply: util.ToPointer(true),
+					CreateNamespace: ptr.To(true),
+					ServerSideApply: ptr.To(true),
 				},
 			},
 		},
@@ -282,6 +282,7 @@ func TestApplicationCreateGit(t *testing.T) {
 	t.Parallel()
 
 	path := "bar"
+	branch := "groot"
 
 	app := &unikornv1.HelmApplication{
 		ObjectMeta: metav1.ObjectMeta{
@@ -295,9 +296,10 @@ func TestApplicationCreateGit(t *testing.T) {
 			Versions: []unikornv1.HelmApplicationVersion{
 				{
 
-					Repo:    util.ToPointer(repo),
-					Path:    util.ToPointer(path),
-					Version: util.ToPointer(version),
+					Repo:    ptr.To(repo),
+					Path:    ptr.To(path),
+					Version: ptr.To(version),
+					Branch:  ptr.To(branch),
 				},
 			},
 		},
@@ -317,6 +319,7 @@ func TestApplicationCreateGit(t *testing.T) {
 		Repo:    repo,
 		Path:    path,
 		Version: version,
+		Branch:  branch,
 	}
 
 	driver := mock.NewMockDriver(c)
@@ -420,9 +423,9 @@ func TestApplicationCreateMutate(t *testing.T) {
 			Versions: []unikornv1.HelmApplicationVersion{
 				{
 
-					Repo:    util.ToPointer(repo),
-					Chart:   util.ToPointer(chart),
-					Version: util.ToPointer(version),
+					Repo:    ptr.To(repo),
+					Chart:   ptr.To(chart),
+					Version: ptr.To(version),
 				},
 			},
 		},
@@ -503,9 +506,9 @@ func TestApplicationDeleteNotFound(t *testing.T) {
 			Versions: []unikornv1.HelmApplicationVersion{
 				{
 
-					Repo:    util.ToPointer(repo),
-					Chart:   util.ToPointer(chart),
-					Version: util.ToPointer(version),
+					Repo:    ptr.To(repo),
+					Chart:   ptr.To(chart),
+					Version: ptr.To(version),
 				},
 			},
 		},
