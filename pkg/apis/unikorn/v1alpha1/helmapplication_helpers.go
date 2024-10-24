@@ -33,29 +33,12 @@ func CompareHelmApplication(a, b HelmApplication) int {
 	return strings.Compare(a.Name, b.Name)
 }
 
-// Exported returns all applications that are exported, and thus end-user installable.
-func (l HelmApplicationList) Exported() HelmApplicationList {
-	result := HelmApplicationList{}
-
-	for i := range l.Items {
-		if l.Items[i].Spec.Exported != nil && *l.Items[i].Spec.Exported {
-			result.Items = append(result.Items, l.Items[i])
-		}
-	}
-
-	return result
-}
-
-func (a *HelmApplication) GetVersion(version string) (*HelmApplicationVersion, error) {
-	versions := make([]string, 0, len(a.Spec.Versions))
-
+func (a *HelmApplication) GetVersion(version SemanticVersion) (*HelmApplicationVersion, error) {
 	for i := range a.Spec.Versions {
-		if *a.Spec.Versions[i].Version == version {
+		if a.Spec.Versions[i].Version.Equal(&version.Version) {
 			return &a.Spec.Versions[i], nil
 		}
-
-		versions = append(versions, *a.Spec.Versions[i].Version)
 	}
 
-	return nil, fmt.Errorf("%w: wanted %v have %v", ErrVersionNotFound, version, versions)
+	return nil, fmt.Errorf("%w: %v", ErrVersionNotFound, version.Version)
 }
