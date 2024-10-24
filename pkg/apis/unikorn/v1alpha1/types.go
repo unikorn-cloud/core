@@ -268,8 +268,7 @@ type ApplicationReference struct {
 	// Name is the name of the resource we are referencing.
 	Name *string `json:"name"`
 	// Version is the version of the application within the application type.
-	// TODO: make mandatory.
-	Version *string `json:"version,omitempty"`
+	Version SemanticVersion `json:"version"`
 }
 
 type ApplicationNamedReference struct {

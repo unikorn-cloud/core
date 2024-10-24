@@ -21,6 +21,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/masterminds/semver"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 
@@ -96,14 +97,19 @@ const (
 	applicationName = "test"
 	repo            = "foo"
 	chart           = "bar"
-	version         = "baz"
+)
+
+var (
+	version = unikornv1.SemanticVersion{
+		Version: *semver.MustParse("1.2.3"),
+	}
 )
 
 func getApplicationReference(ctx context.Context) (*unikornv1.ApplicationReference, error) {
 	ref := &unikornv1.ApplicationReference{
 		Kind:    ptr.To(unikornv1.ApplicationReferenceKindHelm),
 		Name:    ptr.To(applicationID),
-		Version: ptr.To(version),
+		Version: version,
 	}
 
 	return ref, nil
@@ -128,7 +134,7 @@ func TestApplicationCreateHelm(t *testing.T) {
 
 					Repo:    ptr.To(repo),
 					Chart:   ptr.To(chart),
-					Version: ptr.To(version),
+					Version: version,
 				},
 			},
 		},
@@ -147,7 +153,7 @@ func TestApplicationCreateHelm(t *testing.T) {
 	driverApp := &cd.HelmApplication{
 		Repo:    repo,
 		Chart:   chart,
-		Version: version,
+		Version: version.Original(),
 	}
 
 	driver := mock.NewMockDriver(c)
@@ -198,12 +204,12 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 				{
 					Repo:    ptr.To(repo),
 					Chart:   ptr.To(chart),
-					Version: ptr.To(version),
+					Version: version,
 					Release: ptr.To(release),
 					Parameters: []unikornv1.HelmApplicationParameter{
 						{
-							Name:  ptr.To(parameter),
-							Value: ptr.To(value),
+							Name:  parameter,
+							Value: value,
 						},
 					},
 					CreateNamespace: ptr.To(true),
@@ -240,7 +246,7 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 	driverApp := &cd.HelmApplication{
 		Repo:    repo,
 		Chart:   chart,
-		Version: version,
+		Version: version.Original(),
 		Release: release,
 		Parameters: []cd.HelmApplicationParameter{
 			{
@@ -298,7 +304,7 @@ func TestApplicationCreateGit(t *testing.T) {
 
 					Repo:    ptr.To(repo),
 					Path:    ptr.To(path),
-					Version: ptr.To(version),
+					Version: version,
 					Branch:  ptr.To(branch),
 				},
 			},
@@ -318,7 +324,7 @@ func TestApplicationCreateGit(t *testing.T) {
 	driverApp := &cd.HelmApplication{
 		Repo:    repo,
 		Path:    path,
-		Version: version,
+		Version: version.Original(),
 		Branch:  branch,
 	}
 
@@ -425,7 +431,7 @@ func TestApplicationCreateMutate(t *testing.T) {
 
 					Repo:    ptr.To(repo),
 					Chart:   ptr.To(chart),
-					Version: ptr.To(version),
+					Version: version,
 				},
 			},
 		},
@@ -444,7 +450,7 @@ func TestApplicationCreateMutate(t *testing.T) {
 	driverApp := &cd.HelmApplication{
 		Repo:      repo,
 		Chart:     chart,
-		Version:   version,
+		Version:   version.Original(),
 		Release:   mutatorRelease,
 		Namespace: namespace,
 		Parameters: []cd.HelmApplicationParameter{
@@ -508,7 +514,7 @@ func TestApplicationDeleteNotFound(t *testing.T) {
 
 					Repo:    ptr.To(repo),
 					Chart:   ptr.To(chart),
-					Version: ptr.To(version),
+					Version: version,
 				},
 			},
 		},

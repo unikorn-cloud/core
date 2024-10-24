@@ -53,9 +53,6 @@ type HelmApplicationSpec struct {
 	// that can provide grouping, filtering or other contexts.  For
 	// example "networking", "monitoring", "database" etc.
 	Tags []string `json:"tags"`
-	// Exported defines whether the application should be exported to
-	// the user visiable application manager.
-	Exported *bool `json:"exported,omitempty"`
 	// Versions are the application versions that are supported.
 	Versions []HelmApplicationVersion `json:"versions,omitempty"`
 }
@@ -73,7 +70,7 @@ type HelmApplicationVersion struct {
 	Path *string `json:"path,omitempty"`
 	// Version is the chart version, but must also be set for Git based repositories.
 	// This value must be a semantic version.
-	Version *string `json:"version"`
+	Version SemanticVersion `json:"version"`
 	// Release is the explicit release name for when chart resource names are dynamic.
 	// Typically we need predicatable names for things that are going to be remote
 	// clusters to derive endpoints or Kubernetes configurations.
@@ -112,18 +109,21 @@ type HelmApplicationVersion struct {
 
 type HelmApplicationParameter struct {
 	// Name is the name of the parameter.
-	Name *string `json:"name"`
+	// +kubebuilder:validation:MinLength=1
+	Name string `json:"name"`
 	// Value is the value of the parameter.
-	Value *string `json:"value"`
+	// +kubebuilder:validation:MinLength=1
+	Value string `json:"value"`
 }
 
 type HelmApplicationDependency struct {
 	// Name of the application to depend on.
-	Name *string `json:"name"`
+	// +kubebuilder:validation:MinLength=1
+	Name string `json:"name"`
 	// Constraints is a set of versioning constraints that must be met
 	// by a SAT solver, the set is composed as a logical AND so all
 	// constraints must be met.
-	Constraints []DependencyConstriant `json:"constraints,omitempty"`
+	Constraints []DependencyConstraint `json:"constraints,omitempty"`
 }
 
 // +kubebuilder:validation:Enum=Equal;GreaterThan;LessThan;GreaterThanOrEqual;LessThanOrEqual
@@ -137,7 +137,7 @@ const (
 	LessThanOrEqual    DependencyConstraintOperator = "LessThanOrEqual"
 )
 
-type DependencyConstriant struct {
+type DependencyConstraint struct {
 	// Operator defines the constraint operation.
 	Operator DependencyConstraintOperator `json:"operator"`
 	// Version is the version the operator compares against.
@@ -148,7 +148,8 @@ type HelmApplicationRecommendation struct {
 	// Name of the application to require.
 	// That recommendation MUST have a dependency with any constraints
 	// on this application.
-	Name *string `json:"name"`
+	// +kubebuilder:validation:MinLength=1
+	Name string `json:"name"`
 }
 
 type HelmApplicationStatus struct{}

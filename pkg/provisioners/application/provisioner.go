@@ -153,8 +153,8 @@ func (p *Provisioner) getParameters(ctx context.Context) ([]cd.HelmApplicationPa
 
 	for _, parameter := range p.applicationVersion.Parameters {
 		parameters = append(parameters, cd.HelmApplicationParameter{
-			Name:  *parameter.Name,
-			Value: *parameter.Value,
+			Name:  parameter.Name,
+			Value: parameter.Value,
 		})
 	}
 
@@ -235,7 +235,7 @@ func (p *Provisioner) generateApplication(ctx context.Context) (*cd.HelmApplicat
 
 	cdApplication := &cd.HelmApplication{
 		Repo:          *p.applicationVersion.Repo,
-		Version:       *p.applicationVersion.Version,
+		Version:       p.applicationVersion.Version.Original(),
 		Release:       p.getReleaseName(ctx),
 		Parameters:    parameters,
 		Values:        values,
@@ -310,7 +310,7 @@ func (p *Provisioner) initialize(ctx context.Context) error {
 
 	p.Name = application.Labels[constants.NameLabel]
 
-	version, err := application.GetVersion(*ref.Version)
+	version, err := application.GetVersion(ref.Version)
 	if err != nil {
 		return err
 	}
