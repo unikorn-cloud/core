@@ -21,7 +21,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/masterminds/semver"
+	"github.com/Masterminds/semver/v3"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
 
