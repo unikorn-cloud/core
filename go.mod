@@ -3,10 +3,10 @@ module github.com/unikorn-cloud/core
 go 1.23.2
 
 require (
+	github.com/Masterminds/semver/v3 v3.3.0
 	github.com/getkin/kin-openapi v0.128.0
 	github.com/go-logr/logr v1.4.2
 	github.com/go-openapi/jsonpointer v0.21.0
-	github.com/masterminds/semver v1.5.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.9.0
 	go.opentelemetry.io/otel v1.31.0
@@ -26,7 +26,6 @@ require (
 )
 
 require (
-	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect

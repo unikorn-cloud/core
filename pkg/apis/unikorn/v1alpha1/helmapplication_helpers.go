@@ -20,6 +20,7 @@ package v1alpha1
 import (
 	"errors"
 	"fmt"
+	"iter"
 	"strings"
 )
 
@@ -33,10 +34,21 @@ func CompareHelmApplication(a, b HelmApplication) int {
 	return strings.Compare(a.Name, b.Name)
 }
 
+// Versions returns an iterator over versions.
+func (a *HelmApplication) Versions() iter.Seq[*HelmApplicationVersion] {
+	return func(yield func(*HelmApplicationVersion) bool) {
+		for i := range a.Spec.Versions {
+			if !yield(&a.Spec.Versions[i]) {
+				break
+			}
+		}
+	}
+}
+
 func (a *HelmApplication) GetVersion(version SemanticVersion) (*HelmApplicationVersion, error) {
-	for i := range a.Spec.Versions {
-		if a.Spec.Versions[i].Version.Equal(&version.Version) {
-			return &a.Spec.Versions[i], nil
+	for v := range a.Versions() {
+		if v.Version.Equal(&version) {
+			return v, nil
 		}
 	}
 

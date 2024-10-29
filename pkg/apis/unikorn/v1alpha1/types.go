@@ -22,7 +22,7 @@ import (
 	"errors"
 	"net"
 
-	"github.com/masterminds/semver"
+	"github.com/Masterminds/semver/v3"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -41,6 +41,30 @@ var (
 // +kubebuilder:validation:Pattern="^v?[0-9]+(\\.[0-9]+)?(\\.[0-9]+)?(-([0-9A-Za-z\\-]+(\\.[0-9A-Za-z\\-]+)*))?(\\+([0-9A-Za-z\\-]+(\\.[0-9A-Za-z\\-]+)*))?$"
 type SemanticVersion struct {
 	semver.Version
+}
+
+func (v SemanticVersion) Compare(o *SemanticVersion) int {
+	return v.Version.Compare(&o.Version)
+}
+
+func (v SemanticVersion) Equal(o *SemanticVersion) bool {
+	return v.Version.Equal(&o.Version)
+}
+
+func (v SemanticVersion) GreaterThan(o *SemanticVersion) bool {
+	return v.Version.GreaterThan(&o.Version)
+}
+
+func (v SemanticVersion) GreaterThanEqual(o *SemanticVersion) bool {
+	return v.Version.GreaterThanEqual(&o.Version)
+}
+
+func (v SemanticVersion) LessThan(o *SemanticVersion) bool {
+	return v.Version.LessThan(&o.Version)
+}
+
+func (v SemanticVersion) LessThanEqual(o *SemanticVersion) bool {
+	return v.Version.LessThanEqual(&o.Version)
 }
 
 func (v *SemanticVersion) UnmarshalJSON(b []byte) error {

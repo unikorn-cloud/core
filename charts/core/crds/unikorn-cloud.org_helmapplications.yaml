@@ -50,11 +50,6 @@ spec:
               documentation:
                 description: Documentation defines a URL to 3rd party documentation.
                 type: string
-              exported:
-                description: |-
-                  Exported defines whether the application should be exported to
-                  the user visiable application manager.
-                type: boolean
               icon:
                 description: Icon is a base64 encoded icon for the application.
                 format: byte
@@ -122,6 +117,7 @@ spec:
                             type: array
                           name:
                             description: Name of the application to depend on.
+                            minLength: 1
                             type: string
                         required:
                         - name
@@ -146,9 +142,11 @@ spec:
                         properties:
                           name:
                             description: Name is the name of the parameter.
+                            minLength: 1
                             type: string
                           value:
                             description: Value is the value of the parameter.
+                            minLength: 1
                             type: string
                         required:
                         - name
@@ -170,6 +168,7 @@ spec:
                               Name of the application to require.
                               That recommendation MUST have a dependency with any constraints
                               on this application.
+                            minLength: 1
                             type: string
                         required:
                         - name
