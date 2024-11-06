@@ -51,22 +51,6 @@ func (v SemanticVersion) Equal(o *SemanticVersion) bool {
 	return v.Version.Equal(&o.Version)
 }
 
-func (v SemanticVersion) GreaterThan(o *SemanticVersion) bool {
-	return v.Version.GreaterThan(&o.Version)
-}
-
-func (v SemanticVersion) GreaterThanEqual(o *SemanticVersion) bool {
-	return v.Version.GreaterThanEqual(&o.Version)
-}
-
-func (v SemanticVersion) LessThan(o *SemanticVersion) bool {
-	return v.Version.LessThan(&o.Version)
-}
-
-func (v SemanticVersion) LessThanEqual(o *SemanticVersion) bool {
-	return v.Version.LessThanEqual(&o.Version)
-}
-
 func (v *SemanticVersion) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, &v.Version)
 }
@@ -77,6 +61,58 @@ func (v SemanticVersion) MarshalJSON() ([]byte, error) {
 
 func (v SemanticVersion) ToUnstructured() interface{} {
 	return v.Original()
+}
+
+// SemanticVersionConstraints allows an arbitrary semantic version to be constrained.
+// +kubebuilder:validation:Type=string
+// +kubebuilder:object:generate=false
+type SemanticVersionConstraints struct {
+	semver.Constraints
+}
+
+func (c SemanticVersionConstraints) Check(v *SemanticVersion) bool {
+	return c.Constraints.Check(&v.Version)
+}
+
+func (c SemanticVersionConstraints) String() string {
+	return c.Constraints.String()
+}
+
+func (c *SemanticVersionConstraints) UnmarshalJSON(b []byte) error {
+	var s string
+
+	if err := json.Unmarshal(b, &s); err != nil {
+		return err
+	}
+
+	constraints, err := semver.NewConstraint(s)
+	if err != nil {
+		return err
+	}
+
+	c.Constraints = *constraints
+
+	return nil
+}
+
+func (c SemanticVersionConstraints) MarshalJSON() ([]byte, error) {
+	return json.Marshal(c.Constraints.String())
+}
+
+func (c SemanticVersionConstraints) ToUnstructured() interface{} {
+	return c.Constraints.String()
+}
+
+func (c *SemanticVersionConstraints) DeepCopyInto(out *SemanticVersionConstraints) {
+	t, _ := c.MarshalText()
+	_ = out.Constraints.UnmarshalText(t)
+}
+
+func (c *SemanticVersionConstraints) DeepCopy() *SemanticVersionConstraints {
+	out := &SemanticVersionConstraints{}
+	c.DeepCopyInto(out)
+
+	return out
 }
 
 // +kubebuilder:validation:Type=string
