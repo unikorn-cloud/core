@@ -92,29 +92,8 @@ spec:
                           constraints:
                             description: |-
                               Constraints is a set of versioning constraints that must be met
-                              by a SAT solver, the set is composed as a logical AND so all
-                              constraints must be met.
-                            items:
-                              properties:
-                                operator:
-                                  description: Operator defines the constraint operation.
-                                  enum:
-                                  - Equal
-                                  - GreaterThan
-                                  - LessThan
-                                  - GreaterThanOrEqual
-                                  - LessThanOrEqual
-                                  type: string
-                                version:
-                                  description: Version is the version the operator
-                                    compares against.
-                                  pattern: ^v?[0-9]+(\.[0-9]+)?(\.[0-9]+)?(-([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?(\+([0-9A-Za-z\-]+(\.[0-9A-Za-z\-]+)*))?$
-                                  type: string
-                              required:
-                              - operator
-                              - version
-                              type: object
-                            type: array
+                              by a SAT solver.
+                            type: string
                           name:
                             description: Name of the application to depend on.
                             minLength: 1

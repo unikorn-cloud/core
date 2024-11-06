@@ -50,23 +50,58 @@ var (
 func TestSemanticVersionCanonical(t *testing.T) {
 	t.Parallel()
 
+	jsonSemver := `"1.2.3-foo+bar"`
+
 	out := &v1alpha1.SemanticVersion{}
 
-	require.NoError(t, out.UnmarshalJSON([]byte(`"1.2.3-foo+bar"`)))
+	require.NoError(t, out.UnmarshalJSON([]byte(jsonSemver)))
 	require.EqualValues(t, 1, out.Major())
 	require.EqualValues(t, 2, out.Minor())
 	require.EqualValues(t, 3, out.Patch())
+
+	marshalled, err := out.MarshalJSON()
+	require.NoError(t, err)
+	require.Equal(t, jsonSemver, string(marshalled))
 }
 
 func TestSemanticVersion(t *testing.T) {
 	t.Parallel()
 
+	jsonSemver := `"v1.2.3-foo+bar"`
+
 	out := &v1alpha1.SemanticVersion{}
 
-	require.NoError(t, out.UnmarshalJSON([]byte(`"v1.2.3-foo+bar"`)))
+	require.NoError(t, out.UnmarshalJSON([]byte(jsonSemver)))
 	require.EqualValues(t, 1, out.Major())
 	require.EqualValues(t, 2, out.Minor())
 	require.EqualValues(t, 3, out.Patch())
+
+	marshalled, err := out.MarshalJSON()
+	require.NoError(t, err)
+	require.Equal(t, jsonSemver, string(marshalled))
+}
+
+func TestConstraints(t *testing.T) {
+	t.Parallel()
+
+	good := &v1alpha1.SemanticVersion{}
+	require.NoError(t, good.UnmarshalJSON([]byte(`"1.5.0"`)))
+
+	bad := &v1alpha1.SemanticVersion{}
+	require.NoError(t, bad.UnmarshalJSON([]byte(`"3.0.0"`)))
+
+	jsonConstraints := `">= 1.0.0, < 2.0.0"`
+
+	out := &v1alpha1.SemanticVersionConstraints{}
+
+	require.NoError(t, out.UnmarshalJSON([]byte(jsonConstraints)))
+	require.True(t, out.Check(good))
+	require.False(t, out.Check(bad))
+
+	// NOTE: This emits UTF8, which isn't the same as the input.
+	// We could do some text transformation I guess...
+	_, err := out.MarshalJSON()
+	require.NoError(t, err)
 }
 
 func TestIPv4AddressUnmarshal(t *testing.T) {

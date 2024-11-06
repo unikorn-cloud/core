@@ -121,27 +121,8 @@ type HelmApplicationDependency struct {
 	// +kubebuilder:validation:MinLength=1
 	Name string `json:"name"`
 	// Constraints is a set of versioning constraints that must be met
-	// by a SAT solver, the set is composed as a logical AND so all
-	// constraints must be met.
-	Constraints []DependencyConstraint `json:"constraints,omitempty"`
-}
-
-// +kubebuilder:validation:Enum=Equal;GreaterThan;LessThan;GreaterThanOrEqual;LessThanOrEqual
-type DependencyConstraintOperator string
-
-const (
-	Equal              DependencyConstraintOperator = "Equal"
-	GreaterThan        DependencyConstraintOperator = "GreaterThan"
-	LessThan           DependencyConstraintOperator = "LessThan"
-	GreaterThanOrEqual DependencyConstraintOperator = "GreaterThanOrEqual"
-	LessThanOrEqual    DependencyConstraintOperator = "LessThanOrEqual"
-)
-
-type DependencyConstraint struct {
-	// Operator defines the constraint operation.
-	Operator DependencyConstraintOperator `json:"operator"`
-	// Version is the version the operator compares against.
-	Version SemanticVersion `json:"version"`
+	// by a SAT solver.
+	Constraints *SemanticVersionConstraints `json:"constraints,omitempty"`
 }
 
 type HelmApplicationRecommendation struct {
