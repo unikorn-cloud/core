@@ -29,7 +29,6 @@ import (
 	"github.com/unikorn-cloud/core/pkg/provisioners/remotecluster"
 	"github.com/unikorn-cloud/core/pkg/util"
 
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
@@ -54,20 +53,21 @@ type Provisioner struct {
 	// allowDegraded accepts a degraded status as a success for an application.
 	allowDegraded bool
 
-	// getApplicationReference provides an abstract way to get concrete application metadata
-	// and provisioning information.
-	getApplicationReference GetterFunc
+	// application is a reference to the application.
+	application *unikornv1.HelmApplication
+
+	// version is a reference to a versioned application.
+	version unikornv1.SemanticVersion
 
 	// applicationVersion is a reference to a versioned application.
 	applicationVersion *unikornv1.HelmApplicationVersion
 }
 
 // New returns a new initialized provisioner object.
-// Note as the application lookup is dynamic, we need to defer initialization
-// until later in the provisioning to keep top-level interfaces clean.
-func New(getApplicationReference GetterFunc) *Provisioner {
+func New(application *unikornv1.HelmApplication, version unikornv1.SemanticVersion) *Provisioner {
 	return &Provisioner{
-		getApplicationReference: getApplicationReference,
+		application: application,
+		version:     version,
 	}
 }
 
@@ -280,37 +280,10 @@ func (p *Provisioner) generateApplication(ctx context.Context) (*cd.HelmApplicat
 
 // initialize must be called in Provision/Deprovision to do the application
 // resolution in a path that has an error handler (as opposed to a constructor).
-func (p *Provisioner) initialize(ctx context.Context) error {
-	ref, err := p.getApplicationReference(ctx)
-	if err != nil {
-		return err
-	}
+func (p *Provisioner) initialize() error {
+	p.Name = p.application.Labels[constants.NameLabel]
 
-	namespace, err := clientlib.NamespaceFromContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	cli, err := clientlib.ProvisionerClientFromContext(ctx)
-	if err != nil {
-		return err
-	}
-
-	key := client.ObjectKey{
-		Namespace: namespace,
-		Name:      *ref.Name,
-	}
-
-	// TODO: Take the kind into consideration??
-	application := &unikornv1.HelmApplication{}
-
-	if err := cli.Get(ctx, key, application); err != nil {
-		return err
-	}
-
-	p.Name = application.Labels[constants.NameLabel]
-
-	version, err := application.GetVersion(ref.Version)
+	version, err := p.application.GetVersion(p.version)
 	if err != nil {
 		return err
 	}
@@ -324,7 +297,7 @@ func (p *Provisioner) initialize(ctx context.Context) error {
 func (p *Provisioner) Provision(ctx context.Context) error {
 	log := log.FromContext(ctx)
 
-	if err := p.initialize(ctx); err != nil {
+	if err := p.initialize(); err != nil {
 		return err
 	}
 
@@ -362,7 +335,7 @@ func (p *Provisioner) Provision(ctx context.Context) error {
 func (p *Provisioner) Deprovision(ctx context.Context) error {
 	log := log.FromContext(ctx)
 
-	if err := p.initialize(ctx); err != nil {
+	if err := p.initialize(); err != nil {
 		return err
 	}
 

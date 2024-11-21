@@ -76,7 +76,7 @@ type testContext struct {
 	client client.Client
 }
 
-func mustNewTestContext(t *testing.T, objects ...client.Object) *testContext {
+func mustNewTestContext(t *testing.T) *testContext {
 	t.Helper()
 
 	scheme, err := coreclient.NewScheme()
@@ -85,7 +85,7 @@ func mustNewTestContext(t *testing.T, objects ...client.Object) *testContext {
 	}
 
 	tc := &testContext{
-		client: fake.NewClientBuilder().WithScheme(scheme).WithStatusSubresource(&unikornv1fake.ManagedResource{}).WithObjects(objects...).Build(),
+		client: fake.NewClientBuilder().WithScheme(scheme).WithStatusSubresource(&unikornv1fake.ManagedResource{}).Build(),
 	}
 
 	return tc
@@ -104,16 +104,6 @@ var (
 		Version: *semver.MustParse("1.2.3"),
 	}
 )
-
-func getApplicationReference(ctx context.Context) (*unikornv1.ApplicationReference, error) {
-	ref := &unikornv1.ApplicationReference{
-		Kind:    ptr.To(unikornv1.ApplicationReferenceKindHelm),
-		Name:    ptr.To(applicationID),
-		Version: version,
-	}
-
-	return ref, nil
-}
 
 // TestApplicationCreateHelm tests that given the requested input the provisioner
 // creates a CD Application, and the fields are populated as expected.
@@ -140,7 +130,7 @@ func TestApplicationCreateHelm(t *testing.T) {
 		},
 	}
 
-	tc := mustNewTestContext(t, app)
+	tc := mustNewTestContext(t)
 
 	c := gomock.NewController(t)
 	defer c.Finish()
@@ -172,7 +162,7 @@ func TestApplicationCreateHelm(t *testing.T) {
 
 	driver.EXPECT().CreateOrUpdateHelmApplication(ctx, driverAppID, driverApp).Return(provisioners.ErrYield)
 
-	provisioner := application.New(getApplicationReference)
+	provisioner := application.New(app, version)
 
 	assert.ErrorIs(t, provisioner.Provision(ctx), provisioners.ErrYield)
 }
@@ -219,7 +209,7 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 		},
 	}
 
-	tc := mustNewTestContext(t, app)
+	tc := mustNewTestContext(t)
 
 	c := gomock.NewController(t)
 	defer c.Finish()
@@ -277,7 +267,7 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 
 	driver.EXPECT().CreateOrUpdateHelmApplication(ctx, driverAppID, driverApp).Return(provisioners.ErrYield)
 
-	provisioner := application.New(getApplicationReference).AllowDegraded()
+	provisioner := application.New(app, version).AllowDegraded()
 
 	assert.ErrorIs(t, provisioner.Provision(ctx), provisioners.ErrYield)
 }
@@ -311,7 +301,7 @@ func TestApplicationCreateGit(t *testing.T) {
 		},
 	}
 
-	tc := mustNewTestContext(t, app)
+	tc := mustNewTestContext(t)
 
 	c := gomock.NewController(t)
 	defer c.Finish()
@@ -344,7 +334,7 @@ func TestApplicationCreateGit(t *testing.T) {
 
 	driver.EXPECT().CreateOrUpdateHelmApplication(ctx, driverAppID, driverApp).Return(provisioners.ErrYield)
 
-	provisioner := application.New(getApplicationReference)
+	provisioner := application.New(app, version)
 
 	assert.ErrorIs(t, provisioner.Provision(ctx), provisioners.ErrYield)
 }
@@ -437,7 +427,7 @@ func TestApplicationCreateMutate(t *testing.T) {
 		},
 	}
 
-	tc := mustNewTestContext(t, app)
+	tc := mustNewTestContext(t)
 
 	c := gomock.NewController(t)
 	defer c.Finish()
@@ -489,7 +479,7 @@ func TestApplicationCreateMutate(t *testing.T) {
 
 	mutator := &mutator{}
 
-	provisioner := application.New(getApplicationReference).WithGenerator(mutator).InNamespace(namespace)
+	provisioner := application.New(app, version).WithGenerator(mutator).InNamespace(namespace)
 
 	assert.NoError(t, provisioner.Provision(ctx))
 	assert.True(t, mutator.postProvisionCalled)
@@ -520,7 +510,7 @@ func TestApplicationDeleteNotFound(t *testing.T) {
 		},
 	}
 
-	tc := mustNewTestContext(t, app)
+	tc := mustNewTestContext(t)
 
 	c := gomock.NewController(t)
 	defer c.Finish()
@@ -541,7 +531,7 @@ func TestApplicationDeleteNotFound(t *testing.T) {
 
 	driver.EXPECT().DeleteHelmApplication(ctx, driverAppID, false).Return(provisioners.ErrYield)
 
-	provisioner := application.New(getApplicationReference)
+	provisioner := application.New(app, version)
 
 	assert.ErrorIs(t, provisioner.Deprovision(ctx), provisioners.ErrYield)
 }

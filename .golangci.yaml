@@ -21,6 +21,8 @@ linters:
   - perfsprint
   - testifylint
   - mnd
+  - exportloopref
+  - execinquery
 linters-settings:
   gci:
     sections:
