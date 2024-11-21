@@ -105,6 +105,12 @@ var (
 	}
 )
 
+func applicationGetter(application *unikornv1.HelmApplication) application.GetterFunc {
+	return func(_ context.Context) (*unikornv1.HelmApplication, *unikornv1.SemanticVersion, error) {
+		return application, &version, nil
+	}
+}
+
 // TestApplicationCreateHelm tests that given the requested input the provisioner
 // creates a CD Application, and the fields are populated as expected.
 func TestApplicationCreateHelm(t *testing.T) {
@@ -162,7 +168,7 @@ func TestApplicationCreateHelm(t *testing.T) {
 
 	driver.EXPECT().CreateOrUpdateHelmApplication(ctx, driverAppID, driverApp).Return(provisioners.ErrYield)
 
-	provisioner := application.New(app, version)
+	provisioner := application.New(applicationGetter(app))
 
 	assert.ErrorIs(t, provisioner.Provision(ctx), provisioners.ErrYield)
 }
@@ -267,7 +273,7 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 
 	driver.EXPECT().CreateOrUpdateHelmApplication(ctx, driverAppID, driverApp).Return(provisioners.ErrYield)
 
-	provisioner := application.New(app, version).AllowDegraded()
+	provisioner := application.New(applicationGetter(app)).AllowDegraded()
 
 	assert.ErrorIs(t, provisioner.Provision(ctx), provisioners.ErrYield)
 }
@@ -334,7 +340,7 @@ func TestApplicationCreateGit(t *testing.T) {
 
 	driver.EXPECT().CreateOrUpdateHelmApplication(ctx, driverAppID, driverApp).Return(provisioners.ErrYield)
 
-	provisioner := application.New(app, version)
+	provisioner := application.New(applicationGetter(app))
 
 	assert.ErrorIs(t, provisioner.Provision(ctx), provisioners.ErrYield)
 }
@@ -479,7 +485,7 @@ func TestApplicationCreateMutate(t *testing.T) {
 
 	mutator := &mutator{}
 
-	provisioner := application.New(app, version).WithGenerator(mutator).InNamespace(namespace)
+	provisioner := application.New(applicationGetter(app)).WithGenerator(mutator).InNamespace(namespace)
 
 	assert.NoError(t, provisioner.Provision(ctx))
 	assert.True(t, mutator.postProvisionCalled)
@@ -531,7 +537,7 @@ func TestApplicationDeleteNotFound(t *testing.T) {
 
 	driver.EXPECT().DeleteHelmApplication(ctx, driverAppID, false).Return(provisioners.ErrYield)
 
-	provisioner := application.New(app, version)
+	provisioner := application.New(applicationGetter(app))
 
 	assert.ErrorIs(t, provisioner.Deprovision(ctx), provisioners.ErrYield)
 }
