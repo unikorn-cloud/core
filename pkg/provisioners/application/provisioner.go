@@ -53,21 +53,17 @@ type Provisioner struct {
 	// allowDegraded accepts a degraded status as a success for an application.
 	allowDegraded bool
 
-	// application is a reference to the application.
-	application *unikornv1.HelmApplication
-
-	// version is a reference to a versioned application.
-	version unikornv1.SemanticVersion
+	// applicationGetter is responsible for fetching an application.
+	applicationGetter GetterFunc
 
 	// applicationVersion is a reference to a versioned application.
 	applicationVersion *unikornv1.HelmApplicationVersion
 }
 
 // New returns a new initialized provisioner object.
-func New(application *unikornv1.HelmApplication, version unikornv1.SemanticVersion) *Provisioner {
+func New(applicationGetter GetterFunc) *Provisioner {
 	return &Provisioner{
-		application: application,
-		version:     version,
+		applicationGetter: applicationGetter,
 	}
 }
 
@@ -280,15 +276,20 @@ func (p *Provisioner) generateApplication(ctx context.Context) (*cd.HelmApplicat
 
 // initialize must be called in Provision/Deprovision to do the application
 // resolution in a path that has an error handler (as opposed to a constructor).
-func (p *Provisioner) initialize() error {
-	p.Name = p.application.Labels[constants.NameLabel]
-
-	version, err := p.application.GetVersion(p.version)
+func (p *Provisioner) initialize(ctx context.Context) error {
+	application, version, err := p.applicationGetter(ctx)
 	if err != nil {
 		return err
 	}
 
-	p.applicationVersion = version
+	p.Name = application.Labels[constants.NameLabel]
+
+	applicationVersion, err := application.GetVersion(*version)
+	if err != nil {
+		return err
+	}
+
+	p.applicationVersion = applicationVersion
 
 	return nil
 }
@@ -297,7 +298,7 @@ func (p *Provisioner) initialize() error {
 func (p *Provisioner) Provision(ctx context.Context) error {
 	log := log.FromContext(ctx)
 
-	if err := p.initialize(); err != nil {
+	if err := p.initialize(ctx); err != nil {
 		return err
 	}
 
@@ -335,7 +336,7 @@ func (p *Provisioner) Provision(ctx context.Context) error {
 func (p *Provisioner) Deprovision(ctx context.Context) error {
 	log := log.FromContext(ctx)
 
-	if err := p.initialize(); err != nil {
+	if err := p.initialize(ctx); err != nil {
 		return err
 	}
 
