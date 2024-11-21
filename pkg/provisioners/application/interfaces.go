@@ -20,15 +20,8 @@ package application
 import (
 	"context"
 
-	unikornv1 "github.com/unikorn-cloud/core/pkg/apis/unikorn/v1alpha1"
 	"github.com/unikorn-cloud/core/pkg/cd"
 )
-
-// ApplicationGetter abstracts away how an application is looked up for a
-// specific entity.  Where user defined and unikorn defined application bundles
-// collide is at the ApplicationReference, so that's where we hook in this
-// abstraction.
-type GetterFunc func(ctx context.Context) (*unikornv1.ApplicationReference, error)
 
 // ReleaseNamer is an interface that allows generators to supply an implicit release
 // name to Helm.
