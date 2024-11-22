@@ -24,6 +24,7 @@ import (
 	"errors"
 	"fmt"
 	"hash/fnv"
+	"maps"
 	"net/url"
 	"reflect"
 	"strings"
@@ -112,9 +113,86 @@ func applicationLabels(id *cd.ResourceIdentifier) labels.Set {
 	return labels
 }
 
+func applicationLabelsForOwningResource(id *cd.ResourceIdentifier) labels.Set {
+	labels := labels.Set{}
+
+	for _, label := range id.Labels {
+		labels[label.Name] = label.Value
+	}
+
+	return labels
+}
+
 // Kind returns the driver kind.
 func (d *Driver) Kind() cd.DriverKind {
 	return cd.DriverKindArgoCD
+}
+
+func convertApplicationID(in *argoprojv1.Application) *cd.ResourceIdentifier {
+	name := in.Labels[constants.ApplicationLabel]
+
+	labels := maps.Clone(in.Labels)
+	delete(labels, constants.ApplicationLabel)
+
+	out := &cd.ResourceIdentifier{
+		Name:   name,
+		Labels: make([]cd.ResourceIdentifierLabel, 0, len(labels)),
+	}
+
+	for k, v := range labels {
+		out.Labels = append(out.Labels, cd.ResourceIdentifierLabel{
+			Name:  k,
+			Value: v,
+		})
+	}
+
+	return out
+}
+
+func convertApplication(in *argoprojv1.Application) *cd.HelmApplication {
+	out := &cd.HelmApplication{
+		Repo:  in.Spec.Source.RepoURL,
+		Chart: in.Spec.Source.Chart,
+		Path:  in.Spec.Source.Path,
+	}
+
+	if in.Spec.Source.Chart != "" {
+		out.Version = in.Spec.Source.TargetRevision
+	}
+
+	if in.Spec.Source.Path != "" {
+		out.Branch = in.Spec.Source.TargetRevision
+	}
+
+	return out
+}
+
+func convertApplicationList(in *argoprojv1.ApplicationList) map[*cd.ResourceIdentifier]*cd.HelmApplication {
+	out := map[*cd.ResourceIdentifier]*cd.HelmApplication{}
+
+	for i := range in.Items {
+		item := &in.Items[i]
+
+		out[convertApplicationID(item)] = convertApplication(item)
+	}
+
+	return out
+}
+
+// ListHelmApplications gets all applications that match the resource identifier.
+func (d *Driver) ListHelmApplications(ctx context.Context, id *cd.ResourceIdentifier) (map[*cd.ResourceIdentifier]*cd.HelmApplication, error) {
+	options := &client.ListOptions{
+		Namespace:     namespace,
+		LabelSelector: labels.SelectorFromSet(applicationLabelsForOwningResource(id)),
+	}
+
+	var resources argoprojv1.ApplicationList
+
+	if err := d.client.List(ctx, &resources, options); err != nil {
+		return nil, err
+	}
+
+	return convertApplicationList(&resources), nil
 }
 
 // GetHelmApplication retrieves an abstract helm application.

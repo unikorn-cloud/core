@@ -34,6 +34,9 @@ type Driver interface {
 	// your hack.
 	Kind() DriverKind
 
+	// ListHelmApplications gets all applications that match the resource identifier.
+	ListHelmApplications(ctx context.Context, id *ResourceIdentifier) (map[*ResourceIdentifier]*HelmApplication, error)
+
 	// CreateOrUpdateHelmApplication creates or updates a helm application idempotently.
 	CreateOrUpdateHelmApplication(ctx context.Context, id *ResourceIdentifier, app *HelmApplication) error
 

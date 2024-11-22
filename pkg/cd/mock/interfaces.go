@@ -108,3 +108,18 @@ func (mr *MockDriverMockRecorder) Kind() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Kind", reflect.TypeOf((*MockDriver)(nil).Kind))
 }
+
+// ListHelmApplications mocks base method.
+func (m *MockDriver) ListHelmApplications(ctx context.Context, id *cd.ResourceIdentifier) (map[*cd.ResourceIdentifier]*cd.HelmApplication, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListHelmApplications", ctx, id)
+	ret0, _ := ret[0].(map[*cd.ResourceIdentifier]*cd.HelmApplication)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListHelmApplications indicates an expected call of ListHelmApplications.
+func (mr *MockDriverMockRecorder) ListHelmApplications(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListHelmApplications", reflect.TypeOf((*MockDriver)(nil).ListHelmApplications), ctx, id)
+}
