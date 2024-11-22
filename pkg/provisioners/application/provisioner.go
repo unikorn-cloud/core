@@ -210,6 +210,18 @@ func (p *Provisioner) getClusterID(ctx context.Context) (*cd.ResourceIdentifier,
 	return clusterContext.ID, nil
 }
 
+func (p *Provisioner) getNamespace() string {
+	if p.namespace != "" {
+		return p.namespace
+	}
+
+	if p.applicationVersion.Namespace != nil {
+		return *p.applicationVersion.Namespace
+	}
+
+	return "default"
+}
+
 // generateApplication converts the provided object to a canonical form for a driver.
 //
 //nolint:cyclop
@@ -236,7 +248,7 @@ func (p *Provisioner) generateApplication(ctx context.Context) (*cd.HelmApplicat
 		Parameters:    parameters,
 		Values:        values,
 		Cluster:       clusterID,
-		Namespace:     p.namespace,
+		Namespace:     p.getNamespace(),
 		AllowDegraded: p.allowDegraded,
 	}
 

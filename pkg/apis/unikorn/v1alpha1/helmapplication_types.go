@@ -79,6 +79,8 @@ type HelmApplicationVersion struct {
 	// Parameters is a set of static --set parameters to pass to the chart.
 	// If not set, uses the application default.
 	Parameters []HelmApplicationParameter `json:"parameters,omitempty"`
+	// Namespace is the namespace to install the application to.
+	Namespace *string `json:"namespace,omitempty"`
 	// CreateNamespace indicates whether the chart requires a namespace to be
 	// created by the tooling, rather than the chart itself.
 	// If not set, uses the application default.

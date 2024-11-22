@@ -113,6 +113,10 @@ spec:
                         is going to be bloody tricky without some proper code to handle it.
                         If not set, uses the application default.
                       type: string
+                    namespace:
+                      description: Namespace is the namespace to install the application
+                        to.
+                      type: string
                     parameters:
                       description: |-
                         Parameters is a set of static --set parameters to pass to the chart.
