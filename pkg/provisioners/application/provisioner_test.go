@@ -147,9 +147,10 @@ func TestApplicationCreateHelm(t *testing.T) {
 	}
 
 	driverApp := &cd.HelmApplication{
-		Repo:    repo,
-		Chart:   chart,
-		Version: version.Original(),
+		Repo:      repo,
+		Chart:     chart,
+		Version:   version.Original(),
+		Namespace: "default",
 	}
 
 	driver := mock.NewMockDriver(c)
@@ -251,6 +252,7 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 			},
 		},
 		Cluster:         remoteID,
+		Namespace:       "default",
 		CreateNamespace: true,
 		ServerSideApply: true,
 		AllowDegraded:   true,
@@ -318,10 +320,11 @@ func TestApplicationCreateGit(t *testing.T) {
 	}
 
 	driverApp := &cd.HelmApplication{
-		Repo:    repo,
-		Path:    path,
-		Version: version.Original(),
-		Branch:  branch,
+		Repo:      repo,
+		Path:      path,
+		Version:   version.Original(),
+		Branch:    branch,
+		Namespace: "default",
 	}
 
 	driver := mock.NewMockDriver(c)

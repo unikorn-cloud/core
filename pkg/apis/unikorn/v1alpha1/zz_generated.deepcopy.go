@@ -303,6 +303,11 @@ func (in *HelmApplicationVersion) DeepCopyInto(out *HelmApplicationVersion) {
 		*out = make([]HelmApplicationParameter, len(*in))
 		copy(*out, *in)
 	}
+	if in.Namespace != nil {
+		in, out := &in.Namespace, &out.Namespace
+		*out = new(string)
+		**out = **in
+	}
 	if in.CreateNamespace != nil {
 		in, out := &in.CreateNamespace, &out.CreateNamespace
 		*out = new(bool)
