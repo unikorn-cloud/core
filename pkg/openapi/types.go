@@ -83,6 +83,9 @@ type OrganizationScopedResourceReadMetadata struct {
 
 	// ProvisioningStatus The provisioning state of a resource.
 	ProvisioningStatus ResourceProvisioningStatus `json:"provisioningStatus"`
+
+	// Tags A list of tags.
+	Tags *TagList `json:"tags,omitempty"`
 }
 
 // ProjectScopedResourceReadMetadata defines model for projectScopedResourceReadMetadata.
@@ -120,6 +123,9 @@ type ProjectScopedResourceReadMetadata struct {
 
 	// ProvisioningStatus The provisioning state of a resource.
 	ProvisioningStatus ResourceProvisioningStatus `json:"provisioningStatus"`
+
+	// Tags A list of tags.
+	Tags *TagList `json:"tags,omitempty"`
 }
 
 // ResourceMetadata Resource metadata valid for all API resource reads and writes.
@@ -130,6 +136,9 @@ type ResourceMetadata struct {
 	// Name A valid Kubenetes label value, typically used for resource names that can be
 	// indexed in the database.
 	Name KubernetesLabelValue `json:"name"`
+
+	// Tags A list of tags.
+	Tags *TagList `json:"tags,omitempty"`
 }
 
 // ResourceProvisioningStatus The provisioning state of a resource.
@@ -164,6 +173,9 @@ type ResourceReadMetadata struct {
 
 	// ProvisioningStatus The provisioning state of a resource.
 	ProvisioningStatus ResourceProvisioningStatus `json:"provisioningStatus"`
+
+	// Tags A list of tags.
+	Tags *TagList `json:"tags,omitempty"`
 }
 
 // ResourceWriteMetadata Resource metadata valid for all API resource reads and writes.
@@ -195,7 +207,22 @@ type StaticResourceMetadata struct {
 	// Name A valid Kubenetes label value, typically used for resource names that can be
 	// indexed in the database.
 	Name KubernetesLabelValue `json:"name"`
+
+	// Tags A list of tags.
+	Tags *TagList `json:"tags,omitempty"`
 }
+
+// Tag An arbitrary tag name and value.
+type Tag struct {
+	// Name A unique tag name.
+	Name string `json:"name"`
+
+	// Value The value of the tag.
+	Value string `json:"value"`
+}
+
+// TagList A list of tags.
+type TagList = []Tag
 
 // BadRequestResponse Generic error message, compatible with oauth2.
 type BadRequestResponse = Error
