@@ -218,3 +218,49 @@ func UpdateObjectMetadata(required, current metav1.Object, requiredAnnotations, 
 
 	return nil
 }
+
+func ConvertTag(in unikornv1.Tag) openapi.Tag {
+	out := openapi.Tag{
+		Name:  in.Name,
+		Value: in.Value,
+	}
+
+	return out
+}
+
+func ConvertTags(in unikornv1.TagList) openapi.TagList {
+	if in == nil {
+		return nil
+	}
+
+	out := make(openapi.TagList, len(in))
+
+	for i := range in {
+		out[i] = ConvertTag(in[i])
+	}
+
+	return out
+}
+
+func GenerateTag(in openapi.Tag) unikornv1.Tag {
+	out := unikornv1.Tag{
+		Name:  in.Name,
+		Value: in.Value,
+	}
+
+	return out
+}
+
+func GenerateTagList(in *openapi.TagList) unikornv1.TagList {
+	if in == nil {
+		return nil
+	}
+
+	out := make(unikornv1.TagList, len(*in))
+
+	for i := range *in {
+		out[i] = GenerateTag((*in)[i])
+	}
+
+	return out
+}

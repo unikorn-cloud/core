@@ -46,6 +46,24 @@ components:
       description: A semantic version.
       type: string
       pattern: '^v\d+\.\d+\.\d+$'
+    tag:
+      description: An arbitrary tag name and value.
+      type: object
+      required:
+      - name  
+      - value 
+      properties:
+        name: 
+          description: A unique tag name.
+          type: string
+        value:
+          description: The value of the tag.
+          type: string
+    tagList:
+      description: A list of tags.
+      type: array
+      items:    
+        $ref: '#/components/schemas/tag'
     resourceMetadata:
       description: Resource metadata valid for all API resource reads and writes.
       required:
@@ -57,6 +75,8 @@ components:
           description: |-
             The resource description, this optionally augments the name with more context.
           type: string
+        tags:
+          $ref: '#/components/schemas/tagList'
     staticResourceMetadata:
       description: |
         This metadata is for resources that just exist, and don't require

@@ -230,6 +230,17 @@ func (IPv4Prefix) OpenAPISchemaFormat() string {
 	return ""
 }
 
+// Tag is an arbirary key/value.
+type Tag struct {
+	// Name of the tag.
+	Name string `json:"name"`
+	// Value of the tag.
+	Value string `json:"value"`
+}
+
+// TagList is an ordered list of tags.
+type TagList []Tag
+
 // MachineGeneric contains common things across all machine pool types.
 type MachineGeneric struct {
 	// Image is the region service image to deploy with.
