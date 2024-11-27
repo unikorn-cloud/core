@@ -27,6 +27,7 @@ import (
 	"github.com/unikorn-cloud/core/pkg/util"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/utils/ptr"
 )
 
 var (
@@ -51,7 +52,7 @@ func ConvertStatusCondition(in *unikornv1.Condition) openapi.ResourceProvisionin
 }
 
 // ResourceReadMetadata extracts generic metadata from a resource for GET APIs.
-func ResourceReadMetadata(in metav1.Object, status openapi.ResourceProvisioningStatus) openapi.ResourceReadMetadata {
+func ResourceReadMetadata(in metav1.Object, tags unikornv1.TagList, status openapi.ResourceProvisioningStatus) openapi.ResourceReadMetadata {
 	labels := in.GetLabels()
 	annotations := in.GetAnnotations()
 
@@ -85,15 +86,19 @@ func ResourceReadMetadata(in metav1.Object, status openapi.ResourceProvisioningS
 		out.DeletionTime = &v.Time
 	}
 
+	if len(tags) != 0 {
+		out.Tags = ptr.To(ConvertTags(tags))
+	}
+
 	return out
 }
 
 // OrganizationScopedResourceReadMetadata extracts organization scoped metdata from a resource
 // for GET APIS.
-func OrganizationScopedResourceReadMetadata(in metav1.Object, status openapi.ResourceProvisioningStatus) openapi.OrganizationScopedResourceReadMetadata {
+func OrganizationScopedResourceReadMetadata(in metav1.Object, tags unikornv1.TagList, status openapi.ResourceProvisioningStatus) openapi.OrganizationScopedResourceReadMetadata {
 	labels := in.GetLabels()
 
-	temp := ResourceReadMetadata(in, status)
+	temp := ResourceReadMetadata(in, tags, status)
 
 	out := openapi.OrganizationScopedResourceReadMetadata{
 		Id:                 temp.Id,
@@ -104,6 +109,7 @@ func OrganizationScopedResourceReadMetadata(in metav1.Object, status openapi.Res
 		ModifiedBy:         temp.ModifiedBy,
 		ModifiedTime:       temp.ModifiedTime,
 		ProvisioningStatus: temp.ProvisioningStatus,
+		Tags:               temp.Tags,
 		OrganizationId:     labels[constants.OrganizationLabel],
 	}
 
@@ -112,10 +118,10 @@ func OrganizationScopedResourceReadMetadata(in metav1.Object, status openapi.Res
 
 // ProjectScopedResourceReadMetadata extracts project scoped metdata from a resource for
 // GET APIs.
-func ProjectScopedResourceReadMetadata(in metav1.Object, status openapi.ResourceProvisioningStatus) openapi.ProjectScopedResourceReadMetadata {
+func ProjectScopedResourceReadMetadata(in metav1.Object, tags unikornv1.TagList, status openapi.ResourceProvisioningStatus) openapi.ProjectScopedResourceReadMetadata {
 	labels := in.GetLabels()
 
-	temp := OrganizationScopedResourceReadMetadata(in, status)
+	temp := OrganizationScopedResourceReadMetadata(in, tags, status)
 
 	out := openapi.ProjectScopedResourceReadMetadata{
 		Id:                 temp.Id,
@@ -126,6 +132,7 @@ func ProjectScopedResourceReadMetadata(in metav1.Object, status openapi.Resource
 		ModifiedBy:         temp.ModifiedBy,
 		ModifiedTime:       temp.ModifiedTime,
 		ProvisioningStatus: temp.ProvisioningStatus,
+		Tags:               temp.Tags,
 		OrganizationId:     temp.OrganizationId,
 		ProjectId:          labels[constants.ProjectLabel],
 	}
