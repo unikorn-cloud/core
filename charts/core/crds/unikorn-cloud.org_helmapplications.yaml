@@ -59,12 +59,20 @@ spec:
                   under.
                 type: string
               tags:
-                description: |-
-                  Tags allows an application to be given a free-form set of labels
-                  that can provide grouping, filtering or other contexts.  For
-                  example "networking", "monitoring", "database" etc.
+                description: Tags are aribrary user data.
                 items:
-                  type: string
+                  description: Tag is an arbirary key/value.
+                  properties:
+                    name:
+                      description: Name of the tag.
+                      type: string
+                    value:
+                      description: Value of the tag.
+                      type: string
+                  required:
+                  - name
+                  - value
+                  type: object
                 type: array
               versions:
                 description: Versions are the application versions that are supported.
@@ -196,7 +204,6 @@ spec:
             - documentation
             - icon
             - license
-            - tags
             type: object
           status:
             type: object
