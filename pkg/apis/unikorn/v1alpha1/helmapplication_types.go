@@ -43,16 +43,14 @@ type HelmApplication struct {
 }
 
 type HelmApplicationSpec struct {
+	// Tags are aribrary user data.
+	Tags TagList `json:"tags,omitempty"`
 	// Documentation defines a URL to 3rd party documentation.
 	Documentation *string `json:"documentation"`
 	// License describes the licence the application is released under.
 	License *string `json:"license"`
 	// Icon is a base64 encoded icon for the application.
 	Icon []byte `json:"icon"`
-	// Tags allows an application to be given a free-form set of labels
-	// that can provide grouping, filtering or other contexts.  For
-	// example "networking", "monitoring", "database" etc.
-	Tags []string `json:"tags"`
 	// Versions are the application versions that are supported.
 	Versions []HelmApplicationVersion `json:"versions,omitempty"`
 }
