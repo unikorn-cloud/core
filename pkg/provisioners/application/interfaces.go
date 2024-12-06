@@ -59,3 +59,10 @@ type Customizer interface {
 type PostProvisionHook interface {
 	PostProvision(ctx context.Context) error
 }
+
+// PreDeprovisionHook is an interface that lets an application deprovisioner run
+// a callback before deprovisioning an application e.g. to handle manual resource
+// deletion.
+type PreDeprovisionHook interface {
+	PreDeprovision(ctx context.Context) error
+}
