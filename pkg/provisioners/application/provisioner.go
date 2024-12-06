@@ -348,6 +348,14 @@ func (p *Provisioner) Provision(ctx context.Context) error {
 func (p *Provisioner) Deprovision(ctx context.Context) error {
 	log := log.FromContext(ctx)
 
+	if p.generator != nil {
+		if hook, ok := p.generator.(PreDeprovisionHook); ok {
+			if err := hook.PreDeprovision(ctx); err != nil {
+				return err
+			}
+		}
+	}
+
 	if err := p.initialize(ctx); err != nil {
 		return err
 	}
