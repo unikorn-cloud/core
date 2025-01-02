@@ -542,6 +542,21 @@ entries:
     version: v0.1.0
   unikorn-core:
   - apiVersion: v2
+    appVersion: v0.1.88
+    created: "2025-01-02T09:50:47.684302962Z"
+    dependencies:
+    - name: unikorn-common
+      repository: https://unikorn-cloud.github.io/helm-common
+      version: v0.1.12
+    description: A Helm chart for deploying Unikorn Core
+    digest: 58024e5b42f3010aadb2631a5ef2dce7990658b6f47c0379470427f9d16c4cb1
+    icon: https://assets.unikorn-cloud.org/images/logos/dark-on-light/icon.svg
+    name: unikorn-core
+    type: application
+    urls:
+    - https://github.com/unikorn-cloud/core/releases/download/v0.1.88/unikorn-core-v0.1.88.tgz
+    version: v0.1.88
+  - apiVersion: v2
     appVersion: v0.1.87
     created: "2024-12-06T12:07:21.874087121Z"
     dependencies:
@@ -1096,4 +1111,4 @@ entries:
     urls:
     - https://github.com/unikorn-cloud/core/releases/download/v0.1.50/unikorn-core-v0.1.50.tgz
     version: v0.1.50
-generated: "2024-12-06T12:07:21.874598454Z"
+generated: "2025-01-02T09:50:47.684686487Z"
