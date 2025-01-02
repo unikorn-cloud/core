@@ -27,7 +27,7 @@ CONTROLLER_TOOLS_VERSION=v0.16.3
 
 # Defines the version of code generator tools to use.
 # This should be kept in sync with the Kubenetes library versions defined in go.mod.
-CODEGEN_VERSION=v0.27.3
+CODEGEN_VERSION=v0.32.0
 
 OPENAPI_CODEGEN_VERSION=v1.16.2
 
@@ -38,13 +38,10 @@ MOCKGEN_VERSION=v0.3.0
 
 # This is the base directory to generate kubernetes API primitives from e.g.
 # clients and CRDs.
-GENAPIBASE = github.com/unikorn-cloud/core/pkg/apis
-
-# This is the list of APIs to generate clients for.
-GENAPIS = $(GENAPIBASE)/unikorn/v1alpha1,$(GENAPIBASE)/unikorn/v1alpha1/fake,$(GENAPIBASE)/argoproj/v1alpha1
+GENAPIBASE = github.com/unikorn-cloud/core/pkg/apis/unikorn/v1alpha1 github.com/unikorn-cloud/core/pkg/apis/unikorn/v1alpha1/fake github.com/unikorn-cloud/core/pkg/apis/argoproj/v1alpha1
 
 # These are generic arguments that need to be passed to client generation.
-GENARGS = --go-header-file hack/boilerplate.go.txt --output-base ../../..
+GENARGS = --go-header-file hack/boilerplate.go.txt
 
 # This controls the name of the client that will be generated and it will affect
 # code import paths.  This overrides the default "versioned".
@@ -88,7 +85,7 @@ $(CRDDIR): $(APISRC)
 # Generate a clientset to interact with our custom resources.
 $(GENDIR): $(APISRC)
 	@go install k8s.io/code-generator/cmd/deepcopy-gen@$(CODEGEN_VERSION)
-	$(GOBIN)/deepcopy-gen --input-dirs $(GENAPIS) -O zz_generated.deepcopy --bounding-dirs $(GENAPIBASE) $(GENARGS)
+	$(GOBIN)/deepcopy-gen --output-file zz_generated.deepcopy.go $(GENARGS) $(GENAPIBASE)
 	@touch $@
 
 # When checking out, the files timestamps are pretty much random, and make cause
