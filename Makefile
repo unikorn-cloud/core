@@ -27,7 +27,7 @@ CONTROLLER_TOOLS_VERSION=v0.16.3
 
 # Defines the version of code generator tools to use.
 # This should be kept in sync with the Kubenetes library versions defined in go.mod.
-CODEGEN_VERSION=v0.32.0
+CODEGEN_VERSION := $(shell grep k8s.io/apimachinery go.mod | awk '{ print $2; }')
 
 OPENAPI_CODEGEN_VERSION=v1.16.2
 
