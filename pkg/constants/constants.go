@@ -111,6 +111,16 @@ const (
 	// context of a region controller) that a recource owns.
 	PhysicalNetworkAnnotation = "unikorn-cloud.org/physical-network-id"
 
+	// ReferencedResourceKindLabel is used when a resource refers to another,
+	// but not necessarily a Kubernetes resource.  It has the added benefit it
+	// can be used as a label selector.
+	ReferencedResourceKindLabel = "unikorn-cloud.org/resource-kind"
+
+	// ReferencedResourceIDLabel is used when a resource refers to another,
+	// but not necessarily a Kubernetes resource.  It has the added benefit it
+	// can be used as a label selector.
+	ReferencedResourceIDLabel = "unikorn-cloud.org/resource-id"
+
 	// Finalizer is applied to resources that need to be deleted manually
 	// and do other complex logic.
 	Finalizer = "unikorn"
