@@ -111,6 +111,10 @@ const (
 	// context of a region controller) that a recource owns.
 	PhysicalNetworkAnnotation = "unikorn-cloud.org/physical-network-id"
 
+	// AllocationAnnotation is used by resources that consume resources that
+	// are subject to quotas and link to an allocation.
+	AllocationAnnotation = "unikorn-cloud.org/allocation-id"
+
 	// ReferencedResourceKindLabel is used when a resource refers to another,
 	// but not necessarily a Kubernetes resource.  It has the added benefit it
 	// can be used as a label selector.
