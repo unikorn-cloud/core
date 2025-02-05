@@ -125,6 +125,10 @@ const (
 	// can be used as a label selector.
 	ReferencedResourceIDLabel = "unikorn-cloud.org/resource-id"
 
+	// UndefinedName is when the name label needs to be contractually present
+	// but it's irrelevant.
+	UndefinedName = "undefined"
+
 	// Finalizer is applied to resources that need to be deleted manually
 	// and do other complex logic.
 	Finalizer = "unikorn"
