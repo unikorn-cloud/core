@@ -18,6 +18,7 @@ const (
 	InvalidScope            ErrorError = "invalid_scope"
 	MethodNotAllowed        ErrorError = "method_not_allowed"
 	NotFound                ErrorError = "not_found"
+	RequestNotSupported     ErrorError = "request_not_supported"
 	ServerError             ErrorError = "server_error"
 	TemporarilyUnavailable  ErrorError = "temporarily_unavailable"
 	UnauthorizedClient      ErrorError = "unauthorized_client"
@@ -42,6 +43,9 @@ type Error struct {
 
 	// ErrorDescription Verbose message describing the error.
 	ErrorDescription string `json:"error_description"`
+
+	// State Client state.
+	State *string `json:"state,omitempty"`
 }
 
 // ErrorError A terse error string expanding on the HTTP error code. Errors are based on the OAuth2 specification, but are expanded with proprietary status codes for APIs other than those specified by OAuth2.

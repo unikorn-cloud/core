@@ -26,6 +26,7 @@ import (
 )
 
 // OAuth2ErrorType defines our core error type based on oauth2.
+// TODO: use openapi types.
 type OAuth2ErrorType string
 
 const (
@@ -44,9 +45,11 @@ const (
 	UnsupportedGrantType    OAuth2ErrorType = "unsupported_grant_type"
 	UnsupportedMediaType    OAuth2ErrorType = "unsupported_media_type"
 	UnsupportedResponseType OAuth2ErrorType = "unsupported_response_type"
+	RequestNotSupported     OAuth2ErrorType = "request_not_supported"
 )
 
 // OAuth2Error is the type sent on the wire on error.
+// TODO: use openapi types.
 type OAuth2Error struct {
 	// Error defines the error type.
 	Error OAuth2ErrorType `json:"error"`
@@ -55,6 +58,8 @@ type OAuth2Error struct {
 	// keep that in telemetry dats.
 	//nolint:tagliatelle
 	Description string `json:"error_description"`
+	// State is the client state.
+	State *string `json:"state,omitempty"`
 }
 
 var (
@@ -73,6 +78,9 @@ type Error struct {
 
 	// description is a verbose description to log/return to the user.
 	description string
+
+	// oauth2 client state.
+	state string
 
 	// err is set when the originator was an error.  This is only used
 	// for logging so as not to leak server internals to the client.
@@ -94,6 +102,12 @@ func newError(status int, code OAuth2ErrorType, description string) *Error {
 // WithError augments the error with an error from a library.
 func (e *Error) WithError(err error) *Error {
 	e.err = err
+
+	return e
+}
+
+func (e *Error) WithState(state string) *Error {
+	e.state = state
 
 	return e
 }
@@ -149,6 +163,10 @@ func (e *Error) Write(w http.ResponseWriter, r *http.Request) {
 	ge := &OAuth2Error{
 		Error:       e.code,
 		Description: e.description,
+	}
+
+	if e.state != "" {
+		ge.State = &e.state
 	}
 
 	body, err := json.Marshal(ge)
@@ -242,6 +260,12 @@ func OAuth2ServerError(description string) *Error {
 // to access the resource.
 func OAuth2InvalidScope(description string) *Error {
 	return newError(http.StatusUnauthorized, InvalidScope, description)
+}
+
+// OIDCRequestNotSupported tells the client that the authorization request is
+// not supported.
+func OIDCRequestNotSupported(description string) *Error {
+	return newError(http.StatusBadRequest, RequestNotSupported, description)
 }
 
 // toError is a handy unwrapper to get a HTTP error from a generic one.

@@ -27,6 +27,8 @@ components:
           - invalid_client
           - invalid_grant
           - unsupported_grant_type
+          # Defined by OIDC
+          - request_not_supported
           # Proprietary
           - not_found
           - conflict
@@ -35,6 +37,9 @@ components:
           - forbidden
         error_description:
           description: Verbose message describing the error.
+          type: string
+        state:
+          description: Client state.
           type: string
     kubernetesLabelValue:
       description: |-
