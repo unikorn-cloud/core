@@ -79,6 +79,9 @@ const (
 	// control of this tool.  Useful for label selection.
 	ProjectLabel = "unikorn-cloud.org/project"
 
+	// UserLabel allows resources to link to a user ID.
+	UserLabel = "unikorn-cloud.org/user"
+
 	// KubernetesClusterLabel is applied to resources to indicate it belongs
 	// to a specific cluster.
 	KubernetesClusterLabel = "unikorn-cloud.org/kubernetescluster"
