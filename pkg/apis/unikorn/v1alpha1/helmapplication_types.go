@@ -89,15 +89,6 @@ type HelmApplicationVersion struct {
 	// controllers modifying the spec mess this up.
 	// If not set, uses the application default.
 	ServerSideApply *bool `json:"serverSideApply,omitempty"`
-	// Interface is the name of a Unikorn function that configures the application.
-	// In particular it's used when reading values from a custom resource and mapping
-	// them to Helm values.  This allows us to version Helm interfaces in the context
-	// of "do we need to do something differently", without having to come up with a
-	// generalized solution that purely exists as Kubernetes resource specifications.
-	// For example, building a Openstack Cloud Provider configuration from a clouds.yaml
-	// is going to be bloody tricky without some proper code to handle it.
-	// If not set, uses the application default.
-	Interface *string `json:"interface,omitempty"`
 	// Dependencies capture hard dependencies on other applications that must
 	// be installed before this one.
 	Dependencies []HelmApplicationDependency `json:"dependencies,omitempty"`

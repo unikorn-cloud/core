@@ -156,7 +156,7 @@ func (p *Provisioner) getParameters(ctx context.Context) ([]cd.HelmApplicationPa
 
 	if p.generator != nil {
 		if parameterizer, ok := p.generator.(Paramterizer); ok {
-			p, err := parameterizer.Parameters(ctx, p.applicationVersion.Interface)
+			p, err := parameterizer.Parameters(ctx, p.applicationVersion.Version)
 			if err != nil {
 				return nil, err
 			}
@@ -192,7 +192,7 @@ func (p *Provisioner) getValues(ctx context.Context) (interface{}, error) {
 		return nil, nil
 	}
 
-	values, err := valuesGenerator.Values(ctx, p.applicationVersion.Interface)
+	values, err := valuesGenerator.Values(ctx, p.applicationVersion.Version)
 	if err != nil {
 		return nil, err
 	}
@@ -274,7 +274,7 @@ func (p *Provisioner) generateApplication(ctx context.Context) (*cd.HelmApplicat
 
 	if p.generator != nil {
 		if customization, ok := p.generator.(Customizer); ok {
-			ignoredDifferences, err := customization.Customize(p.applicationVersion.Interface)
+			ignoredDifferences, err := customization.Customize(p.applicationVersion.Version)
 			if err != nil {
 				return nil, err
 			}
