@@ -377,7 +377,7 @@ func (m *mutator) ReleaseName(ctx context.Context) string {
 	return "sentinel"
 }
 
-func (m *mutator) Parameters(ctx context.Context, version *string) (map[string]string, error) {
+func (m *mutator) Parameters(ctx context.Context, version unikornv1.SemanticVersion) (map[string]string, error) {
 	p := map[string]string{
 		mutatorParameter: mutatorValue,
 	}
@@ -385,11 +385,11 @@ func (m *mutator) Parameters(ctx context.Context, version *string) (map[string]s
 	return p, nil
 }
 
-func (m *mutator) Values(ctx context.Context, version *string) (interface{}, error) {
+func (m *mutator) Values(ctx context.Context, version unikornv1.SemanticVersion) (interface{}, error) {
 	return mutatorValues, nil
 }
 
-func (m *mutator) Customize(version *string) ([]cd.HelmApplicationField, error) {
+func (m *mutator) Customize(version unikornv1.SemanticVersion) ([]cd.HelmApplicationField, error) {
 	differences := []cd.HelmApplicationField{
 		{
 			Group: mutatorIgnoreDifferencesGroup,

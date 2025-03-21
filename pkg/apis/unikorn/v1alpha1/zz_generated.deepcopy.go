@@ -318,11 +318,6 @@ func (in *HelmApplicationVersion) DeepCopyInto(out *HelmApplicationVersion) {
 		*out = new(bool)
 		**out = **in
 	}
-	if in.Interface != nil {
-		in, out := &in.Interface, &out.Interface
-		*out = new(string)
-		**out = **in
-	}
 	if in.Dependencies != nil {
 		in, out := &in.Dependencies, &out.Dependencies
 		*out = make([]HelmApplicationDependency, len(*in))
