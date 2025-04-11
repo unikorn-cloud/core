@@ -84,6 +84,11 @@ type remoteClusterProvisioner struct {
 	// it cannot be used with remotes where applications need to be given a chance to
 	// clean up resources that will be orphaned.
 	backgroundDeletion bool
+
+	// prefix is an optional secret prefix to avoid collisions when the
+	// same remote os defined in different contexts e.g. create a cluster,
+	// import that cluster as a region.
+	prefix string
 }
 
 // Ensure the Provisioner interface is implemented.
@@ -94,6 +99,12 @@ type ProvisionerOption func(p *remoteClusterProvisioner)
 
 func BackgroundDeletion(p *remoteClusterProvisioner) {
 	p.backgroundDeletion = true
+}
+
+func WithPrefix(prefix string) func(*remoteClusterProvisioner) {
+	return func(p *remoteClusterProvisioner) {
+		p.prefix = prefix
+	}
 }
 
 // GetClient gets a client from the remote generator.
@@ -163,6 +174,7 @@ func (p *remoteClusterProvisioner) provisionRemote(ctx context.Context) error {
 
 		cluster := &cd.Cluster{
 			Config: config,
+			Prefix: p.prefix,
 		}
 
 		if err := cd.FromContext(ctx).CreateOrUpdateCluster(ctx, id, cluster); err != nil {

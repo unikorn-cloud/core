@@ -142,4 +142,8 @@ type HelmApplication struct {
 type Cluster struct {
 	// Config is the parsed Kubernetes configuration.
 	Config *clientcmdapi.Config
+	// Prefix is an optional secret prefix to avoid collisions when the
+	// same remote os defined in different contexts e.g. create a cluster,
+	// import that cluster as a region.
+	Prefix string
 }

@@ -65,6 +65,9 @@ const (
 	// KindLabelValueKubernetesCluster is used to denote a resource belongs to this type.
 	KindLabelValueKubernetesCluster = "kubernetescluster"
 
+	// KindLabelValueVirtualKubernetesCluster is used to denote a resource belongs to this type.
+	KindLabelValueVirtualKubernetesCluster = "virtualkubernetescluster"
+
 	// KindLabelValueComputeCluster is used to denote a resource belongs to this type.
 	KindLabelValueComputeCluster = "baremetalcluster"
 
