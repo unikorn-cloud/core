@@ -438,7 +438,11 @@ type ClusterConfig struct {
 }
 
 // clusterSecretName mirrors what Argo does for compatibility reasons.
-func clusterSecretName(host string) (string, error) {
+func clusterSecretName(host, prefix string) (string, error) {
+	if prefix == "" {
+		prefix = "cluster"
+	}
+
 	url, err := url.Parse(host)
 	if err != nil {
 		return "", err
@@ -449,7 +453,7 @@ func clusterSecretName(host string) (string, error) {
 
 	hostname := strings.Split(url.Host, ":")
 
-	return fmt.Sprintf("cluster-%s-%d", hostname[0], hasher.Sum32()), nil
+	return fmt.Sprintf("%s-%s-%d", prefix, hostname[0], hasher.Sum32()), nil
 }
 
 // clusterLabel we base the label on the ID to ensure uniqueness, but as this is
@@ -506,7 +510,7 @@ func (d *Driver) CreateOrUpdateCluster(ctx context.Context, id *cd.ResourceIdent
 
 	clusterConfig := cluster.Config.Clusters[configContext.Cluster]
 
-	secretName, err := clusterSecretName(clusterConfig.Server)
+	secretName, err := clusterSecretName(clusterConfig.Server, cluster.Prefix)
 	if err != nil {
 		return err
 	}
