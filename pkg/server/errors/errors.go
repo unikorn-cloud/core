@@ -79,7 +79,7 @@ type Error struct {
 	err error
 
 	// values are arbitrary key value pairs for logging.
-	values []interface{}
+	values []any
 }
 
 // newError returns a new HTTP error.
@@ -101,7 +101,7 @@ func (e *Error) WithError(err error) *Error {
 // WithValues augments the error with a set of K/V pairs.
 // Values should not use the "error" key as that's implicitly defined
 // by WithError and could collide.
-func (e *Error) WithValues(values ...interface{}) *Error {
+func (e *Error) WithValues(values ...any) *Error {
 	e.values = values
 
 	return e
@@ -124,7 +124,7 @@ func (e *Error) Write(w http.ResponseWriter, r *http.Request) {
 	// and return.
 	log := log.FromContext(r.Context())
 
-	var details []interface{}
+	var details []any
 
 	if e.description != "" {
 		details = append(details, "detail", e.description)

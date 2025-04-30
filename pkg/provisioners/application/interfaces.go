@@ -45,7 +45,7 @@ type Paramterizer interface {
 // ValuesGenerator is an interface that allows generators to supply a raw values.yaml
 // file to Helm.  This accepts an object that can be marshaled to YAML.
 type ValuesGenerator interface {
-	Values(ctx context.Context, version unikornv1.SemanticVersion) (interface{}, error)
+	Values(ctx context.Context, version unikornv1.SemanticVersion) (any, error)
 }
 
 // Customizer is a generic generator interface that implemnets raw customizations to

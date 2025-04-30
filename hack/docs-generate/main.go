@@ -81,7 +81,7 @@ func loadVariables(config *Config) (map[string]any, error) {
 				return nil, err
 			}
 
-			var document interface{}
+			var document any
 
 			if err := yaml.Unmarshal(data, &document); err != nil {
 				return nil, err

@@ -48,7 +48,7 @@ type Provisioner struct {
 	namespace string
 
 	// generator provides application generation functionality.
-	generator interface{}
+	generator any
 
 	// allowDegraded accepts a degraded status as a success for an application.
 	allowDegraded bool
@@ -79,7 +79,7 @@ func (p *Provisioner) InNamespace(namespace string) *Provisioner {
 
 // WithGenerator registers an object that can generate implicit configuration where
 // you cannot do it all from the default set of arguments.
-func (p *Provisioner) WithGenerator(generator interface{}) *Provisioner {
+func (p *Provisioner) WithGenerator(generator any) *Provisioner {
 	p.generator = generator
 
 	return p
@@ -180,7 +180,7 @@ func (p *Provisioner) getParameters(ctx context.Context) ([]cd.HelmApplicationPa
 
 // getValues delegates to the generator to get an option values.yaml file to
 // pass to Helm.
-func (p *Provisioner) getValues(ctx context.Context) (interface{}, error) {
+func (p *Provisioner) getValues(ctx context.Context) (any, error) {
 	if p.generator == nil {
 		//nolint:nilnil
 		return nil, nil

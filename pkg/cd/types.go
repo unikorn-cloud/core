@@ -104,8 +104,8 @@ type HelmApplication struct {
 	// Values is an interface to an arbitrary data structure that can
 	// be marshaled into a values.yaml file. The idea here is you can
 	// generate values file data types from a values.schema.json, or
-	// just thown in a free-form map[string]interface{} thing.
-	Values interface{}
+	// just throw in a free-form map[string]any thing.
+	Values any
 
 	// Cluster identifies the cluster to install on to.
 	// By definition we require the CD provider to support multiple
