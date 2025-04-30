@@ -160,7 +160,7 @@ func TestApplicationCreateHelm(t *testing.T) {
 		Client: tc.client,
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 	ctx = coreclient.NewContextWithNamespace(ctx, baseNamespace)
 	ctx = coreclient.NewContextWithProvisionerClient(ctx, tc.client)
 	ctx = coreclient.NewContextWithCluster(ctx, clusterContext)
@@ -266,7 +266,7 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 		Client: tc.client,
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 	ctx = coreclient.NewContextWithNamespace(ctx, baseNamespace)
 	ctx = coreclient.NewContextWithProvisionerClient(ctx, tc.client)
 	ctx = coreclient.NewContextWithCluster(ctx, clusterContext)
@@ -334,7 +334,7 @@ func TestApplicationCreateGit(t *testing.T) {
 		Client: tc.client,
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 	ctx = coreclient.NewContextWithNamespace(ctx, baseNamespace)
 	ctx = coreclient.NewContextWithProvisionerClient(ctx, tc.client)
 	ctx = coreclient.NewContextWithCluster(ctx, clusterContext)
@@ -477,7 +477,7 @@ func TestApplicationCreateMutate(t *testing.T) {
 		Client: tc.client,
 	}
 
-	ctx := context.Background()
+	ctx := t.Context()
 	ctx = coreclient.NewContextWithNamespace(ctx, baseNamespace)
 	ctx = coreclient.NewContextWithProvisionerClient(ctx, tc.client)
 	ctx = coreclient.NewContextWithCluster(ctx, clusterContext)
@@ -532,7 +532,7 @@ func TestApplicationDeleteNotFound(t *testing.T) {
 	driver := mock.NewMockDriver(c)
 	owner := newManagedResource()
 
-	ctx := context.Background()
+	ctx := t.Context()
 	ctx = coreclient.NewContextWithNamespace(ctx, baseNamespace)
 	ctx = coreclient.NewContextWithProvisionerClient(ctx, tc.client)
 	ctx = cd.NewContext(ctx, driver)

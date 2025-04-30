@@ -18,7 +18,6 @@ limitations under the License.
 package concurrent_test
 
 import (
-	"context"
 	"flag"
 	"os"
 	"testing"
@@ -55,7 +54,7 @@ func TestConcurrentProvision(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p1 := mock.NewMockProvisioner(c)
 	p1.EXPECT().Provision(ctx).Return(nil)
@@ -74,7 +73,7 @@ func TestConcurrentProvisionYieldFirst(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p1 := mock.NewMockProvisioner(c)
 	p1.EXPECT().Provision(ctx).Return(provisioners.ErrYield)
@@ -94,7 +93,7 @@ func TestConcurrentProvisionYieldSecond(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p1 := mock.NewMockProvisioner(c)
 	p1.EXPECT().Provision(ctx).Return(nil)
@@ -114,7 +113,7 @@ func TestConcurrentDeprovision(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p1 := mock.NewMockProvisioner(c)
 	p1.EXPECT().Deprovision(ctx).Return(nil)
@@ -133,7 +132,7 @@ func TestConcurrentDeprovisionYieldFirst(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p1 := mock.NewMockProvisioner(c)
 	p1.EXPECT().Deprovision(ctx).Return(provisioners.ErrYield)
@@ -153,7 +152,7 @@ func TestConcurrentDeprovisionYieldSecond(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p1 := mock.NewMockProvisioner(c)
 	p1.EXPECT().Deprovision(ctx).Return(nil)

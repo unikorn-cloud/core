@@ -18,7 +18,6 @@ limitations under the License.
 package conditional_test
 
 import (
-	"context"
 	"flag"
 	"os"
 	"testing"
@@ -62,7 +61,7 @@ func TestConditionalProvision(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mock.NewMockProvisioner(c)
 	p.EXPECT().Provision(ctx).Return(nil)
@@ -78,7 +77,7 @@ func TestConditionalProvisionFalse(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mock.NewMockProvisioner(c)
 	p.EXPECT().Deprovision(ctx).Return(nil)
@@ -94,7 +93,7 @@ func TestConditionalProvisionError(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mock.NewMockProvisioner(c)
 	p.EXPECT().Provision(ctx).Return(provisioners.ErrYield)
@@ -110,7 +109,7 @@ func TestConditionalProvisionFalseError(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mock.NewMockProvisioner(c)
 	p.EXPECT().Deprovision(ctx).Return(provisioners.ErrYield)
@@ -125,7 +124,7 @@ func TestConditionalDeprovision(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mock.NewMockProvisioner(c)
 	p.EXPECT().Deprovision(ctx).Return(nil)
@@ -143,7 +142,7 @@ func TestConditionalDeprovisionFalse(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mock.NewMockProvisioner(c)
 	p.EXPECT().Deprovision(ctx).Return(nil)
@@ -158,7 +157,7 @@ func TestConditionalDeprovisionError(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mock.NewMockProvisioner(c)
 	p.EXPECT().Deprovision(ctx).Return(provisioners.ErrYield)
@@ -174,7 +173,7 @@ func TestConditionalDeprovisionFalseError(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mock.NewMockProvisioner(c)
 	p.EXPECT().Deprovision(ctx).Return(provisioners.ErrYield)

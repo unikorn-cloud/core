@@ -18,7 +18,6 @@ limitations under the License.
 package serial_test
 
 import (
-	"context"
 	"flag"
 	"os"
 	"testing"
@@ -55,7 +54,7 @@ func TestSerialProvision(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mock.NewMockProvisioner(c)
 	p.EXPECT().Provision(ctx).Return(nil).Times(2)
@@ -71,7 +70,7 @@ func TestSerialProvisionYieldFirst(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mock.NewMockProvisioner(c)
 	p.EXPECT().Provision(ctx).Return(provisioners.ErrYield)
@@ -88,7 +87,7 @@ func TestSerialProvisionYieldSecond(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p1 := mock.NewMockProvisioner(c)
 	p1.EXPECT().Provision(ctx).Return(nil)
@@ -108,7 +107,7 @@ func TestSerialDeprovision(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mock.NewMockProvisioner(c)
 	p.EXPECT().Deprovision(ctx).Return(nil).Times(2)
@@ -125,7 +124,7 @@ func TestSerialDeprovisionYieldFirst(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p1 := mock.NewMockProvisioner(c)
 	p1.EXPECT().Deprovision(ctx).Return(provisioners.ErrYield)
@@ -146,7 +145,7 @@ func TestSerialDeprovisionYieldSecond(t *testing.T) {
 	c := gomock.NewController(t)
 	defer c.Finish()
 
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mock.NewMockProvisioner(c)
 	p.EXPECT().Deprovision(ctx).Return(provisioners.ErrYield)
