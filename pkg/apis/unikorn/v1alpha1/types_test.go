@@ -115,7 +115,7 @@ func TestIPv4AddressUnmarshal(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if !output.IP.Equal(testAddressUnmarshaled) {
+	if !output.Equal(testAddressUnmarshaled) {
 		t.Fatal("address mismatch")
 	}
 }

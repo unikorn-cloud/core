@@ -43,11 +43,11 @@ type SemanticVersion struct {
 	semver.Version
 }
 
-func (v SemanticVersion) Compare(o *SemanticVersion) int {
+func (v *SemanticVersion) Compare(o *SemanticVersion) int {
 	return v.Version.Compare(&o.Version)
 }
 
-func (v SemanticVersion) Equal(o *SemanticVersion) bool {
+func (v *SemanticVersion) Equal(o *SemanticVersion) bool {
 	return v.Version.Equal(&o.Version)
 }
 
@@ -55,11 +55,11 @@ func (v *SemanticVersion) UnmarshalJSON(b []byte) error {
 	return json.Unmarshal(b, &v.Version)
 }
 
-func (v SemanticVersion) MarshalJSON() ([]byte, error) {
+func (v *SemanticVersion) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.Original())
 }
 
-func (v SemanticVersion) ToUnstructured() any {
+func (v *SemanticVersion) ToUnstructured() any {
 	return v.Original()
 }
 
@@ -70,11 +70,11 @@ type SemanticVersionConstraints struct {
 	semver.Constraints
 }
 
-func (c SemanticVersionConstraints) Check(v *SemanticVersion) bool {
+func (c *SemanticVersionConstraints) Check(v *SemanticVersion) bool {
 	return c.Constraints.Check(&v.Version)
 }
 
-func (c SemanticVersionConstraints) String() string {
+func (c *SemanticVersionConstraints) String() string {
 	return c.Constraints.String()
 }
 
@@ -95,17 +95,17 @@ func (c *SemanticVersionConstraints) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (c SemanticVersionConstraints) MarshalJSON() ([]byte, error) {
+func (c *SemanticVersionConstraints) MarshalJSON() ([]byte, error) {
 	return json.Marshal(c.Constraints.String())
 }
 
-func (c SemanticVersionConstraints) ToUnstructured() any {
+func (c *SemanticVersionConstraints) ToUnstructured() any {
 	return c.Constraints.String()
 }
 
 func (c *SemanticVersionConstraints) DeepCopyInto(out *SemanticVersionConstraints) {
 	t, _ := c.MarshalText()
-	_ = out.Constraints.UnmarshalText(t)
+	_ = out.UnmarshalText(t)
 }
 
 func (c *SemanticVersionConstraints) DeepCopy() *SemanticVersionConstraints {
@@ -143,22 +143,22 @@ func (a *IPv4Address) UnmarshalJSON(b []byte) error {
 // Ensure the type implements value.UnstructuredConverter.
 var _ = value.UnstructuredConverter(&IPv4Address{})
 
-func (a IPv4Address) MarshalJSON() ([]byte, error) {
-	return json.Marshal(a.IP.String())
+func (a *IPv4Address) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.String())
 }
 
-func (a IPv4Address) ToUnstructured() any {
-	return a.IP.String()
+func (a *IPv4Address) ToUnstructured() any {
+	return a.String()
 }
 
 // There is no interface defined for these. See
 // https://github.com/kubernetes/kube-openapi/tree/master/pkg/generators
 // for reference.
-func (IPv4Address) OpenAPISchemaType() []string {
+func (*IPv4Address) OpenAPISchemaType() []string {
 	return []string{"string"}
 }
 
-func (IPv4Address) OpenAPISchemaFormat() string {
+func (*IPv4Address) OpenAPISchemaFormat() string {
 	return ""
 }
 
@@ -172,14 +172,14 @@ type IPv4Prefix struct {
 // DeepCopyInto implements the interface deepcopy-gen is totally unable to
 // do by itself.
 func (p *IPv4Prefix) DeepCopyInto(out *IPv4Prefix) {
-	if p.IPNet.IP != nil {
-		in, out := &p.IPNet.IP, &out.IPNet.IP
+	if p.IP != nil {
+		in, out := &p.IP, &out.IP
 		*out = make(net.IP, len(*in))
 		copy(*out, *in)
 	}
 
-	if p.IPNet.Mask != nil {
-		in, out := &p.IPNet.Mask, &out.IPNet.Mask
+	if p.Mask != nil {
+		in, out := &p.Mask, &out.Mask
 		*out = make(net.IPMask, len(*in))
 		copy(*out, *in)
 	}
@@ -211,22 +211,22 @@ func (p *IPv4Prefix) UnmarshalJSON(b []byte) error {
 // Ensure the type implements value.UnstructuredConverter.
 var _ = value.UnstructuredConverter(&IPv4Prefix{})
 
-func (p IPv4Prefix) MarshalJSON() ([]byte, error) {
-	return json.Marshal(p.IPNet.String())
+func (p *IPv4Prefix) MarshalJSON() ([]byte, error) {
+	return json.Marshal(p.String())
 }
 
-func (p IPv4Prefix) ToUnstructured() any {
+func (p *IPv4Prefix) ToUnstructured() any {
 	return p.IP.String()
 }
 
 // There is no interface defined for these. See
 // https://github.com/kubernetes/kube-openapi/tree/master/pkg/generators
 // for reference.
-func (IPv4Prefix) OpenAPISchemaType() []string {
+func (*IPv4Prefix) OpenAPISchemaType() []string {
 	return []string{"string"}
 }
 
-func (IPv4Prefix) OpenAPISchemaFormat() string {
+func (*IPv4Prefix) OpenAPISchemaFormat() string {
 	return ""
 }
 

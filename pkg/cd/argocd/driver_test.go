@@ -18,7 +18,6 @@ limitations under the License.
 package argocd_test
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"testing"
@@ -74,7 +73,7 @@ func mustNewTestContext(t *testing.T, tester util.K8SAPITester) *testContext {
 func mustGetApplication(t *testing.T, tc *testContext, id *cd.ResourceIdentifier) *argoprojv1.Application {
 	t.Helper()
 
-	application, err := tc.driver.GetHelmApplication(context.TODO(), id)
+	application, err := tc.driver.GetHelmApplication(t.Context(), id)
 	assert.NoError(t, err)
 
 	return application
@@ -109,7 +108,7 @@ func TestApplicationCreateHelm(t *testing.T) {
 		Version: version,
 	}
 
-	assert.ErrorIs(t, tc.driver.CreateOrUpdateHelmApplication(context.TODO(), id, app), provisioners.ErrYield)
+	assert.ErrorIs(t, tc.driver.CreateOrUpdateHelmApplication(t.Context(), id, app), provisioners.ErrYield)
 
 	application := mustGetApplication(t, tc, id)
 	assert.Equal(t, repo, application.Spec.Source.RepoURL)
@@ -129,19 +128,19 @@ func TestApplicationCreateHelm(t *testing.T) {
 	application.Status.Sync = &argoprojv1.ApplicationSync{
 		Status: argoprojv1.Unknown,
 	}
-	assert.NoError(t, tc.client.Update(context.TODO(), application))
-	assert.ErrorIs(t, tc.driver.CreateOrUpdateHelmApplication(context.TODO(), id, app), provisioners.ErrYield)
+	assert.NoError(t, tc.client.Update(t.Context(), application))
+	assert.ErrorIs(t, tc.driver.CreateOrUpdateHelmApplication(t.Context(), id, app), provisioners.ErrYield)
 
 	app.AllowDegraded = true
 	application = mustGetApplication(t, tc, id)
 	application.Status.Sync.Status = argoprojv1.Synced
-	assert.NoError(t, tc.client.Update(context.TODO(), application))
-	assert.NoError(t, tc.driver.CreateOrUpdateHelmApplication(context.TODO(), id, app))
+	assert.NoError(t, tc.client.Update(t.Context(), application))
+	assert.NoError(t, tc.driver.CreateOrUpdateHelmApplication(t.Context(), id, app))
 
 	application = mustGetApplication(t, tc, id)
 	application.Status.Health.Status = argoprojv1.Healthy
-	assert.NoError(t, tc.client.Update(context.TODO(), application))
-	assert.NoError(t, tc.driver.CreateOrUpdateHelmApplication(context.TODO(), id, app))
+	assert.NoError(t, tc.client.Update(t.Context(), application))
+	assert.NoError(t, tc.driver.CreateOrUpdateHelmApplication(t.Context(), id, app))
 }
 
 // TestApplicationCreateHelmExtended tests that given the requested input the provisioner
@@ -204,7 +203,7 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 		ServerSideApply: true,
 	}
 
-	assert.ErrorIs(t, tc.driver.CreateOrUpdateHelmApplication(context.TODO(), id, app), provisioners.ErrYield)
+	assert.ErrorIs(t, tc.driver.CreateOrUpdateHelmApplication(t.Context(), id, app), provisioners.ErrYield)
 
 	application := mustGetApplication(t, tc, id)
 	assert.Equal(t, repo, application.Spec.Source.RepoURL)
@@ -251,7 +250,7 @@ func TestApplicationCreateGit(t *testing.T) {
 		Branch:  branch,
 	}
 
-	assert.ErrorIs(t, tc.driver.CreateOrUpdateHelmApplication(context.TODO(), id, app), provisioners.ErrYield)
+	assert.ErrorIs(t, tc.driver.CreateOrUpdateHelmApplication(t.Context(), id, app), provisioners.ErrYield)
 
 	application := mustGetApplication(t, tc, id)
 	assert.Equal(t, repo, application.Spec.Source.RepoURL)
@@ -289,12 +288,12 @@ func TestApplicationUpdateAndDelete(t *testing.T) {
 		Version: version,
 	}
 
-	assert.ErrorIs(t, tc.driver.CreateOrUpdateHelmApplication(context.TODO(), id, app), provisioners.ErrYield)
+	assert.ErrorIs(t, tc.driver.CreateOrUpdateHelmApplication(t.Context(), id, app), provisioners.ErrYield)
 
 	newVersion := "the best"
 	app.Version = newVersion
 
-	assert.ErrorIs(t, tc.driver.CreateOrUpdateHelmApplication(context.TODO(), id, app), provisioners.ErrYield)
+	assert.ErrorIs(t, tc.driver.CreateOrUpdateHelmApplication(t.Context(), id, app), provisioners.ErrYield)
 
 	application := mustGetApplication(t, tc, id)
 	assert.Nil(t, application.DeletionTimestamp)
@@ -309,7 +308,7 @@ func TestApplicationUpdateAndDelete(t *testing.T) {
 	assert.True(t, application.Spec.SyncPolicy.Automated.Prune)
 	assert.Nil(t, application.Spec.SyncPolicy.SyncOptions)
 
-	assert.ErrorIs(t, tc.driver.DeleteHelmApplication(context.TODO(), id, false), provisioners.ErrYield)
+	assert.ErrorIs(t, tc.driver.DeleteHelmApplication(t.Context(), id, false), provisioners.ErrYield)
 
 	application = mustGetApplication(t, tc, id)
 	assert.NotNil(t, application.DeletionTimestamp)
@@ -331,7 +330,7 @@ func TestApplicationDeleteNotFound(t *testing.T) {
 		Name: "test",
 	}
 
-	assert.NoError(t, tc.driver.DeleteHelmApplication(context.TODO(), id, false))
+	assert.NoError(t, tc.driver.DeleteHelmApplication(t.Context(), id, false))
 }
 
 const (
@@ -378,7 +377,7 @@ func getKubeconfig() *clientcmdapi.Config {
 func mustGetClusterSecret(t *testing.T, tc *testContext, id *cd.ResourceIdentifier) *corev1.Secret {
 	t.Helper()
 
-	secret, err := tc.driver.GetClusterSecret(context.TODO(), id)
+	secret, err := tc.driver.GetClusterSecret(t.Context(), id)
 	assert.NoError(t, err)
 
 	return secret
@@ -389,7 +388,7 @@ func mustGetClusterSecret(t *testing.T, tc *testContext, id *cd.ResourceIdentifi
 func TestClusterCreate(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.TODO()
+	ctx := t.Context()
 
 	c := gomock.NewController(t)
 	defer c.Finish()
@@ -427,7 +426,7 @@ func TestClusterCreate(t *testing.T) {
 func TestClusterUpdateAndDelete(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.TODO()
+	ctx := t.Context()
 
 	c := gomock.NewController(t)
 	defer c.Finish()
@@ -452,7 +451,7 @@ func TestClusterUpdateAndDelete(t *testing.T) {
 
 	cluster.Config.Clusters["default"].CertificateAuthorityData = newCAData
 
-	assert.NoError(t, tc.driver.CreateOrUpdateCluster(context.TODO(), id, cluster))
+	assert.NoError(t, tc.driver.CreateOrUpdateCluster(t.Context(), id, cluster))
 
 	secret := mustGetClusterSecret(t, tc, id)
 
@@ -461,9 +460,9 @@ func TestClusterUpdateAndDelete(t *testing.T) {
 	assert.NoError(t, json.Unmarshal(secret.Data["config"], &config))
 	assert.Equal(t, newCAData, config.TLSClientConfig.CAData)
 
-	assert.NoError(t, tc.driver.DeleteCluster(context.TODO(), id))
+	assert.NoError(t, tc.driver.DeleteCluster(t.Context(), id))
 
-	_, err := tc.driver.GetClusterSecret(context.TODO(), id)
+	_, err := tc.driver.GetClusterSecret(t.Context(), id)
 	assert.ErrorIs(t, err, cd.ErrNotFound)
 }
 
@@ -483,5 +482,5 @@ func TestClusterDeleteNotFound(t *testing.T) {
 		Name: "test",
 	}
 
-	assert.NoError(t, tc.driver.DeleteCluster(context.TODO(), id))
+	assert.NoError(t, tc.driver.DeleteCluster(t.Context(), id))
 }

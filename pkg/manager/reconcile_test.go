@@ -152,7 +152,7 @@ func TestReconcileDeleted(t *testing.T) {
 	defer c.Finish()
 
 	tc := mustNewTestContext(t)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mockprovisioners.NewMockManagerProvisioner(c)
 	p.EXPECT().Object().Return(&unikornv1fake.ManagedResource{})
@@ -178,7 +178,7 @@ func TestReconcileCreate(t *testing.T) {
 	}
 
 	tc := mustNewTestContext(t, request)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mockprovisioners.NewMockManagerProvisioner(c)
 	p.EXPECT().Object().Return(&unikornv1fake.ManagedResource{})
@@ -213,7 +213,7 @@ func TestReconcileCreateYield(t *testing.T) {
 	}
 
 	tc := mustNewTestContext(t, request)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mockprovisioners.NewMockManagerProvisioner(c)
 	p.EXPECT().Object().Return(&unikornv1fake.ManagedResource{})
@@ -248,7 +248,7 @@ func TestReconcileCreateCancelled(t *testing.T) {
 	}
 
 	tc := mustNewTestContext(t, request)
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 
 	cancel()
 
@@ -285,7 +285,7 @@ func TestReconcileCreateError(t *testing.T) {
 	}
 
 	tc := mustNewTestContext(t, request)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mockprovisioners.NewMockManagerProvisioner(c)
 	p.EXPECT().Object().Return(&unikornv1fake.ManagedResource{})
@@ -326,7 +326,7 @@ func TestReconcileDelete(t *testing.T) {
 	}
 
 	tc := mustNewTestContext(t, request)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mockprovisioners.NewMockManagerProvisioner(c)
 	p.EXPECT().Object().Return(&unikornv1fake.ManagedResource{})
@@ -368,7 +368,7 @@ func TestReconcileDeleteYield(t *testing.T) {
 	}
 
 	tc := mustNewTestContext(t, request)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mockprovisioners.NewMockManagerProvisioner(c)
 	p.EXPECT().Object().Return(&unikornv1fake.ManagedResource{})
@@ -409,7 +409,7 @@ func TestReconcileDeleteCancelled(t *testing.T) {
 	}
 
 	tc := mustNewTestContext(t, request)
-	ctx, cancel := context.WithCancel(context.Background())
+	ctx, cancel := context.WithCancel(t.Context())
 
 	cancel()
 
@@ -452,7 +452,7 @@ func TestReconcileDeleteError(t *testing.T) {
 	}
 
 	tc := mustNewTestContext(t, request)
-	ctx := context.Background()
+	ctx := t.Context()
 
 	p := mockprovisioners.NewMockManagerProvisioner(c)
 	p.EXPECT().Object().Return(&unikornv1fake.ManagedResource{})
