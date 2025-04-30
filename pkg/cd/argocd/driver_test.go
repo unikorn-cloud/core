@@ -158,7 +158,7 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 	remoteDestination := fmt.Sprintf("%s-%s:%s", remoteClusterName, remoteClusterLabel1, remoteClusterLabel2)
 	valuesKey := "dog"
 	valuesValue := "woof"
-	values := map[string]interface{}{
+	values := map[string]any{
 		valuesKey: valuesValue,
 	}
 

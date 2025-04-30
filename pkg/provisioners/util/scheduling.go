@@ -21,9 +21,9 @@ package util
 // have a pod scheduled on the control plane.  This is typically used
 // for managed services to keep them off the worker nodes and allow
 // scale to zero.
-func ControlPlaneTolerations() []interface{} {
-	return []interface{}{
-		map[string]interface{}{
+func ControlPlaneTolerations() []any {
+	return []any{
+		map[string]any{
 			"key":    "node-role.kubernetes.io/control-plane",
 			"effect": "NoSchedule",
 		},
@@ -33,8 +33,8 @@ func ControlPlaneTolerations() []interface{} {
 // ControlPlaneNodeSelector returns a key/value map of labels to match
 // in order to force scheduling on the control plane.  Used in conjunction
 // with, and for the same reason as, ControlPlaneTolerations.
-func ControlPlaneNodeSelector() map[string]interface{} {
-	return map[string]interface{}{
+func ControlPlaneNodeSelector() map[string]any {
+	return map[string]any{
 		"node-role.kubernetes.io/control-plane": "",
 	}
 }
@@ -43,14 +43,14 @@ func ControlPlaneNodeSelector() map[string]interface{} {
 // put in place, or are placed there by the system, on initial control plane
 // provisioning to ensure correct operation.  This is typically only for
 // things like the CNI and cloud provider.
-func ControlPlaneInitTolerations() []interface{} {
-	return []interface{}{
-		map[string]interface{}{
+func ControlPlaneInitTolerations() []any {
+	return []any{
+		map[string]any{
 			"key":    "node.cloudprovider.kubernetes.io/uninitialized",
 			"effect": "NoSchedule",
 			"value":  "true",
 		},
-		map[string]interface{}{
+		map[string]any{
 			"key":    "node.cilium.io/agent-not-ready",
 			"effect": "NoSchedule",
 			"value":  "true",

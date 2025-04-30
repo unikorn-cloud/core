@@ -385,7 +385,7 @@ func (m *mutator) Parameters(ctx context.Context, version unikornv1.SemanticVers
 	return p, nil
 }
 
-func (m *mutator) Values(ctx context.Context, version unikornv1.SemanticVersion) (interface{}, error) {
+func (m *mutator) Values(ctx context.Context, version unikornv1.SemanticVersion) (any, error) {
 	return mutatorValues, nil
 }
 

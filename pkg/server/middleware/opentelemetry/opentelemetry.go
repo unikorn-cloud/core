@@ -38,8 +38,8 @@ import (
 )
 
 // logValuesFromSpan gets a generic set of key/value pairs from a span for logging.
-func logValuesFromSpanContext(name string, s trace.SpanContext) []interface{} {
-	return []interface{}{
+func logValuesFromSpanContext(name string, s trace.SpanContext) []any {
+	return []any{
 		"span.name", name,
 		"span.id", s.SpanID().String(),
 		"trace.id", s.TraceID().String(),
@@ -47,7 +47,7 @@ func logValuesFromSpanContext(name string, s trace.SpanContext) []interface{} {
 }
 
 // logValuesFromSpan gets a generic set of key/value pairs from a span for logging.
-func logValuesFromSpan(s sdktrace.ReadOnlySpan) []interface{} {
+func logValuesFromSpan(s sdktrace.ReadOnlySpan) []any {
 	values := logValuesFromSpanContext(s.Name(), s.SpanContext())
 
 	for _, attribute := range s.Attributes() {

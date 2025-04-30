@@ -27,7 +27,7 @@ import (
 )
 
 // WriteJSONResponse is a generic wrapper for returning a JSON payload to the client.
-func WriteJSONResponse(w http.ResponseWriter, r *http.Request, code int, response interface{}) {
+func WriteJSONResponse(w http.ResponseWriter, r *http.Request, code int, response any) {
 	log := log.FromContext(r.Context())
 
 	body, err := json.Marshal(response)
@@ -47,7 +47,7 @@ func WriteJSONResponse(w http.ResponseWriter, r *http.Request, code int, respons
 }
 
 // ReadJSONBody is a generic request reader to unmarshal JSON bodies.
-func ReadJSONBody(r *http.Request, v interface{}) error {
+func ReadJSONBody(r *http.Request, v any) error {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		return errors.OAuth2ServerError("unable to read request body").WithError(err)

@@ -59,7 +59,7 @@ func (v SemanticVersion) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.Original())
 }
 
-func (v SemanticVersion) ToUnstructured() interface{} {
+func (v SemanticVersion) ToUnstructured() any {
 	return v.Original()
 }
 
@@ -99,7 +99,7 @@ func (c SemanticVersionConstraints) MarshalJSON() ([]byte, error) {
 	return json.Marshal(c.Constraints.String())
 }
 
-func (c SemanticVersionConstraints) ToUnstructured() interface{} {
+func (c SemanticVersionConstraints) ToUnstructured() any {
 	return c.Constraints.String()
 }
 
@@ -147,7 +147,7 @@ func (a IPv4Address) MarshalJSON() ([]byte, error) {
 	return json.Marshal(a.IP.String())
 }
 
-func (a IPv4Address) ToUnstructured() interface{} {
+func (a IPv4Address) ToUnstructured() any {
 	return a.IP.String()
 }
 
@@ -215,7 +215,7 @@ func (p IPv4Prefix) MarshalJSON() ([]byte, error) {
 	return json.Marshal(p.IPNet.String())
 }
 
-func (p IPv4Prefix) ToUnstructured() interface{} {
+func (p IPv4Prefix) ToUnstructured() any {
 	return p.IP.String()
 }
 
