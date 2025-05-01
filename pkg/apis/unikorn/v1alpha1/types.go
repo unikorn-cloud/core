@@ -244,24 +244,23 @@ type TagList []Tag
 // MachineGeneric contains common things across all machine pool types.
 type MachineGeneric struct {
 	// Image is the region service image to deploy with.
-	ImageID *string `json:"imageId"`
+	ImageID string `json:"imageId"`
 	// Flavor is the regions service flavor to deploy with.
-	FlavorID *string `json:"flavorId"`
+	FlavorID string `json:"flavorId"`
 	// DiskSize is the persistent root disk size to deploy with.  This
 	// overrides the default ephemeral disk size defined in the flavor.
 	// This is irrelevant for baremetal machine flavors.
 	DiskSize *resource.Quantity `json:"diskSize,omitempty"`
 	// Replicas is the initial pool size to deploy.
 	// +kubebuilder:validation:Minimum=0
-	// +kubebuilder:default=3
-	Replicas *int `json:"replicas,omitempty"`
+	Replicas int `json:"replicas,omitempty"`
 }
 
 // Network generic constains common networking options.
 type NetworkGeneric struct {
 	// NodeNetwork is the IPv4 prefix for the node network.
 	// This is tyically used to populate a physical network address range.
-	NodeNetwork *IPv4Prefix `json:"nodeNetwork"`
+	NodeNetwork IPv4Prefix `json:"nodeNetwork"`
 	// DNSNameservers sets the DNS nameservers for hosts on the network.
 	// +listType=set
 	// +kubebuilder:validation:MinItems=1
