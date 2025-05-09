@@ -4,6 +4,7 @@ go 1.24.2
 
 require (
 	github.com/Masterminds/semver/v3 v3.3.1
+	github.com/brunoga/deep v1.2.4
 	github.com/getkin/kin-openapi v0.131.0
 	github.com/go-logr/logr v1.4.2
 	github.com/go-openapi/jsonpointer v0.21.1
