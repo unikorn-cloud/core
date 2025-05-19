@@ -34,10 +34,22 @@ var (
 	ErrAnnotation = errors.New("a required annotation was missing")
 )
 
-// ConvertStatusCondition translates from Kubernetes status conditions to API ones.
-func ConvertStatusCondition(in *unikornv1.Condition) openapi.ResourceProvisioningStatus {
+// convertStatusCondition translates from Kubernetes status conditions to API ones.
+func convertStatusCondition(in any) openapi.ResourceProvisioningStatus {
+	// Not a resource with status conditions, consider it provisioned.
+	reader, ok := in.(unikornv1.StatusConditionReader)
+	if !ok {
+		return openapi.ResourceProvisioningStatusProvisioned
+	}
+
+	// No condition yet, it's unknown.
+	condition, err := reader.StatusConditionRead(unikornv1.ConditionAvailable)
+	if err != nil {
+		return openapi.ResourceProvisioningStatusUnknown
+	}
+
 	//nolint:exhaustive
-	switch in.Reason {
+	switch condition.Reason {
 	case unikornv1.ConditionReasonProvisioning:
 		return openapi.ResourceProvisioningStatusProvisioning
 	case unikornv1.ConditionReasonProvisioned:
@@ -46,13 +58,38 @@ func ConvertStatusCondition(in *unikornv1.Condition) openapi.ResourceProvisionin
 		return openapi.ResourceProvisioningStatusError
 	case unikornv1.ConditionReasonDeprovisioning:
 		return openapi.ResourceProvisioningStatusDeprovisioning
-	default:
-		return openapi.ResourceProvisioningStatusUnknown
 	}
+
+	return openapi.ResourceProvisioningStatusUnknown
+}
+
+// convertHealthCondition translates from Kubernetes heath conditions to API ones.
+func convertHealthCondition(in any) openapi.ResourceHealthStatus {
+	// Not a resource with status conditions, consider it healthy.
+	reader, ok := in.(unikornv1.StatusConditionReader)
+	if !ok {
+		return openapi.ResourceHealthStatusHealthy
+	}
+
+	// No condition yet, it's unknown.
+	condition, err := reader.StatusConditionRead(unikornv1.ConditionHealthy)
+	if err != nil {
+		return openapi.ResourceHealthStatusUnknown
+	}
+
+	//nolint:exhaustive
+	switch condition.Reason {
+	case unikornv1.ConditionReasonHealthy:
+		return openapi.ResourceHealthStatusHealthy
+	case unikornv1.ConditionReasonDegraded:
+		return openapi.ResourceHealthStatusDegraded
+	}
+
+	return openapi.ResourceHealthStatusUnknown
 }
 
 // ResourceReadMetadata extracts generic metadata from a resource for GET APIs.
-func ResourceReadMetadata(in metav1.Object, tags unikornv1.TagList, status openapi.ResourceProvisioningStatus) openapi.ResourceReadMetadata {
+func ResourceReadMetadata(in metav1.Object, tags unikornv1.TagList) openapi.ResourceReadMetadata {
 	labels := in.GetLabels()
 	annotations := in.GetAnnotations()
 
@@ -60,7 +97,8 @@ func ResourceReadMetadata(in metav1.Object, tags unikornv1.TagList, status opena
 		Id:                 in.GetName(),
 		Name:               labels[constants.NameLabel],
 		CreationTime:       in.GetCreationTimestamp().Time,
-		ProvisioningStatus: status,
+		ProvisioningStatus: convertStatusCondition(in),
+		HealthStatus:       convertHealthCondition(in),
 	}
 
 	if v, ok := annotations[constants.DescriptionAnnotation]; ok {
@@ -95,10 +133,10 @@ func ResourceReadMetadata(in metav1.Object, tags unikornv1.TagList, status opena
 
 // OrganizationScopedResourceReadMetadata extracts organization scoped metdata from a resource
 // for GET APIS.
-func OrganizationScopedResourceReadMetadata(in metav1.Object, tags unikornv1.TagList, status openapi.ResourceProvisioningStatus) openapi.OrganizationScopedResourceReadMetadata {
+func OrganizationScopedResourceReadMetadata(in metav1.Object, tags unikornv1.TagList) openapi.OrganizationScopedResourceReadMetadata {
 	labels := in.GetLabels()
 
-	temp := ResourceReadMetadata(in, tags, status)
+	temp := ResourceReadMetadata(in, tags)
 
 	out := openapi.OrganizationScopedResourceReadMetadata{
 		Id:                 temp.Id,
@@ -109,6 +147,7 @@ func OrganizationScopedResourceReadMetadata(in metav1.Object, tags unikornv1.Tag
 		ModifiedBy:         temp.ModifiedBy,
 		ModifiedTime:       temp.ModifiedTime,
 		ProvisioningStatus: temp.ProvisioningStatus,
+		HealthStatus:       temp.HealthStatus,
 		Tags:               temp.Tags,
 		OrganizationId:     labels[constants.OrganizationLabel],
 	}
@@ -118,10 +157,10 @@ func OrganizationScopedResourceReadMetadata(in metav1.Object, tags unikornv1.Tag
 
 // ProjectScopedResourceReadMetadata extracts project scoped metdata from a resource for
 // GET APIs.
-func ProjectScopedResourceReadMetadata(in metav1.Object, tags unikornv1.TagList, status openapi.ResourceProvisioningStatus) openapi.ProjectScopedResourceReadMetadata {
+func ProjectScopedResourceReadMetadata(in metav1.Object, tags unikornv1.TagList) openapi.ProjectScopedResourceReadMetadata {
 	labels := in.GetLabels()
 
-	temp := OrganizationScopedResourceReadMetadata(in, tags, status)
+	temp := OrganizationScopedResourceReadMetadata(in, tags)
 
 	out := openapi.ProjectScopedResourceReadMetadata{
 		Id:                 temp.Id,
@@ -132,6 +171,7 @@ func ProjectScopedResourceReadMetadata(in metav1.Object, tags unikornv1.TagList,
 		ModifiedBy:         temp.ModifiedBy,
 		ModifiedTime:       temp.ModifiedTime,
 		ProvisioningStatus: temp.ProvisioningStatus,
+		HealthStatus:       temp.HealthStatus,
 		Tags:               temp.Tags,
 		OrganizationId:     temp.OrganizationId,
 		ProjectId:          labels[constants.ProjectLabel],

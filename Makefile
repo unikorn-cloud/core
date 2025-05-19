@@ -29,7 +29,7 @@ CONTROLLER_TOOLS_VERSION=v0.17.3
 # This should be kept in sync with the Kubenetes library versions defined in go.mod.
 CODEGEN_VERSION := $(shell grep k8s.io/apimachinery go.mod | awk '{ print $$2; }')
 
-OPENAPI_CODEGEN_VERSION=v1.16.2
+OPENAPI_CODEGEN_VERSION=v2.4.1
 
 OPENAPI_FILES = pkg/openapi/types.go pkg/openapi/schema.go
 
@@ -68,11 +68,11 @@ test-unit:
 	go tool cover -html cover.out -o cover.html
 
 pkg/openapi/types.go: pkg/openapi/common.spec.yaml
-	@go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@$(OPENAPI_CODEGEN_VERSION)
+	@go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@$(OPENAPI_CODEGEN_VERSION)
 	oapi-codegen -generate types,skip-prune -package openapi -o $@ $<
 
 pkg/openapi/schema.go: pkg/openapi/common.spec.yaml
-	@go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@$(OPENAPI_CODEGEN_VERSION)
+	@go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@$(OPENAPI_CODEGEN_VERSION)
 	oapi-codegen -generate spec,skip-prune -package openapi -o $@ $<
 
 # Create any CRDs defined into the target directory.
