@@ -275,6 +275,9 @@ const (
 	// resource is not ready, or is known to be in a bad state and should
 	// not be used.  When true, while not guaranteed to be fully functional.
 	ConditionAvailable ConditionType = "Available"
+	// ConditionHealthy if defined describes the current healthiness of
+	// the resource.
+	ConditionHealthy ConditionType = "Healthy"
 )
 
 // ConditionReason defines the possible reasons of a resource
@@ -282,6 +285,7 @@ const (
 // +kubebuilder:validation:Enum=Provisioning;Provisioned;Cancelled;Errored;Deprovisioning;Deprovisioned
 type ConditionReason string
 
+// Condition reasons for ConditionAvailable.
 const (
 	// ConditionReasonProvisioning is used for the Available condition
 	// to indicate that a resource has been seen, it has no pre-existing condition
@@ -304,6 +308,16 @@ const (
 	// indicate we have finished deprovisioning and the Kubernetes
 	// garbage collector can remove the resource.
 	ConditionReasonDeprovisioned ConditionReason = "Deprovisioned"
+)
+
+// Condition reasons for ConditionHealthy.
+const (
+	// ConditionReasonHealthy means all subresources associated with the
+	// resource are in a healthy state.
+	ConditionReasonHealthy ConditionReason = "Healthy"
+	// ConditionReasonDegraded means some subresources associated with the
+	// resource are degraded e.g. a deployment not correctly scaled etc.
+	ConditionReasonDegraded ConditionReason = "Degraded"
 )
 
 // Condition is a generic condition type for use across all resource types.

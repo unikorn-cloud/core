@@ -116,6 +116,13 @@ components:
       - provisioned
       - deprovisioning
       - error
+    resourceHealthStatus:
+      description: The health state of a resource.
+      type: string
+      enum:
+      - unknown
+      - healthy
+      - degraded
     resourceReadMetadata:
       description: Resource metadata valid for all reads.
       allOf:
@@ -123,6 +130,7 @@ components:
       - type: object
         required:
         - provisioningStatus
+        - healthStatus
         properties:
           deletionTime:
             description: The time the resource was deleted.
@@ -130,6 +138,8 @@ components:
             format: date-time
           provisioningStatus:
             $ref: '#/components/schemas/resourceProvisioningStatus'
+          healthStatus:
+            $ref: '#/components/schemas/resourceHealthStatus'
     organizationScopedResourceReadMetadata:
       allOf:
       - $ref: '#/components/schemas/resourceReadMetadata'
