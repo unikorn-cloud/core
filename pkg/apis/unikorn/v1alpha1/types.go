@@ -20,6 +20,7 @@ package v1alpha1
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net"
 
 	"github.com/Masterminds/semver/v3"
@@ -132,7 +133,7 @@ func (a *IPv4Address) UnmarshalJSON(b []byte) error {
 
 	ip := net.ParseIP(str)
 	if ip == nil {
-		return ErrJSONUnmarshal
+		return fmt.Errorf("%w: not an IPv4 address '%s'", ErrJSONUnmarshal, str)
 	}
 
 	a.IP = ip
@@ -196,11 +197,11 @@ func (p *IPv4Prefix) UnmarshalJSON(b []byte) error {
 
 	_, network, err := net.ParseCIDR(str)
 	if err != nil {
-		return ErrJSONUnmarshal
+		return fmt.Errorf("%w: not an IPv4 prefix '%s'", ErrJSONUnmarshal, str)
 	}
 
 	if network == nil {
-		return ErrJSONUnmarshal
+		return fmt.Errorf("%w: not an IPv4 prefix '%s'", ErrJSONUnmarshal, str)
 	}
 
 	p.IPNet = *network
@@ -216,7 +217,7 @@ func (p *IPv4Prefix) MarshalJSON() ([]byte, error) {
 }
 
 func (p *IPv4Prefix) ToUnstructured() any {
-	return p.IP.String()
+	return p.String()
 }
 
 // There is no interface defined for these. See
