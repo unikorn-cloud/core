@@ -267,7 +267,7 @@ type NetworkGeneric struct {
 	DNSNameservers []IPv4Address `json:"dnsNameservers"`
 }
 
-// +kubebuilder:validation:Enum=Available
+// +kubebuilder:validation:Enum=Available;Healthy
 type ConditionType string
 
 const (
