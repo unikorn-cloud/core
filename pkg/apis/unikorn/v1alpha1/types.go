@@ -282,7 +282,7 @@ const (
 
 // ConditionReason defines the possible reasons of a resource
 // condition.  These are generic and may be used by any condition.
-// +kubebuilder:validation:Enum=Provisioning;Provisioned;Cancelled;Errored;Deprovisioning;Deprovisioned
+// +kubebuilder:validation:Enum=Provisioning;Provisioned;Cancelled;Errored;Deprovisioning;Deprovisioned;Healthy;Degraded
 type ConditionReason string
 
 // Condition reasons for ConditionAvailable.
