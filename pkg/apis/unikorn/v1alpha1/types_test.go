@@ -28,10 +28,12 @@ import (
 
 const (
 	// Expect IP addresses to be marshalled as strings in dotted quad format.
-	testAddressMarshaled = `"192.168.0.1"`
+	testAddressMarshaled    = `"192.168.0.1"`
+	testAddressUnstructured = "192.168.0.1"
 
 	// Expect IP prefixes to be marshalled as strings in dotted quad CIDR format.
-	testPrefixMarshaled = `"192.168.0.0/16"`
+	testPrefixMarshaled    = `"192.168.0.0/16"`
+	testPrefixUnstructured = "192.168.0.0/16"
 )
 
 var (
@@ -51,6 +53,7 @@ func TestSemanticVersionCanonical(t *testing.T) {
 	t.Parallel()
 
 	jsonSemver := `"1.2.3-foo+bar"`
+	unstructuredSemver := "1.2.3-foo+bar"
 
 	out := &v1alpha1.SemanticVersion{}
 
@@ -62,6 +65,9 @@ func TestSemanticVersionCanonical(t *testing.T) {
 	marshalled, err := out.MarshalJSON()
 	require.NoError(t, err)
 	require.Equal(t, jsonSemver, string(marshalled))
+
+	unstructured := out.ToUnstructured()
+	require.Equal(t, unstructuredSemver, unstructured)
 }
 
 func TestSemanticVersion(t *testing.T) {
@@ -111,13 +117,8 @@ func TestIPv4AddressUnmarshal(t *testing.T) {
 
 	output := &v1alpha1.IPv4Address{}
 
-	if err := output.UnmarshalJSON(input); err != nil {
-		t.Fatal(err)
-	}
-
-	if !output.Equal(testAddressUnmarshaled) {
-		t.Fatal("address mismatch")
-	}
+	require.NoError(t, output.UnmarshalJSON(input))
+	require.Equal(t, testAddressUnmarshaled, output.IP)
 }
 
 func TestIPv4AddressMarshal(t *testing.T) {
@@ -126,13 +127,12 @@ func TestIPv4AddressMarshal(t *testing.T) {
 	input := &v1alpha1.IPv4Address{IP: testAddressUnmarshaled}
 
 	output, err := input.MarshalJSON()
-	if err != nil {
-		t.Fatal()
-	}
+	require.NoError(t, err)
 
-	if string(output) != testAddressMarshaled {
-		t.Fatal("address mismatch")
-	}
+	require.Equal(t, testAddressMarshaled, string(output))
+
+	unstructured := input.ToUnstructured()
+	require.Equal(t, testAddressUnstructured, unstructured)
 }
 
 func TestIPv4PrefixUnmarshal(t *testing.T) {
@@ -142,13 +142,8 @@ func TestIPv4PrefixUnmarshal(t *testing.T) {
 
 	output := &v1alpha1.IPv4Prefix{}
 
-	if err := output.UnmarshalJSON(input); err != nil {
-		t.Fatal(nil)
-	}
-
-	if output.String() != testPrefixUnmarshaled.String() {
-		t.Fatal("prefix mismatch")
-	}
+	require.NoError(t, output.UnmarshalJSON(input))
+	require.Equal(t, testPrefixUnmarshaled.String(), output.String())
 }
 
 func TestIPv4PrefixMarshal(t *testing.T) {
@@ -157,11 +152,9 @@ func TestIPv4PrefixMarshal(t *testing.T) {
 	input := &v1alpha1.IPv4Prefix{IPNet: testPrefixUnmarshaled}
 
 	output, err := input.MarshalJSON()
-	if err != nil {
-		t.Fatal(err)
-	}
+	require.NoError(t, err)
+	require.Equal(t, testPrefixMarshaled, string(output))
 
-	if string(output) != testPrefixMarshaled {
-		t.Fatal("prefix mismatch")
-	}
+	unstructured := input.ToUnstructured()
+	require.Equal(t, testPrefixUnstructured, unstructured)
 }
