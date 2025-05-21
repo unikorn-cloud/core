@@ -147,3 +147,16 @@ type Cluster struct {
 	// import that cluster as a region.
 	Prefix string
 }
+
+// HealthStatus is used to describe the health of the application.
+type HealthStatus string
+
+const (
+	// HealthStatusUnknown means the application health cannot be derived.
+	HealthStatusUnknown HealthStatus = "unknown"
+	// HealthStatusHealthy means everything is as expected.
+	HealthStatusHealthy HealthStatus = "healthy"
+	// HealthStatusDegraded means the application may still function
+	// but is in a degraded state.
+	HealthStatusDegraded HealthStatus = "degraded"
+)

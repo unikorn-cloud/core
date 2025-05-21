@@ -283,7 +283,7 @@ const (
 
 // ConditionReason defines the possible reasons of a resource
 // condition.  These are generic and may be used by any condition.
-// +kubebuilder:validation:Enum=Provisioning;Provisioned;Cancelled;Errored;Deprovisioning;Deprovisioned;Healthy;Degraded
+// +kubebuilder:validation:Enum=Provisioning;Provisioned;Cancelled;Errored;Deprovisioning;Deprovisioned;Unknown;Healthy;Degraded
 type ConditionReason string
 
 // Condition reasons for ConditionAvailable.
@@ -313,6 +313,8 @@ const (
 
 // Condition reasons for ConditionHealthy.
 const (
+	// ConditionReasonUnknown means the health status cannot be derived.
+	ConditionReasonUnknown ConditionReason = "Unknown"
 	// ConditionReasonHealthy means all subresources associated with the
 	// resource are in a healthy state.
 	ConditionReasonHealthy ConditionReason = "Healthy"

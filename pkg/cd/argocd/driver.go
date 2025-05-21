@@ -179,6 +179,35 @@ func convertApplicationList(in *argoprojv1.ApplicationList) map[*cd.ResourceIden
 	return out
 }
 
+// GetHealthStatus returns an overall health status of all applications
+// referenced by the resource identifier.
+func (d *Driver) GetHealthStatus(ctx context.Context, id *cd.ResourceIdentifier) (cd.HealthStatus, error) {
+	options := &client.ListOptions{
+		Namespace:     namespace,
+		LabelSelector: labels.SelectorFromSet(applicationLabelsForOwningResource(id)),
+	}
+
+	var resources argoprojv1.ApplicationList
+
+	if err := d.client.List(ctx, &resources, options); err != nil {
+		return cd.HealthStatusUnknown, err
+	}
+
+	for i := range resources.Items {
+		application := &resources.Items[i]
+
+		if application.Status.Health == nil {
+			return cd.HealthStatusUnknown, nil
+		}
+
+		if application.Status.Health.Status != argoprojv1.Healthy {
+			return cd.HealthStatusDegraded, nil
+		}
+	}
+
+	return cd.HealthStatusHealthy, nil
+}
+
 // ListHelmApplications gets all applications that match the resource identifier.
 func (d *Driver) ListHelmApplications(ctx context.Context, id *cd.ResourceIdentifier) (map[*cd.ResourceIdentifier]*cd.HelmApplication, error) {
 	options := &client.ListOptions{

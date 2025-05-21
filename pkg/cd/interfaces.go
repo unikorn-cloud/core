@@ -34,6 +34,10 @@ type Driver interface {
 	// your hack.
 	Kind() DriverKind
 
+	// GetHealthStatus returns an overall health status of all applications
+	// referenced by the resource identifier.
+	GetHealthStatus(ctx context.Context, id *ResourceIdentifier) (HealthStatus, error)
+
 	// ListHelmApplications gets all applications that match the resource identifier.
 	ListHelmApplications(ctx context.Context, id *ResourceIdentifier) (map[*ResourceIdentifier]*HelmApplication, error)
 
