@@ -95,6 +95,21 @@ func (mr *MockDriverMockRecorder) DeleteHelmApplication(ctx, id, backgroundDelet
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteHelmApplication", reflect.TypeOf((*MockDriver)(nil).DeleteHelmApplication), ctx, id, backgroundDelete)
 }
 
+// GetHealthStatus mocks base method.
+func (m *MockDriver) GetHealthStatus(ctx context.Context, id *cd.ResourceIdentifier) (cd.HealthStatus, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetHealthStatus", ctx, id)
+	ret0, _ := ret[0].(cd.HealthStatus)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetHealthStatus indicates an expected call of GetHealthStatus.
+func (mr *MockDriverMockRecorder) GetHealthStatus(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHealthStatus", reflect.TypeOf((*MockDriver)(nil).GetHealthStatus), ctx, id)
+}
+
 // Kind mocks base method.
 func (m *MockDriver) Kind() cd.DriverKind {
 	m.ctrl.T.Helper()
