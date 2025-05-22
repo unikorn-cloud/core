@@ -13,10 +13,10 @@ components:
       - error_description
       properties:
         error:
-          description: A terse error string expanding on the HTTP error code. Errors are based on the OAuth2 specification, but are expanded with proprietary status codes for APIs other than those specified by OAuth2.
+          description: A terse error string expanding on the HTTP error code. Errors are based on the OAuth 2.02 specification, but are expanded with proprietary status codes for APIs other than those specified by OAuth 2.02.
           type: string
           enum:
-          # Defined by OAuth2
+          # Defined by OAuth 2.02
           - invalid_request
           - unauthorized_client
           - access_denied
@@ -38,16 +38,21 @@ components:
           type: string
     kubernetesLabelValue:
       description: |-
-        A valid Kubenetes label value, typically used for resource names that can be
+        A valid Kubernetes label value, typically used for resource names that can be
         indexed in the database.
       type: string
       pattern: '^[0-9A-Za-z](?:[0-9A-Za-z-_.]{0,61}[0-9A-Za-z])?$'
     semver:
-      description: A semantic version.
+      description: |-
+        A semantic version in the form v1.2.3.
+        Pre-releases and variants are not currently supported.
       type: string
       pattern: '^v\d+\.\d+\.\d+$'
     tag:
-      description: An arbitrary tag name and value.
+      description: |-
+        A tag mapping arbitrary names to values.  These have no special meaning
+        for any component are are intended for use by end users to add additional
+        context to a resource, for example to categorize it.
       type: object
       required:
       - name  
@@ -65,7 +70,7 @@ components:
       items:    
         $ref: '#/components/schemas/tag'
     resourceMetadata:
-      description: Resource metadata valid for all API resource reads and writes.
+      description: Metadata required for all API resource reads and writes.
       required:
       - name
       properties:
@@ -80,7 +85,7 @@ components:
     staticResourceMetadata:
       description: |
         This metadata is for resources that just exist, and don't require
-        any provisioning and health status, but benefit from a standarized
+        any provisioning and health status, but benefit from a standardized
         metadata format.
       type: object
       allOf:
@@ -124,7 +129,7 @@ components:
       - healthy
       - degraded
     resourceReadMetadata:
-      description: Resource metadata valid for all reads.
+      description: Metadata required by all resource reads.
       allOf:
       - $ref: '#/components/schemas/staticResourceMetadata'
       - type: object
@@ -141,6 +146,7 @@ components:
           healthStatus:
             $ref: '#/components/schemas/resourceHealthStatus'
     organizationScopedResourceReadMetadata:
+      description: Metadata required by organization scoped resource reads.
       allOf:
       - $ref: '#/components/schemas/resourceReadMetadata'
       - type: object
@@ -151,6 +157,7 @@ components:
             description: The organization identifier the resource belongs to.
             type: string
     projectScopedResourceReadMetadata:
+      description: Metadata required by project scoped resource reads.
       allOf:
       - $ref: '#/components/schemas/organizationScopedResourceReadMetadata'
       - type: object
@@ -166,7 +173,8 @@ components:
     acceptedResponse:
       description: |-
         The request has been accepted and will be fulfilled asynchronously.
-        You may poll the resource and monitor its status for completion.
+        You may poll the resource and monitor its provisioning and health status
+        to await completion of the operation.
     badRequestResponse:
       description: |-
         Request body failed schema validation, or the request does not contain
@@ -190,7 +198,7 @@ components:
             error_description: authentication failed
     forbiddenResponse:
       description: |-
-        Request was denied by authorisation, this may be caused by the authorisation
+        Request was denied by authorization, this may be caused by the authorization
         token not having the required scope for an API, or the user doesn't have the
         necessary privileges on the provider platform.
       content:
@@ -222,8 +230,8 @@ components:
             error_description: a resource with the same name already exists
     internalServerErrorResponse:
       description: |-
-        An unexpected error occurred, this may be an unexpected transient error and
-        may succeed on a retry. If this isn't the case, please report it as an issue.
+        An unexpected or unhandled error occurred. This may be a transient error and
+        may succeed on a retry.  If this isn't the case, please report it as an issue.
       content:
         application/json:
           schema:
