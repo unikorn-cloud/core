@@ -1,11 +1,8 @@
-# Unikorn Core
-
-![Unikorn Logo](https://raw.githubusercontent.com/unikorn-cloud/assets/main/images/logos/light-on-dark/logo.svg#gh-dark-mode-only)
-![Unikorn Logo](https://raw.githubusercontent.com/unikorn-cloud/assets/main/images/logos/dark-on-light/logo.svg#gh-light-mode-only)
+# Core
 
 ## Overview
 
-This is the shared core of Unikorn, it contains:
+This is the shared core library, it contains:
 
 * generic custom resources
 * generic CD integration
@@ -15,33 +12,33 @@ This is the shared core of Unikorn, it contains:
 
 ## Core Architecture
 
-Unikorn uses continuous deployment (CD) as the foundation of cluster provisioning.
+Provisioners use continuous deployment (CD) as the foundation of cluster provisioning.
 By itself, CD is not up to the task of Kubernetes cluster provisioning and life-cycle management.
 Neither are the methods offered by Cluster API (CAPI).
-Unikorn provides the following functionality:
+Core provides the following functionality:
 
 * Application ordering and gating
   * Applications can be deployed in a set order, and only after the previous one is healthy
   * Applications can be deployed concurrently where functionally required, or for performance, all applications must be healthy before execution can continue
 * Remote cluster provisioning
-  * Applications can be provisioned on a remote cluster e.g. one provisioned by Unikorn
+  * Applications can be provisioned on a remote cluster e.g. one provisioned by ourselves
 * Dynamic application configuration
   * An opinionated API allows applications to be deployed to user demands
-  * Unikorn provides methods to propagate these parameters to the underlying applications
+  * Core provides methods to propagate these parameters to the underlying applications
 * Provisioning hooks
   * These provide methods to hook into the CD application life-cycle and perform any remediation required due to bugs or deficiencies of the chosen CD backend
 
-In summary, Unikorn is an engine for orchestrating complex CD deployments, that would otherwise be impossible to achieve.
+In summary, Core is an engine for orchestrating complex CD deployments, that would otherwise be impossible to achieve.
 
-## Unikorn Controllers
+## Controllers
 
-The controllers (aka operators) used by Unikorn are relatively simple.
+The controllers (aka operators) used by our services are relatively simple.
 They are based upon Controller Runtime and use this library wherever possible, this provides:
 
 * Structured logging
 * Caching Kubernetes clients
 * Leadership election (to avoid split-brain)
-* Monitoring of Unikorn custom resources
+* Monitoring of custom resources
 * Reconciliation management
   * Filtering of events prevents unwanted reconciliation unless something has actually changed
 
@@ -82,12 +79,12 @@ These are:
 
 ## Provisioners and Deprovisioners
 
-Everything in Unikorn's provisioning engine implements the Provisioner interface.
+Everything in the provisioning engine implements the Provisioner interface.
 This is a very basic contract that says it will provision/deprovision as asked, returning nil, or either an `ErrYield` (meaning the error is expected and transient, and doesn't need to be reflected with an error status), or an actual unexpected error.
 
 ### Application Provisioner
 
-This forms the core provisioner of Unikorn, and is responsible for:
+This forms the core provisioner, and is responsible for:
 
 * Looking up the application's versioning information e.g Helm repository, chart and version
   * This may also include static configuration describing how to provision the application e.g. parameters
@@ -129,7 +126,7 @@ These provide the following functionality:
 As alluded to generic provisioners operate on other provisioners, thus can be composed into really complex logic that cannot be done with CD tools.
 
 For example, take Kubernetes cluster provisioning, when you create a cluster with CAPI, it will never become healthy until a Cloud Controller Manager (CCM) is installed, and a CNI.
-With Unikorn this is simple:
+With Core this is simple:
 
 * Create a cluster
 * Concurrently...
@@ -145,7 +142,7 @@ Consider the following:
 
 ### Application Resources
 
-Applications form the basis of all managed services in Unikorn.
+Applications form the basis of all managed services.
 Most managed resource types are a collection of applications managed by provisioners in a specific way to yield an end result.
 
 Applications are defined only once e.g. there is only one instance of `cert-manager` in the system.
