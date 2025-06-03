@@ -20,6 +20,7 @@ package v1alpha1
 import (
 	"errors"
 	"net"
+	"slices"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -89,4 +90,22 @@ func UpdateCondition(conditions *[]Condition, t ConditionType, status corev1.Con
 	if existing != condition {
 		*existingPtr = condition
 	}
+}
+
+// Contains returns if the k/v tag exists in the list.
+func (t TagList) Contains(tag Tag) bool {
+	return slices.ContainsFunc(t, func(temp Tag) bool {
+		return temp.Name == tag.Name && temp.Value == tag.Value
+	})
+}
+
+// ContainsAll returns if all k/v tags exist in the list.
+func (t TagList) ContainsAll(o TagList) bool {
+	for _, tag := range o {
+		if !t.Contains(tag) {
+			return false
+		}
+	}
+
+	return true
 }
