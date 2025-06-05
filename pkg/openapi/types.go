@@ -29,6 +29,7 @@ const (
 // Defines values for ResourceHealthStatus.
 const (
 	ResourceHealthStatusDegraded ResourceHealthStatus = "degraded"
+	ResourceHealthStatusError    ResourceHealthStatus = "error"
 	ResourceHealthStatusHealthy  ResourceHealthStatus = "healthy"
 	ResourceHealthStatusUnknown  ResourceHealthStatus = "unknown"
 )
@@ -44,17 +45,17 @@ const (
 
 // Error Generic error message, compatible with oauth2.
 type Error struct {
-	// Error A terse error string expanding on the HTTP error code. Errors are based on the OAuth2 specification, but are expanded with proprietary status codes for APIs other than those specified by OAuth2.
+	// Error A terse error string expanding on the HTTP error code. Errors are based on the OAuth 2.02 specification, but are expanded with proprietary status codes for APIs other than those specified by OAuth 2.02.
 	Error ErrorError `json:"error"`
 
 	// ErrorDescription Verbose message describing the error.
 	ErrorDescription string `json:"error_description"`
 }
 
-// ErrorError A terse error string expanding on the HTTP error code. Errors are based on the OAuth2 specification, but are expanded with proprietary status codes for APIs other than those specified by OAuth2.
+// ErrorError A terse error string expanding on the HTTP error code. Errors are based on the OAuth 2.02 specification, but are expanded with proprietary status codes for APIs other than those specified by OAuth 2.02.
 type ErrorError string
 
-// KubernetesLabelValue A valid Kubenetes label value, typically used for resource names that can be
+// KubernetesLabelValue A valid Kubernetes label value, typically used for resource names that can be
 // indexed in the database.
 type KubernetesLabelValue = string
 
@@ -84,7 +85,7 @@ type OrganizationScopedResourceReadMetadata struct {
 	// ModifiedTime The time a resource was updated.
 	ModifiedTime *time.Time `json:"modifiedTime,omitempty"`
 
-	// Name A valid Kubenetes label value, typically used for resource names that can be
+	// Name A valid Kubernetes label value, typically used for resource names that can be
 	// indexed in the database.
 	Name KubernetesLabelValue `json:"name"`
 
@@ -124,7 +125,7 @@ type ProjectScopedResourceReadMetadata struct {
 	// ModifiedTime The time a resource was updated.
 	ModifiedTime *time.Time `json:"modifiedTime,omitempty"`
 
-	// Name A valid Kubenetes label value, typically used for resource names that can be
+	// Name A valid Kubernetes label value, typically used for resource names that can be
 	// indexed in the database.
 	Name KubernetesLabelValue `json:"name"`
 
@@ -144,12 +145,12 @@ type ProjectScopedResourceReadMetadata struct {
 // ResourceHealthStatus The health state of a resource.
 type ResourceHealthStatus string
 
-// ResourceMetadata Resource metadata valid for all API resource reads and writes.
+// ResourceMetadata Metadata required for all API resource reads and writes.
 type ResourceMetadata struct {
 	// Description The resource description, this optionally augments the name with more context.
 	Description *string `json:"description,omitempty"`
 
-	// Name A valid Kubenetes label value, typically used for resource names that can be
+	// Name A valid Kubernetes label value, typically used for resource names that can be
 	// indexed in the database.
 	Name KubernetesLabelValue `json:"name"`
 
@@ -186,7 +187,7 @@ type ResourceReadMetadata struct {
 	// ModifiedTime The time a resource was updated.
 	ModifiedTime *time.Time `json:"modifiedTime,omitempty"`
 
-	// Name A valid Kubenetes label value, typically used for resource names that can be
+	// Name A valid Kubernetes label value, typically used for resource names that can be
 	// indexed in the database.
 	Name KubernetesLabelValue `json:"name"`
 
@@ -197,10 +198,11 @@ type ResourceReadMetadata struct {
 	Tags *TagList `json:"tags,omitempty"`
 }
 
-// ResourceWriteMetadata Resource metadata valid for all API resource reads and writes.
+// ResourceWriteMetadata Metadata required for all API resource reads and writes.
 type ResourceWriteMetadata = ResourceMetadata
 
-// Semver A semantic version.
+// Semver A semantic version in the form v1.2.3.
+// Pre-releases and variants are not currently supported.
 type Semver = string
 
 // StaticResourceMetadata defines model for staticResourceMetadata.
@@ -223,7 +225,7 @@ type StaticResourceMetadata struct {
 	// ModifiedTime The time a resource was updated.
 	ModifiedTime *time.Time `json:"modifiedTime,omitempty"`
 
-	// Name A valid Kubenetes label value, typically used for resource names that can be
+	// Name A valid Kubernetes label value, typically used for resource names that can be
 	// indexed in the database.
 	Name KubernetesLabelValue `json:"name"`
 
@@ -231,7 +233,9 @@ type StaticResourceMetadata struct {
 	Tags *TagList `json:"tags,omitempty"`
 }
 
-// Tag An arbitrary tag name and value.
+// Tag A tag mapping arbitrary names to values.  These have no special meaning
+// for any component are are intended for use by end users to add additional
+// context to a resource, for example to categorize it.
 type Tag struct {
 	// Name A unique tag name.
 	Name string `json:"name"`

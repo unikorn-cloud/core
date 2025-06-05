@@ -83,6 +83,8 @@ func convertHealthCondition(in any) openapi.ResourceHealthStatus {
 		return openapi.ResourceHealthStatusHealthy
 	case unikornv1.ConditionReasonDegraded:
 		return openapi.ResourceHealthStatusDegraded
+	case unikornv1.ConditionReasonErrored:
+		return openapi.ResourceHealthStatusError
 	}
 
 	return openapi.ResourceHealthStatusUnknown
