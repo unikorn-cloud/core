@@ -128,6 +128,7 @@ components:
       - unknown
       - healthy
       - degraded
+      - error
     resourceReadMetadata:
       description: Metadata required by all resource reads.
       allOf:
