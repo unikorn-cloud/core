@@ -112,6 +112,8 @@ type ApplicationSyncPolicy struct {
 	SyncOptions []ApplicationSyncOption `json:"syncOptions"`
 	// Automated, if set, allows periodic synchronization.
 	Automated *ApplicationSyncAutomation `json:"automated,omitempty"`
+	// ManagedNamespaceMetadata gives labels and annotations for namespaces created with SyncOption `CreateNamespace=true`
+	ManagedNamespaceMetadata *NamespaceMetadata `json:"managedNamespaceMetadata,omitempty"`
 }
 
 type ApplicationSyncAutomation struct {
@@ -119,6 +121,11 @@ type ApplicationSyncAutomation struct {
 	SelfHeal bool `json:"selfHeal,omitempty"`
 	// Prune removes orphaned resources.
 	Prune bool `json:"prune,omitempty"`
+}
+
+type NamespaceMetadata struct {
+	Labels      map[string]string `json:"labels,omitempty"`
+	Annotations map[string]string `json:"annotations,omitempty"`
 }
 
 type ApplicationIgnoreDifference struct {

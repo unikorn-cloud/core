@@ -325,6 +325,13 @@ func generateApplication(id *cd.ResourceIdentifier, app *cd.HelmApplication) (*a
 		application.Spec.SyncPolicy.SyncOptions = append(application.Spec.SyncPolicy.SyncOptions, argoprojv1.CreateNamespace)
 	}
 
+	if app.NamespaceMetadata.Labels != nil || app.NamespaceMetadata.Annotations != nil {
+		application.Spec.SyncPolicy.ManagedNamespaceMetadata = &argoprojv1.NamespaceMetadata{
+			Labels:      app.NamespaceMetadata.Labels,
+			Annotations: app.NamespaceMetadata.Annotations,
+		}
+	}
+
 	if app.ServerSideApply {
 		application.Spec.SyncPolicy.SyncOptions = append(application.Spec.SyncPolicy.SyncOptions, argoprojv1.ServerSideApply)
 	}

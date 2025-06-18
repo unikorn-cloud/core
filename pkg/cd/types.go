@@ -120,6 +120,12 @@ type HelmApplication struct {
 	// namespace as the chart does not.
 	CreateNamespace bool
 
+	// NamespaceMetadata gives labels and annotations to give a namespace created when `CreateNamespace: true`
+	NamespaceMetadata struct {
+		Labels      map[string]string
+		Annotations map[string]string
+	}
+
 	// IgnoreDifferences can be set when the driver support self-healing
 	// e.g. reversion of manual changes.  This is important as the CD
 	// may do a diff, and constantly reconcile due to resource mutation
