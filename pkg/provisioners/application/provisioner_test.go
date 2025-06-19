@@ -362,6 +362,18 @@ var mutatorValues = map[string]string{
 	mutatorParameter: mutatorValue,
 }
 
+//nolint:gochecknoglobals
+var mutatorLabels = map[string]string{
+	"origin":       "cluster-1",
+	"organisation": "uni",
+}
+
+//nolint:gochecknoglobals
+var mutatorAnnotations = map[string]string{
+	"colour": "rainbow",
+	"wings":  "no",
+}
+
 // mutator does just that allows modifications of the application.
 type mutator struct {
 	postProvisionCalled bool
@@ -370,6 +382,7 @@ type mutator struct {
 var _ application.ReleaseNamer = &mutator{}
 var _ application.Paramterizer = &mutator{}
 var _ application.ValuesGenerator = &mutator{}
+var _ application.NamespaceLabeler = &mutator{}
 var _ application.Customizer = &mutator{}
 var _ application.PostProvisionHook = &mutator{}
 
@@ -387,6 +400,10 @@ func (m *mutator) Parameters(ctx context.Context, version unikornv1.SemanticVers
 
 func (m *mutator) Values(ctx context.Context, version unikornv1.SemanticVersion) (any, error) {
 	return mutatorValues, nil
+}
+
+func (m *mutator) NamespaceMetadata(_ context.Context, _ unikornv1.SemanticVersion) (map[string]string, map[string]string, error) {
+	return mutatorLabels, mutatorAnnotations, nil
 }
 
 func (m *mutator) Customize(version unikornv1.SemanticVersion) ([]cd.HelmApplicationField, error) {
@@ -469,6 +486,8 @@ func TestApplicationCreateMutate(t *testing.T) {
 			},
 		},
 	}
+	driverApp.NamespaceMetadata.Labels = mutatorLabels
+	driverApp.NamespaceMetadata.Annotations = mutatorAnnotations
 
 	driver := mock.NewMockDriver(c)
 	owner := newManagedResource()
