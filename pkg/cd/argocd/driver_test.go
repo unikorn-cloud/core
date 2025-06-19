@@ -121,6 +121,7 @@ func TestApplicationCreateHelm(t *testing.T) {
 	assert.True(t, application.Spec.SyncPolicy.Automated.SelfHeal)
 	assert.True(t, application.Spec.SyncPolicy.Automated.Prune)
 	assert.Nil(t, application.Spec.SyncPolicy.SyncOptions)
+	assert.Nil(t, application.Spec.SyncPolicy.ManagedNamespaceMetadata)
 
 	application.Status.Health = &argoprojv1.ApplicationHealth{
 		Status: argoprojv1.Degraded,
@@ -186,6 +187,10 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 		},
 	}
 
+	nsLabels := map[string]string{
+		"label": "for-the-namespace",
+	}
+
 	app := &cd.HelmApplication{
 		Repo:    repo,
 		Chart:   chart,
@@ -201,6 +206,9 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 		Cluster:         clusterID,
 		CreateNamespace: true,
 		ServerSideApply: true,
+		NamespaceMetadata: cd.LabelsAnnotations{
+			Labels: nsLabels,
+		},
 	}
 
 	assert.ErrorIs(t, tc.driver.CreateOrUpdateHelmApplication(t.Context(), id, app), provisioners.ErrYield)
@@ -223,6 +231,8 @@ func TestApplicationCreateHelmExtended(t *testing.T) {
 	assert.Len(t, application.Spec.SyncPolicy.SyncOptions, 2)
 	assert.Equal(t, argoprojv1.CreateNamespace, application.Spec.SyncPolicy.SyncOptions[0])
 	assert.Equal(t, argoprojv1.ServerSideApply, application.Spec.SyncPolicy.SyncOptions[1])
+	assert.Equal(t, nsLabels, application.Spec.SyncPolicy.ManagedNamespaceMetadata.Labels)
+	assert.Nil(t, application.Spec.SyncPolicy.ManagedNamespaceMetadata.Annotations)
 }
 
 // TestApplicationCreateGit tests that given the requested input the provisioner
