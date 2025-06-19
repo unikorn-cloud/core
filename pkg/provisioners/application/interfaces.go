@@ -48,6 +48,12 @@ type ValuesGenerator interface {
 	Values(ctx context.Context, version unikornv1.SemanticVersion) (any, error)
 }
 
+// NamespaceLabeler is an interface you can implement in a generator, to give a namespace created
+// by the CD labels and annotations.
+type NamespaceLabeler interface {
+	NamespaceMetadata(ctx context.Context, version unikornv1.SemanticVersion) (map[string]string, map[string]string, error)
+}
+
 // Customizer is a generic generator interface that implemnets raw customizations to
 // the application template.  Try to avoid using this.
 type Customizer interface {

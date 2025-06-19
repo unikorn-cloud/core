@@ -77,6 +77,11 @@ type HelmApplicationField struct {
 	JSONPointers []string
 }
 
+type LabelsAnnotations struct {
+	Labels      map[string]string
+	Annotations map[string]string
+}
+
 // HelmApplication defines a driver agnostic Helm application.
 type HelmApplication struct {
 	// Repo is a URL to either a Helm or Git repository.
@@ -119,6 +124,9 @@ type HelmApplication struct {
 	// CreateNamespace defines that the CD provider must create the
 	// namespace as the chart does not.
 	CreateNamespace bool
+
+	// NamespaceMetadata gives labels and annotations to give a namespace created when `CreateNamespace: true`
+	NamespaceMetadata LabelsAnnotations
 
 	// IgnoreDifferences can be set when the driver support self-healing
 	// e.g. reversion of manual changes.  This is important as the CD

@@ -200,6 +200,24 @@ func (p *Provisioner) getValues(ctx context.Context) (any, error) {
 	return values, nil
 }
 
+func (p *Provisioner) getNamespaceMetadata(ctx context.Context) (map[string]string, map[string]string, error) {
+	if p.generator == nil {
+		return nil, nil, nil
+	}
+
+	namespaceGen, ok := p.generator.(NamespaceLabeler)
+	if !ok {
+		return nil, nil, nil
+	}
+
+	labels, annotations, err := namespaceGen.NamespaceMetadata(ctx, p.applicationVersion.Version)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return labels, annotations, nil
+}
+
 // getClusterID returns the destination cluster name.
 func (p *Provisioner) getClusterID(ctx context.Context) (*cd.ResourceIdentifier, error) {
 	clusterContext, err := clientlib.ClusterFromContext(ctx)
@@ -267,6 +285,14 @@ func (p *Provisioner) generateApplication(ctx context.Context) (*cd.HelmApplicat
 	if p.applicationVersion.CreateNamespace != nil {
 		cdApplication.CreateNamespace = *p.applicationVersion.CreateNamespace
 	}
+
+	nsLabels, nsAnnotations, err := p.getNamespaceMetadata(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	cdApplication.NamespaceMetadata.Labels = nsLabels
+	cdApplication.NamespaceMetadata.Annotations = nsAnnotations
 
 	if p.applicationVersion.ServerSideApply != nil {
 		cdApplication.ServerSideApply = *p.applicationVersion.ServerSideApply
