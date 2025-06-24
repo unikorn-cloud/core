@@ -4,6 +4,17 @@ info:
   version: 1.3.0
 paths: {}
 components:
+  parameters:
+    tagSelectorParameter:
+      name: tag
+      in: query
+      description: |-
+        A set of tags to match against resources in the form "name=value",
+        thus when encoded you get "?tag=foo%3Dcat&bar%3Ddog".
+      schema:
+        type: array
+        items:
+          type: string
   schemas:
     error:
       description: Generic error message, compatible with oauth2.
