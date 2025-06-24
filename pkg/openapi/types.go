@@ -247,6 +247,9 @@ type Tag struct {
 // TagList A list of tags.
 type TagList = []Tag
 
+// TagSelectorParameter defines model for tagSelectorParameter.
+type TagSelectorParameter = []string
+
 // BadRequestResponse Generic error message, compatible with oauth2.
 type BadRequestResponse = Error
 
