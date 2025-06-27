@@ -186,16 +186,14 @@ func ProjectScopedResourceReadMetadata(in metav1.Object, tags unikornv1.TagList)
 type ObjectMetadata metav1.ObjectMeta
 
 // NewObjectMetadata requests the bare minimum to build an object metadata object.
-func NewObjectMetadata(metadata *openapi.ResourceWriteMetadata, namespace, actor string) *ObjectMetadata {
+func NewObjectMetadata(metadata *openapi.ResourceWriteMetadata, namespace string) *ObjectMetadata {
 	o := &ObjectMetadata{
 		Namespace: namespace,
 		Name:      util.GenerateResourceID(),
 		Labels: map[string]string{
 			constants.NameLabel: metadata.Name,
 		},
-		Annotations: map[string]string{
-			constants.CreatorAnnotation: actor,
-		},
+		Annotations: map[string]string{},
 	}
 
 	if metadata.Description != nil {

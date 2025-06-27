@@ -25,6 +25,9 @@ const (
 	// This is the default version in the Makefile.
 	DeveloperVersion = "0.0.0"
 
+	// PrincipalFrefix is used where a service is acting on behalf of a user.
+	PrincipalPrefix = "principal."
+
 	// NameLabel is attached to every resource to give it a mutable display
 	// name.  While the character set is limited to [0-9A-Za-z_-.] it is at least
 	// indexed in etcd which gives us another string to our bow.
@@ -36,7 +39,8 @@ const (
 
 	// CreatorAnnotation is optionally attached to a resource to show who
 	// created it.
-	CreatorAnnotation = "unikorn-cloud.org/creator"
+	CreatorAnnotation          = "unikorn-cloud.org/creator"
+	CreatorPrincipalAnnotation = PrincipalPrefix + CreatorAnnotation
 
 	// ModifierAnnotation is optionally attached to a resource to show who
 	// last modified it.
@@ -76,11 +80,13 @@ const (
 
 	// OrganizationLabel is a label applied to namespaces to indicate it is under
 	// control of this tool.  Useful for label selection.
-	OrganizationLabel = "unikorn-cloud.org/organization"
+	OrganizationLabel          = "unikorn-cloud.org/organization"
+	OrganizationPrincipalLabel = PrincipalPrefix + OrganizationLabel
 
 	// ProjectLabel is a label applied to namespaces to indicate it is under
 	// control of this tool.  Useful for label selection.
-	ProjectLabel = "unikorn-cloud.org/project"
+	ProjectLabel          = "unikorn-cloud.org/project"
+	ProjectPrincipalLabel = PrincipalPrefix + ProjectLabel
 
 	// UserLabel allows resources to link to a user ID.
 	UserLabel = "unikorn-cloud.org/user"

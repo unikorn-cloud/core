@@ -39,4 +39,13 @@ var (
 
 	// ErrAPIStatus is returned when an API status code is unexpected.
 	ErrAPIStatus = errors.New("api status code unexpected")
+
+	// ErrConsistency is returned when there is a consistency error, akin to an assert.
+	ErrConsistency = errors.New("consistency error")
+
+	// ErrUnsupportedKeyType s returned when a cryptographic key type is unsupported.
+	ErrUnsupportedKeyType = errors.New("private key type is unsupported")
+
+	// ErrKey is returned when a required map key is not defined.
+	ErrKey = errors.New("key error")
 )
